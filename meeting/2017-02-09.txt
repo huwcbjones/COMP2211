@@ -1,0 +1,31 @@
+Meeting 09/02/2017
+
+Preset:
+	- SW
+	- CG
+	- PG
+	- JC
+	- HJ
+
+Agenda:
+	- Decide supervisor meeting
+	- Decide scrim/scrum meetings
+	- Contact supervisor
+	- Organise deliverable 1
+
+Action:
+	- HJ emailed supervisor (copied in rest of group)
+	- Group can meet in the followng slots:
+		- Monday 1PM
+		- Tuesday 2PM
+		- Friday 1PM
+	- Deliverable 1 to be produced in Google Doc
+		- HJ: Project Planning
+		- CG: User Understanding
+		- SW: Project Setup
+		- JC/PG: Requirements Plan
+
+Followup:
+	- Contact supervisor
+	- Meet with supervisor
+	- Complete Deliverable 1 by Thursday 16/02/2017
