@@ -1,0 +1,19 @@
+Meeting on 01/02/2017.
+
+Present:
+	- SW
+	- CG
+	- HJ
+
+Agenda:
+	- Project Decision
+
+Action:
+	- Decided on project preference:
+		1) Ad Dashboard
+		2) Runway
+		3) RT
+
+Followup:
+	- Contact rest of group
+	- Inform rest of group
