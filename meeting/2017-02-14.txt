@@ -1,0 +1,18 @@
+Meeting 14/02/17
+
+Present:
+        - JC
+        - HJ
+        
+Agenda:
+        - Discuss user story priorities and decomposition
+        - Discuss state of first deliverable
+        
+Action:
+        - Factor feedback into document
+        - Next meeting scheduled for 15/2/17 at 16.30
+        
+(Feedback:
+        - User stories should be arranged into card shapes, colour-coded by priority
+        - Customer wanted more advanced functionality demoted from "Must" to "Should"
+        - Customer wanted saving and printing functionality promoted from "Could" to "Should")
