@@ -1,0 +1,16 @@
+Present:
+        - JC
+        - HJ
+        - CG
+        - SW
+
+//MEETING WITH THE SUPERVISOR AND THE MARKER//
+--> Advices:
+                - Try to provide prototype for each sprints
+                - Try to complete most of the tasks, even the small bits
+                - Push the UI to Huw
+                - Do regular meeting for asking help and see the productivity
+                - Must have a regular communication with all the other teammates
+
+Agenda:
+                - Discuss the task repartition for the next sprint
