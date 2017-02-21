@@ -1,0 +1,24 @@
+<component name="ArtifactManager">
+  <artifact type="javafx" name="AdDashboard">
+    <output-path>$PROJECT_DIR$/target</output-path>
+    <properties id="javafx-properties">
+      <options>
+        <option name="appClass" value="t16.AdDashboard" />
+        <option name="convertCss2Bin" value="true" />
+        <option name="description" value="" />
+        <option name="height" value="720" />
+        <option name="htmlPlaceholderId" value="" />
+        <option name="nativeBundle" value="all" />
+        <option name="title" value="Ad Dashboard" />
+        <option name="vendor" value="SEG Team 16" />
+        <option name="version" value="" />
+        <option name="width" value="1280" />
+      </options>
+    </properties>
+    <root id="root">
+      <element id="archive" name="JavaFXApp.jar">
+        <element id="module-output" name="COMP2211" />
+      </element>
+    </root>
+  </artifact>
+</component>
