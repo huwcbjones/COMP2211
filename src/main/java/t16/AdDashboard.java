@@ -34,9 +34,10 @@ public class AdDashboard extends Application {
      *                     primary stages and will not be embedded in the browser.
      */
     public void start(Stage primaryStage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("/view/dashboard.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("/main.fxml"));
         primaryStage.setTitle("Ad Dashboard");
-        primaryStage.setScene(new Scene(root, 1280, 720));
+        primaryStage.setResizable(false);
+        primaryStage.setScene(new Scene(root, 600, 400));
         primaryStage.show();
     }
 }
