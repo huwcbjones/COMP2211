@@ -1,14 +1,15 @@
 package t16.controller;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.stage.Stage;
+import t16.components.ExceptionDialog;
+import t16.model.Campaign;
 
-import javafx.event.ActionEvent;
-import java.io.IOException;
 import java.util.UUID;
 
 /**
@@ -45,31 +46,35 @@ public class Main {
             stage.setTitle("New Campaign - Ad Dashboard");
             stage.setScene(new Scene(root, 500, 400));
             stage.show();
-        } catch (IOException e) {
-            //TODO: Handle exception appropriately
-            e.printStackTrace();
+        } catch (Exception e) {
+            ExceptionDialog dialog = new ExceptionDialog("Create campaign error!", "Failed to create campaign.", e);
+            dialog.showAndWait();
         }
     }
 
     @FXML
     private void openCampaignButtonAction(ActionEvent event) {
-        //TODO: Open a campaign (using dashboard.fxml)
-        Parent root;
+        //TODO: Open a campaign
+        Campaign campaign = null;
         try {
-            root = FXMLLoader.load(getClass().getResource("/dashboard.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/dashboard.fxml"));
+            Parent scene = loader.load();
+            Dashboard controller = loader.getController();
+            controller.setCampaign(campaign);
+
             Stage stage = new Stage();
-            stage.setTitle("");
-            stage.setScene(new Scene(root, 500, 400));
+            stage.setTitle(campaign.getName() + " - Ad Dashboard");
+            stage.setScene(new Scene(scene, 500, 400));
             stage.show();
-        } catch (IOException e) {
-            //TODO: Handle exception appropriately
-            e.printStackTrace();
+        } catch (Exception e) {
+            ExceptionDialog dialog = new ExceptionDialog("Load error!", "Failed to load campaign.", e);
+            dialog.showAndWait();
         }
     }
 
     @FXML
     private void exitButtonAction(ActionEvent event) {
-        Stage stage = (Stage)exitButton.getScene().getWindow();
+        Stage stage = (Stage) exitButton.getScene().getWindow();
         stage.close();
     }
 }

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<?import org.controlsfx.control.RangeSlider?>
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.101☺" xmlns:fx="http://javafx.com/fxml/1" fx:controller="t16.controller.Dashboard">
+    <center>
+        <BorderPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+            <left>
+                <BorderPane prefHeight="375.0" prefWidth="160.0" BorderPane.alignment="CENTER">
+                    <top>
+                        <Label fx:id="campaignName" text="Title" BorderPane.alignment="CENTER">
+                            <font>
+                                <Font size="18.0" />
+                            </font>
+                        </Label>
+                    </top>
+               <center>
+                  <VBox prefHeight="200.0" prefWidth="100.0" spacing="5.0" BorderPane.alignment="CENTER">
+                     <children>
+                                <Button fx:id="clicksButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false" onAction="#viewClicks" text="Clicks">
+                                    <opaqueInsets>
+                                        <Insets />
+                                    </opaqueInsets>
+                                </Button>
+                                <Button fx:id="impressionsButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false" onAction="#viewImpressions" text="Impresssions">
+                                    <opaqueInsets>
+                                        <Insets />
+                                    </opaqueInsets>
+                                </Button>
+                                <Button fx:id="uniqueButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false" onAction="#viewUnique" text="Unique Visitors">
+                                    <opaqueInsets>
+                                        <Insets />
+                                    </opaqueInsets>
+                                </Button>
+                                <Button fx:id="bouncesButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false" onAction="#viewBounces" text="Bounces">
+                                    <opaqueInsets>
+                                        <Insets />
+                                    </opaqueInsets>
+                                </Button>
+                                <Button fx:id="conversionsButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false" onAction="#viewConversion" text="Conversions">
+                                    <opaqueInsets>
+                                        <Insets />
+                                    </opaqueInsets>
+                                </Button>
+                                <Button fx:id="clickThroughsButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false" onAction="#viewClickThrough" text="Click Throughs">
+                                    <opaqueInsets>
+                                        <Insets />
+                                    </opaqueInsets>
+                                </Button>
+                     </children>
+                     <padding>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </padding>
+                  </VBox>
+               </center>
+                </BorderPane>
+            </left>
+            <center>
+                <BorderPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+                    <center>
+                        <ProgressIndicator scaleX="0.2" scaleY="0.2" BorderPane.alignment="CENTER">
+                            <BorderPane.margin>
+                                <Insets />
+                            </BorderPane.margin>
+                        </ProgressIndicator>
+                    </center>
+                    <bottom>
+                        <RangeSlider />
+                    </bottom>
+                </BorderPane>
+            </center>
+        </BorderPane>
+    </center>
+</BorderPane>
