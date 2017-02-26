@@ -71,3 +71,7 @@ buildNumber.properties
 
 # Exclude maven wrapper
 !/.mvn/wrapper/maven-wrapper.jar
+
+
+### Resources
+/resources/*.csv
