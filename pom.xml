@@ -11,6 +11,15 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <!-- https://mvnrepository.com/artifact/com.h2database/h2 -->
+    <dependencies>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>1.3.176</version>
+        </dependency>
+    </dependencies>
+
     <build>
         <plugins>
             <plugin>
@@ -34,13 +43,5 @@
                 </configuration>
             </plugin>
         </plugins>
-        <!-- https://mvnrepository.com/artifact/com.h2database/h2 -->
-        <dependencies>
-            <dependency>
-                <groupId>com.h2database</groupId>
-                <artifactId>h2</artifactId>
-                <version>1.3.176</version>
-            </dependency>
-        </dependencies>
     </build>
 </project>
