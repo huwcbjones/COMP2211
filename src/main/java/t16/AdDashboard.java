@@ -6,6 +6,11 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import java.sql.Connection;
+import java.sql.Driver;
+import java.sql.DriverManager;
+import java.sql.Statement;
+
 /**
  * Ad Dashboard Bootstrapper
  *
@@ -38,5 +43,17 @@ public class AdDashboard extends Application {
         primaryStage.setTitle("Ad Dashboard");
         primaryStage.setScene(new Scene(root, 1280, 720));
         primaryStage.show();
+
+        /*
+        Test for db creation
+
+        Class.forName("org.h2.Driver");
+        Connection connection = DriverManager.getConnection("jdbc:h2:~adDashBoard", "login", "password");
+        Statement statement = connection.createStatement();
+        statement.execute("create table test(name varchar(20))");
+        System.out.println("Table created");
+
+        */
+
     }
 }
