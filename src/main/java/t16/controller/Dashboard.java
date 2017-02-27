@@ -71,6 +71,12 @@ public class Dashboard {
     }
     //</editor-fold>
 
+    @FXML
+    public void initialize(){
+        campaignName.setText(campaign.getName());
+    }
+
+
     /**
      * Returns the Campaign
      *
