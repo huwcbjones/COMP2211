@@ -6,10 +6,13 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Control;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import t16.components.ExceptionDialog;
 import t16.model.Campaign;
 
+import java.io.File;
 import java.util.UUID;
 
 /**
@@ -55,6 +58,11 @@ public class Main {
     @FXML
     private void openCampaignButtonAction(ActionEvent event) {
         //TODO: Open a campaign
+        File campaignDatabase = browseCampaign(event);
+        if (!campaignDatabase.canRead() || !campaignDatabase.canWrite()) {
+            //TODO: Show alert dialog
+            return;
+        }
         Campaign campaign = null;
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/dashboard.fxml"));
@@ -76,5 +84,16 @@ public class Main {
     private void exitButtonAction(ActionEvent event) {
         Stage stage = (Stage) exitButton.getScene().getWindow();
         stage.close();
+    }
+
+    private File browseCampaign(ActionEvent event){
+        FileChooser fc = new FileChooser();
+        fc.setTitle("Open Campaign");
+        fc.setInitialDirectory(new File(System.getProperty("user.home")));
+
+        FileChooser.ExtensionFilter filter = new FileChooser.ExtensionFilter("Ad Dashboard Database (*.h2)", "*.h2");
+        fc.getExtensionFilters().add(filter);
+
+        return fc.showOpenDialog(((Control)event.getSource()).getScene().getWindow());
     }
 }
