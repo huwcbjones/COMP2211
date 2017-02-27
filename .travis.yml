@@ -1,3 +1,7 @@
+efore_script: cd Assignment_2
+  - export DISPLAY=:99.0
+  - sh -e /etc/init.d/xvfb start
+
 language: java
 jdk:
   - oraclejdk8
