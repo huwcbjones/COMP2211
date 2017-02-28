@@ -82,7 +82,7 @@ public class Main {
 
                 Stage stage = new Stage();
                 stage.setTitle(campaign.getName() + " - Ad Dashboard");
-                stage.setScene(new Scene(scene, 500, 400));
+                stage.setScene(new Scene(scene, 1280, 720));
                 stage.show();
 
                 // Close Main Window
@@ -128,6 +128,9 @@ public class Main {
 
     private Campaign loadCampaign(File campaignDatabase) {
         Database database = Database.database;
-        return database.loadCampaign(campaignDatabase);
+        //return database.loadCampaign(campaignDatabase);
+        Campaign c = new Campaign();
+        c.setName("Test");
+        return c;
     }
 }
