@@ -2,7 +2,6 @@ package t16.model;
 
 import java.io.*;
 import java.sql.*;
-import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
 /**
@@ -17,8 +16,7 @@ import java.util.zip.ZipInputStream;
  * Future increments:
  * TODO Total bounces when bounces are measured by time spent as opposed to pages viewed
  */
-public class Database
-{
+public class Database {
     public static Database database;
     private Connection connection;
     /*
@@ -26,32 +24,31 @@ public class Database
      */
 //    PooledConnection connection;
 
-    public Database()
-    {
+    public Database() {
         Database.database = this;
     }
 
     /**
      * Loads a Campaign from a Database file
+     *
      * @param databaseFile Campaign file
      * @return Campaign
      */
-    public Campaign loadCampaign(File databaseFile){
+    public Campaign loadCampaign(File databaseFile) {
         return Campaign.fromFile(databaseFile);
     }
 
 
     /**
      * Creates a campaign.
+     *
      * @param zipFile An input .zip containing click_log.csv, impression_log.csv and server_log.csv.
      * @return the result of creating the campaign with the extracted .csv files
      */
-    public Campaign createCampaign(File zipFile, File databaseFile) throws FileNotFoundException, IOException
-    {
+    public Campaign createCampaign(File zipFile, File databaseFile) throws FileNotFoundException, IOException {
         //Create temp folder
         File outputFolder = new File("temp");
-        if(!outputFolder.exists())
-        {
+        if (!outputFolder.exists()) {
             outputFolder.mkdir();
         }
 
@@ -65,8 +62,7 @@ public class Database
         File clickFile = new File(outputFolder + File.separator + "click_log.csv");
         logOutput = new FileOutputStream(clickFile);
         readLength = zis.read(readBuffer);
-        while(readLength > 0)
-        {
+        while (readLength > 0) {
             logOutput.write(readBuffer, 0, readLength);
             readLength = zis.read(readBuffer);
         }
@@ -77,8 +73,7 @@ public class Database
         File impressionFile = new File(outputFolder + File.separator + "impression_log.csv");
         logOutput = new FileOutputStream(impressionFile);
         readLength = zis.read(readBuffer);
-        while(readLength > 0)
-        {
+        while (readLength > 0) {
             logOutput.write(readBuffer, 0, readLength);
             readLength = zis.read(readBuffer);
         }
@@ -89,8 +84,7 @@ public class Database
         File serverFile = new File(outputFolder + File.separator + "server_log.csv");
         logOutput = new FileOutputStream(serverFile);
         readLength = zis.read(readBuffer);
-        while(readLength > 0)
-        {
+        while (readLength > 0) {
             logOutput.write(readBuffer, 0, readLength);
             readLength = zis.read(readBuffer);
         }
@@ -98,65 +92,60 @@ public class Database
         zis.closeEntry();
         zis.close();
 
-        return createCampaign(clickFile, impressionFile, serverFile, databaseFile);
+        Campaign result = createCampaign(clickFile, impressionFile, serverFile, databaseFile);
+        deleteTemporaryFiles();
+        return result;
     }
 
-    public Campaign createCampaign(File clicks, File impressions, File server, File databaseFile){
-        this.createDB("Campaign", "login", "password");
+    public Campaign createCampaign(File clicks, File impressions, File server, File databaseFile) throws IOException {
+        this.createDB(databaseFile.getAbsolutePath(), "login", "password");
         this.addTables(clicks, impressions, server);
-        this.deleteTempFolder();
         return new Campaign("Campaign");
     }
 
-    private void createDB(String name, String login, String password)  {
+    private void createDB(String name, String login, String password) throws IOException {
         try {
             Class.forName("org.h2.Driver");
         } catch (ClassNotFoundException e) {
+            // TODO: We probably shouldn't just hide this error, if we can't find the database, we should bubble an Exception back up. Just my 0,02€ - HJ
             e.printStackTrace();
         }
         try {
-            this.connection = DriverManager.getConnection("jdbc:h2:~"+name, login, password);
+            this.connection = DriverManager.getConnection("jdbc:h2:~" + name, login, password);
 //            this.connection = (PooledConnection) DriverManager.getConnection("jdbc:h2:~"+name, login, password);
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        System.out.println("DB created");
     }
 
-    private void addTables(File click, File impression, File server)
-    {
-        try
-        {
+    private void addTables(File click, File impression, File server) {
+        try {
             /*
                 - From connections, create SQL statement to create the table from the files in parameters
              */
             Statement doclick = this.connection.createStatement();
             doclick.execute("CREATE TABLE Click(Date timestamp, ID float(53), Click_cost decimal(10,7)) " +
-                    "AS SELECT * FROM CSVREAD('"+click.getPath()+"')");
+                    "AS SELECT * FROM CSVREAD('" + click.getPath() + "')");
 
             Statement doimpression = this.connection.createStatement();
             doimpression.execute("CREATE TABLE Impression(Date timestamp, ID float(53), Gender varchar(20), " +
                     "Age varchar(20), Income varchar(20), Context varchar(20), Impression_cost decimal(10,7)) " +
-                    "AS SELECT * FROM CSVREAD('"+impression.getPath()+"')");
+                    "AS SELECT * FROM CSVREAD('" + impression.getPath() + "')");
 
             Statement doserver = this.connection.createStatement();
             doserver.execute("CREATE TABLE Server(Date timestamp, ID float(53), Exit_date timestamp, Page_viewed int, " +
-                    "Conversion varchar(20)) AS SELECT * FROM CSVREAD('"+server.getPath()+"')");
+                    "Conversion varchar(20)) AS SELECT * FROM CSVREAD('" + server.getPath() + "')");
 
+        } catch (SQLException e) {
+            // TODO: Please don't silently kill exceptions, bubble them up and handle them
         }
-        catch (SQLException e){}
     }
 
-    private void deleteTempFolder()
-    {
-        File clickFile = new File("temp/click_log.csv");
-        clickFile.delete();
-        File impressionFile = new File("temp/impression_log.csv");
-        impressionFile.delete();
-        File serverFile = new File("temp/server_log.csv");
-        serverFile.delete();
-        File tempFolder = new File("temp");
-        tempFolder.delete();
+    private void deleteTemporaryFiles() {
+        new File("temp/click_log.csv").delete();
+        new File("temp/impression_log.csv").delete();
+        new File("temp/server_log.csv").delete();
+        new File("temp").delete();
     }
 
     /*
@@ -167,8 +156,7 @@ public class Database
      * @return the total number of impressions in the campaign
      * @throws SQLException if an error occurs during SQL execution
      */
-    public int getTotalImpressions() throws SQLException
-    {
+    public int getTotalImpressions() throws SQLException {
         Statement s = this.connection.createStatement();
         s.execute("SELECT COUNT(*) FROM Impression");
         return s.getResultSet().getInt(1);
@@ -178,8 +166,7 @@ public class Database
      * @return the total number of clicks in the campaign
      * @throws SQLException if an error occurs during SQL execution
      */
-    public int getTotalClicks() throws SQLException
-    {
+    public int getTotalClicks() throws SQLException {
         Statement s = this.connection.createStatement();
         s.execute("SELECT COUNT(*) FROM Click");
         return s.getResultSet().getInt(1);
@@ -189,8 +176,7 @@ public class Database
      * @return the total number of unique users that clicked an ad during the campaign
      * @throws SQLException if an error occurs during SQL execution
      */
-    public int getTotalUniques() throws SQLException
-    {
+    public int getTotalUniques() throws SQLException {
         Statement s = this.connection.createStatement();
         s.execute("SELECT COUNT(DISTINCT ID) FROM Click");
         return s.getResultSet().getInt(1);
@@ -198,6 +184,7 @@ public class Database
 
     /**
      * Currently a bounce is decided by only 1 page being viewed.
+     *
      * @return the total number of bounces that occurred during the campaign
      * @throws SQLException if an error occurs during SQL execution
      */
@@ -208,12 +195,11 @@ public class Database
     }
 
 
-        /**
-         * @return a set of dates and times, and the number of impressions on each date and time
-         * @throws SQLException if an error occurs during SQL execution
-         */
-    public ResultSet getImpressions() throws SQLException
-    {
+    /**
+     * @return a set of dates and times, and the number of impressions on each date and time
+     * @throws SQLException if an error occurs during SQL execution
+     */
+    public ResultSet getImpressions() throws SQLException {
         Statement s = this.connection.createStatement();
         s.execute("SELECT Date, COUNT(*) FROM Impression GROUP BY Date");
         return s.getResultSet();
@@ -223,8 +209,7 @@ public class Database
      * @return a set of dates and times, and the number of clicks on each date and time
      * @throws SQLException if an error occurs during SQL execution
      */
-    public ResultSet getClicks() throws SQLException
-    {
+    public ResultSet getClicks() throws SQLException {
         Statement s = this.connection.createStatement();
         s.execute("SELECT Date, COUNT(*) FROM Click GROUP BY Date");
         return s.getResultSet();
@@ -232,11 +217,11 @@ public class Database
 
     /**
      * Unfinished.
+     *
      * @return a set of dates and times, and the number of unique users
      * @throws SQLException
      */
-    public ResultSet getUniques() throws SQLException
-    {
+    public ResultSet getUniques() throws SQLException {
         Statement s = this.connection.createStatement();
         s.execute("SELECT Date, COUNT(DISTINCT )");
         return s.getResultSet();
@@ -245,8 +230,7 @@ public class Database
     /**
      * Unfinished.
      */
-    public ResultSet getBounces() throws SQLException
-    {
+    public ResultSet getBounces() throws SQLException {
         Statement s = this.connection.createStatement();
         s.execute("");
         return s.getResultSet();
@@ -255,8 +239,7 @@ public class Database
     /**
      * Unfinished.
      */
-    public ResultSet getConversions() throws SQLException
-    {
+    public ResultSet getConversions() throws SQLException {
         Statement s = this.connection.createStatement();
         s.execute("");
         return s.getResultSet();
