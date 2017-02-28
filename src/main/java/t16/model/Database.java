@@ -1,8 +1,9 @@
 package t16.model;
 
-import com.sun.jndi.ldap.pool.PooledConnection;
-
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.sql.*;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
@@ -21,6 +22,8 @@ import java.util.zip.ZipInputStream;
  */
 public class Database
 {
+
+    public static Database database;
     private Connection connection;
     /*
     - We could use PooledConnection but it seems incompatible with the use of testament
@@ -29,7 +32,43 @@ public class Database
 
     public Database()
     {
+        Database.database = this;
+    }
 
+    /**
+     * Loads a Campaign from a Database file
+     * @param databaseFile Campaign file
+     * @return Campaign
+     */
+    public Campaign loadCampaign(File databaseFile){
+        // TODO: Load Campaign from file
+        return null;
+    }
+
+
+    /**
+     * Creates a campaign
+     * @param databaseFile
+     * @return
+     */
+    public Campaign createCampaign(File zipFile, File databaseFile){
+        // TODO: Extract zip to temp file
+        File clicks = null, impressions = null, server = null;
+
+        Campaign campaign = createCampaign(clicks, impressions, server, databaseFile);
+
+        // TODO: Cleanup temp files
+
+        return campaign;
+    }
+
+    public Campaign createCampaign(File clicks, File impressions, File server, File databaseFile){
+        // TODO: Create database
+        // TODO: Import clicks
+        // TODO: Import impressions
+        // TODO: Import server
+        // TODO: Return Campaign
+        return null;
     }
 
     public void createDB(String name, String login, String password)  {
