@@ -4,6 +4,7 @@ import t16.model.Database;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 /**
  * Modified by James Curran 27/2/17
@@ -22,20 +23,38 @@ public class Controller
      */
 
     /**
-     * @return a set of dates and times, and the number of impressions on each date and time
+     * @return the total number of impressions in the campaign
      * @throws SQLException if an error occurs during SQL execution
      */
-    public ResultSet getImpressions() throws SQLException
+    public int getTotalImpressions() throws SQLException
     {
-        return this.db.getImpressions();
+        return this.db.getTotalImpressions();
     }
 
     /**
-     * @return a set of dates and times, and the number of clicks on each date and time
+     * @return the total number of clicks in the campaign
      * @throws SQLException if an error occurs during SQL execution
      */
-    public ResultSet getClicks() throws SQLException
+    public int getTotalClicks() throws SQLException
     {
-        return this.db.getClicks();
+        return this.db.getTotalClicks();
+    }
+
+    /**
+     * @return the total number of unique users that clicked an ad during the campaign
+     * @throws SQLException if an error occurs during SQL execution
+     */
+    public int getTotalUniques() throws SQLException
+    {
+        return this.db.getTotalUniques();
+    }
+
+    /**
+     * Currently a bounce is decided by only 1 page being viewed.
+     * @return the total number of bounces that occurred during the campaign
+     * @throws SQLException if an error occurs during SQL execution
+     */
+    public int getTotalBounces() throws SQLException {
+        return this.db.getTotalBounces();
     }
 }

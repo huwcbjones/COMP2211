@@ -10,6 +10,14 @@ import java.util.zip.ZipInputStream;
 /**
  * Created by Charles Gandon on 25/02/2017.
  * Modified by James Curran 26/2/17
+ * TODO Possibly sanitise the input data if it currently doesn't work well with SQL (in particular may want to separate date and time)
+ * TODO Total bounces when bounces are measured by time spent as opposed to pages viewed
+ * TODO Total conversions
+ * TODO Uniques over time
+ * TODO Bounces over time
+ * TODO Conversions over time
+ * TODO Click-through rate
+ * Next increment:
  */
 public class Database
 {
@@ -138,9 +146,54 @@ public class Database
      */
 
     /**
-     * @return a set of dates and times, and the number of impressions on each date and time
+     * @return the total number of impressions in the campaign
      * @throws SQLException if an error occurs during SQL execution
      */
+    public int getTotalImpressions() throws SQLException
+    {
+        Statement s = this.connection.createStatement();
+        s.execute("SELECT COUNT(*) FROM Impression");
+        return s.getResultSet().getInt(1);
+    }
+
+    /**
+     * @return the total number of clicks in the campaign
+     * @throws SQLException if an error occurs during SQL execution
+     */
+    public int getTotalClicks() throws SQLException
+    {
+        Statement s = this.connection.createStatement();
+        s.execute("SELECT COUNT(*) FROM Click");
+        return s.getResultSet().getInt(1);
+    }
+
+    /**
+     * @return the total number of unique users that clicked an ad during the campaign
+     * @throws SQLException if an error occurs during SQL execution
+     */
+    public int getTotalUniques() throws SQLException
+    {
+        Statement s = this.connection.createStatement();
+        s.execute("SELECT COUNT(DISTINCT ID) FROM Click");
+        return s.getResultSet().getInt(1);
+    }
+
+    /**
+     * Currently a bounce is decided by only 1 page being viewed.
+     * @return the total number of bounces that occurred during the campaign
+     * @throws SQLException if an error occurs during SQL execution
+     */
+    public int getTotalBounces() throws SQLException {
+        Statement s = this.connection.createStatement();
+        s.execute("SELECT COUNT(*) FROM Server WHERE Page_viewed = 1");
+        return s.getResultSet().getInt(1);
+    }
+
+
+        /**
+         * @return a set of dates and times, and the number of impressions on each date and time
+         * @throws SQLException if an error occurs during SQL execution
+         */
     public ResultSet getImpressions() throws SQLException
     {
         Statement s = this.connection.createStatement();
@@ -167,7 +220,7 @@ public class Database
     public ResultSet getUniques() throws SQLException
     {
         Statement s = this.connection.createStatement();
-        s.execute("");
+        s.execute("SELECT Date, COUNT(DISTINCT )");
         return s.getResultSet();
     }
 
