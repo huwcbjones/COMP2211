@@ -94,20 +94,20 @@ public class Database
              */
             Statement doimpression = this.connection.createStatement();
 
-            doimpression.execute("CREATE TABLE Impression(Date datetime, ID float(53), Gender varchar(20), " +
+            doimpression.execute("CREATE TABLE Impression(Date timestamp, ID float(53), Gender varchar(20), " +
                     "Age varchar(20), Income varchar(20), Context varchar(20), Impression_cost decimal(10,7)) " +
                     "AS SELECT * FROM CSVREAD('"+impression.getPath()+"')");
 
 
             Statement doclick = this.connection.createStatement();
 
-            doclick.execute("CREATE TABLE Click(Date datetime, ID float(53), Click_cost decimal(10,7)) " +
+            doclick.execute("CREATE TABLE Click(Date timestamp, ID float(53), Click_cost decimal(10,7)) " +
                     "AS SELECT * FROM CSVREAD('"+click.getPath()+"')");
 
 
             Statement doserver = this.connection.createStatement();
 
-            doserver.execute("CREATE TABLE Server(Date datetime, ID float(53), Exit_date datetime, Page_viewed int, " +
+            doserver.execute("CREATE TABLE Server(Date timestamp, ID float(53), Exit_date timestamp, Page_viewed int, " +
                     "Conversion varchar(20)) AS SELECT * FROM CSVREAD('"+server.getPath()+"')");
 
         }catch (SQLException e){
