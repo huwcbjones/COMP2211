@@ -1,10 +1,17 @@
 package t16.controller;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
+import t16.components.dialogs.ConfirmationDialog;
 import t16.model.Campaign;
+
+import java.util.Optional;
 
 /**
  * Dashboard Controller
@@ -14,6 +21,7 @@ import t16.model.Campaign;
  */
 public class Dashboard {
 
+    private Scene scene = null;
     private Campaign campaign = null;
 
     //<editor-fold desc="View Controls">
@@ -72,8 +80,19 @@ public class Dashboard {
     //</editor-fold>
 
     @FXML
-    public void initialize(){
+    public void initialize() {
         campaignName.setText(campaign.getName());
+        scene.getWindow().setOnCloseRequest(e -> {
+            ConfirmationDialog confirm = new ConfirmationDialog(
+                    Alert.AlertType.CONFIRMATION,
+                    "Exit Ad Dashboard?",
+                    "Are you sure you want to exit " + campaign.getName() + " Dashboard?",
+                    "Exit " + campaign.getName());
+            Optional<ButtonType> result = confirm.showAndWait();
+            if(result.isPresent() && confirm.isAction(result.get())){
+                Platform.exit();
+            }
+        });
     }
 
 
@@ -93,5 +112,9 @@ public class Dashboard {
      */
     public void setCampaign(Campaign campaign) {
         if (this.campaign != null) this.campaign = campaign;
+    }
+
+    public void setScene(Scene scene) {
+        this.scene = scene;
     }
 }
