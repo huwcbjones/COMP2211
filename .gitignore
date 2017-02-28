@@ -75,3 +75,5 @@ buildNumber.properties
 
 ### Resources
 /resources/*.csv
+/resources/extractedLogs
+/resources/campaign_data.zip

@@ -5,6 +5,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import t16.model.Database;
 
 import java.sql.Connection;
 import java.sql.Driver;
@@ -44,16 +45,7 @@ public class AdDashboard extends Application {
         primaryStage.setScene(new Scene(root, 1280, 720));
         primaryStage.show();
 
-        /*
-        Test for db creation
-
-        Class.forName("org.h2.Driver");
-        Connection connection = DriverManager.getConnection("jdbc:h2:~adDashBoard", "login", "password");
-        Statement statement = connection.createStatement();
-        statement.execute("create table test(name varchar(20))");
-        System.out.println("Table created");
-
-        */
-
+        //Test for db creation
+        new Database().go();
     }
 }
