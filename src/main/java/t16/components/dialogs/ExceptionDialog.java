@@ -1,6 +1,5 @@
-package t16.components;
+package t16.components.dialogs;
 
-import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
@@ -16,43 +15,43 @@ import java.io.StringWriter;
  * @author Huw Jones
  * @since 26/02/2017
  */
-public class ExceptionDialog extends Alert {
+public class ExceptionDialog extends GenericDialog {
 
-    private Exception exception;
+    private java.lang.Exception exception;
 
     /**
      * Creates an Exception Dialog.
-     * @param title Title of dialog
+     *
+     * @param title  Title of dialog
      * @param header Header of dialog
-     * @param ex Exception to display
+     * @param ex     Exception to display
      */
-    public ExceptionDialog(String title, String header, Exception ex){
-        super(AlertType.ERROR);
-        this.setTitle(title);
-        this.setHeaderText(header);
-        this.setContentText(ex.getLocalizedMessage());
+    public ExceptionDialog(String title, String header, java.lang.Exception ex) {
+        super(AlertType.ERROR, title, header, ex.getLocalizedMessage());
         this.exception = ex;
         init();
     }
 
     /**
      * Creates an Exception Dialog
+     *
      * @param title Title of dialog
-     * @param ex Exception to display
+     * @param ex    Exception to display
      */
-    public ExceptionDialog(String title, Exception ex){
+    public ExceptionDialog(String title, java.lang.Exception ex) {
         this(title, title, ex);
     }
 
     /**
      * Creates an Exception dialog
+     *
      * @param ex Exception to display
      */
-    public ExceptionDialog(Exception ex){
+    public ExceptionDialog(java.lang.Exception ex) {
         this("An exception occurred!", ex);
     }
 
-    private void init(){
+    private void init() {
         // Print stacktrace to PrintWriter
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);

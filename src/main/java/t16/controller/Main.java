@@ -6,11 +6,14 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Control;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import t16.components.ExceptionDialog;
+import t16.components.dialogs.ErrorDialog;
+import t16.components.dialogs.ExceptionDialog;
 import t16.model.Campaign;
 
-import java.util.UUID;
+import java.io.File;
 
 /**
  * Controller for Main View
@@ -27,14 +30,6 @@ public class Main {
     private Button openCampaignButton;
     @FXML
     private Button exitButton;
-
-    public Main() {
-    }
-
-
-    public void displayCampaign(UUID campaignID) {
-
-    }
 
     @FXML
     private void createNewCampaignButtonAction(ActionEvent event) {
@@ -55,20 +50,44 @@ public class Main {
 
     @FXML
     private void openCampaignButtonAction(ActionEvent event) {
-        //TODO: Open a campaign
-        Campaign campaign = null;
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/dashboard.fxml"));
-            Parent scene = loader.load();
-            Dashboard controller = loader.getController();
-            controller.setCampaign(campaign);
+        File campaignDatabase = browseCampaign(event);
 
-            Stage stage = new Stage();
-            stage.setTitle(campaign.getName() + " - Ad Dashboard");
-            stage.setScene(new Scene(scene, 500, 400));
-            stage.show();
+        if (campaignDatabase == null) return;
+
+        if (!(campaignDatabase.canRead() && campaignDatabase.canWrite())) {
+            ErrorDialog dialog = new ErrorDialog(
+                    "Open Campaign Error!",
+                    "Failed to open campaign",
+                    "Campaign file was not read/writable.\nTo open this campaign, please ensure the file is read/write enabled."
+            );
+            dialog.showAndWait();
+            return;
+        }
+
+        try {
+            Campaign campaign = loadCampaign(campaignDatabase);
+
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/dashboard.fxml"));
+                Parent scene = loader.load();
+                Dashboard controller = loader.getController();
+                controller.setCampaign(campaign);
+
+                Stage stage = new Stage();
+                stage.setTitle(campaign.getName() + " - Ad Dashboard");
+                stage.setScene(new Scene(scene, 500, 400));
+                stage.show();
+
+            } catch (Exception e) {
+                ExceptionDialog dialog = new ExceptionDialog("Load error!", "Failed to load campaign.", e);
+                dialog.showAndWait();
+            }
         } catch (Exception e) {
-            ExceptionDialog dialog = new ExceptionDialog("Load error!", "Failed to load campaign.", e);
+            ErrorDialog dialog = new ErrorDialog(
+                    "Open Campaign Error!",
+                    "Failed to open campaign",
+                    e.getMessage()
+            );
             dialog.showAndWait();
         }
     }
@@ -77,5 +96,21 @@ public class Main {
     private void exitButtonAction(ActionEvent event) {
         Stage stage = (Stage) exitButton.getScene().getWindow();
         stage.close();
+    }
+
+    private File browseCampaign(ActionEvent event) {
+        FileChooser fc = new FileChooser();
+        fc.setTitle("Open Campaign");
+        fc.setInitialDirectory(new File(System.getProperty("user.home")));
+
+        FileChooser.ExtensionFilter filter = new FileChooser.ExtensionFilter("Ad Dashboard Database (*.h2)", "*.h2");
+        fc.getExtensionFilters().add(filter);
+
+        return fc.showOpenDialog(((Control) event.getSource()).getScene().getWindow());
+    }
+
+    private Campaign loadCampaign(File campaignDatabase) {
+        // TODO: Load campaign
+        return null;
     }
 }
