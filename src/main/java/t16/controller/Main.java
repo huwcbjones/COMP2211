@@ -7,7 +7,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.stage.Stage;
-import t16.components.ExceptionDialog;
+import t16.components.dialogs.ExceptionDialog;
 import t16.model.Campaign;
 
 import java.util.UUID;
