@@ -12,6 +12,7 @@ import javafx.stage.Stage;
 import t16.components.dialogs.ErrorDialog;
 import t16.components.dialogs.ExceptionDialog;
 import t16.model.Campaign;
+import t16.model.Database;
 
 import java.io.File;
 
@@ -78,6 +79,9 @@ public class Main {
                 stage.setScene(new Scene(scene, 500, 400));
                 stage.show();
 
+                // Close Main Window
+                ((Stage)((Control)event.getSource()).getScene().getWindow()).close();
+
             } catch (Exception e) {
                 ExceptionDialog dialog = new ExceptionDialog("Load error!", "Failed to load campaign.", e);
                 dialog.showAndWait();
@@ -110,7 +114,7 @@ public class Main {
     }
 
     private Campaign loadCampaign(File campaignDatabase) {
-        // TODO: Load campaign
-        return null;
+        Database database = Database.database;
+        return database.loadCampaign(campaignDatabase);
     }
 }

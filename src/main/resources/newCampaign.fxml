@@ -78,7 +78,7 @@
                         <Insets bottom="3.0" left="3.0" right="3.0" top="3.0"/>
                     </GridPane.margin>
                 </Button>
-                <ProgressBar maxWidth="Infinity" prefWidth="200.0" GridPane.columnIndex="1" GridPane.columnSpan="5" GridPane.rowIndex="6"/>
+                <ProgressBar fx:id="progressBar" visible="false" maxWidth="Infinity" prefWidth="200.0" GridPane.columnIndex="1" GridPane.columnSpan="5" GridPane.rowIndex="6"/>
                 <Button fx:id="cancelButton" cancelButton="true" maxHeight="-Infinity" maxWidth="-Infinity" mnemonicParsing="false" prefWidth="109.0"
                         text="Cancel" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="7"
                         GridPane.vgrow="ALWAYS" onAction="#cancelButtonAction">
