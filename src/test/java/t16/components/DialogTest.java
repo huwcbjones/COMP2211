@@ -2,6 +2,7 @@ package t16.components;
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import t16.components.dialogs.ConfirmationDialog;
@@ -18,6 +19,7 @@ import java.util.Optional;
  * @author Huw Jones
  * @since 27/02/2017
  */
+@Ignore("Breaks travis build because it's manual GUI code")
 public class DialogTest {
 
     @Rule
