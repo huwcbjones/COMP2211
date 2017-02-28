@@ -5,16 +5,20 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Control;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import t16.components.dialogs.ConfirmationDialog;
 import t16.components.dialogs.ErrorDialog;
 import t16.components.dialogs.ExceptionDialog;
 import t16.model.Campaign;
 import t16.model.Database;
 
 import java.io.File;
+import java.util.Optional;
 
 /**
  * Controller for Main View
@@ -98,9 +102,16 @@ public class Main {
 
     @FXML
     private void exitButtonAction(ActionEvent event) {
-        // TODO: Confirm exit
-        Stage stage = (Stage) exitButton.getScene().getWindow();
-        stage.close();
+        ConfirmationDialog confirm = new ConfirmationDialog(
+                Alert.AlertType.CONFIRMATION,
+                "Are you sure you want to exit?",
+                "Are you sure you want to exit?",
+                "Exit");
+        Optional<ButtonType> result = confirm.showAndWait();
+        if(result.isPresent() && confirm.isAction(result.get())) {
+            Stage stage = (Stage) exitButton.getScene().getWindow();
+            stage.close();
+        }
     }
 
     private File browseCampaign(ActionEvent event) {
