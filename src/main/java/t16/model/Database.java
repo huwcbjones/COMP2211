@@ -259,6 +259,7 @@ public class Database
     public ResultSet getUniques() throws SQLException
     {
         Statement s = this.connection.createStatement();
+        //Need to add FROM and ;
         s.execute("SELECT Date, COUNT(DISTINCT )");
         return s.getResultSet();
     }
@@ -282,4 +283,51 @@ public class Database
         s.execute("");
         return s.getResultSet();
     }
+
+    /*
+    PROPOSED SQL "HEAVY" ACCESS METHODS FOR VIEW
+     */
+    public ResultSet getClickCost(String n, String m) throws SQLException
+    {
+        Statement s = this.connection.createStatement();
+        s.execute("Select Date, ID FROM Click WHERE click_cost>="+n+" AND click_cost<="+m+" ;");
+        return s.getResultSet();
+    }
+
+    public ResultSet getGender(String gender) throws SQLException
+    {
+        Statement s = this.connection.createStatement();
+        s.execute("Select Date, ID FROM Impression WHERE Gender='"+gender+"' ;");
+        return s.getResultSet();
+    }
+
+    public ResultSet getIncome(String income) throws SQLException
+    {
+        Statement s = this.connection.createStatement();
+        s.execute("Select Date, ID FROM Impression WHERE Income='"+income+"' ;");
+        return s.getResultSet();
+    }
+
+    public ResultSet geContext(String context) throws SQLException
+    {
+        Statement s = this.connection.createStatement();
+        s.execute("Select Date, ID FROM Impression WHERE Context='"+context+"' ;");
+        return s.getResultSet();
+    }
+
+    public ResultSet getImpressionCost(String n, String m) throws SQLException
+    {
+        Statement s = this.connection.createStatement();
+        s.execute("Select Date, ID FROM Impression WHERE Impression_cost>="+n+" AND Impression_cost<="+m+" ;");
+        return s.getResultSet();
+    }
+
+    public ResultSet getServer(String id) throws SQLException
+    {
+        Statement s = this.connection.createStatement();
+        s.execute("Select * FROM Server WHERE ID='"+id+"' ;");
+        return s.getResultSet();
+    }
+
+
 }
