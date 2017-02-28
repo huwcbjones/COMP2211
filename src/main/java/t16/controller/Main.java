@@ -9,7 +9,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Control;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import t16.components.ExceptionDialog;
+import t16.components.dialogs.ExceptionDialog;
 import t16.model.Campaign;
 
 import java.io.File;
@@ -47,7 +47,8 @@ public class Main {
             root = FXMLLoader.load(getClass().getResource("/newCampaign.fxml"));
             Stage stage = new Stage();
             stage.setTitle("New Campaign - Ad Dashboard");
-            stage.setScene(new Scene(root, 500, 400));
+            stage.setScene(new Scene(root, 550, 400));
+            stage.setResizable(false);
             stage.show();
         } catch (Exception e) {
             ExceptionDialog dialog = new ExceptionDialog("Create campaign error!", "Failed to create campaign.", e);
