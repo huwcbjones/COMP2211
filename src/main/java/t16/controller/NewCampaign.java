@@ -2,16 +2,15 @@ package t16.controller;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Control;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import t16.components.dialogs.ConfirmationDialog;
 import t16.model.Campaign;
 import t16.model.Database;
 
 import java.io.File;
+import java.util.Optional;
 
 /**
  * New Campaign Controller
@@ -93,11 +92,21 @@ public class NewCampaign {
 
     @FXML
     private void cancelButtonAction(ActionEvent event) {
+        ConfirmationDialog confirm = new ConfirmationDialog(
+                Alert.AlertType.CONFIRMATION,
+                "Cancel Campaign Creation?",
+                "Are you sure you want to cancel the campaign creation?",
+                "Cancel Campaign Creation");
+        Optional<ButtonType> result = confirm.showAndWait();
+        if(!(result.isPresent() && confirm.isAction(result.get()))) {
+            return;
+        }
         if (isCreatingCampaign) {
             //TODO: Cancel campaign creation and cleanup
+        } else {
+            Stage stage = (Stage) cancelButton.getScene().getWindow();
+            stage.close();
         }
-        Stage stage = (Stage) cancelButton.getScene().getWindow();
-        stage.close();
     }
 
     @FXML
