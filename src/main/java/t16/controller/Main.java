@@ -1,5 +1,6 @@
 package t16.controller;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -77,6 +78,7 @@ public class Main {
                 Parent scene = loader.load();
                 Dashboard controller = loader.getController();
                 controller.setCampaign(campaign);
+                controller.setScene(new Scene(scene));
 
                 Stage stage = new Stage();
                 stage.setTitle(campaign.getName() + " - Ad Dashboard");
@@ -109,8 +111,7 @@ public class Main {
                 "Exit");
         Optional<ButtonType> result = confirm.showAndWait();
         if(result.isPresent() && confirm.isAction(result.get())) {
-            Stage stage = (Stage) exitButton.getScene().getWindow();
-            stage.close();
+            Platform.exit();
         }
     }
 

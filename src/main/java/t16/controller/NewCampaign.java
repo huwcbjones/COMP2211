@@ -1,5 +1,6 @@
 package t16.controller;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -104,8 +105,7 @@ public class NewCampaign {
         if (isCreatingCampaign) {
             //TODO: Cancel campaign creation and cleanup
         } else {
-            Stage stage = (Stage) cancelButton.getScene().getWindow();
-            stage.close();
+            Platform.exit();
         }
     }
 
