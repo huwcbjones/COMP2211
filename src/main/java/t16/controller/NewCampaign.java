@@ -4,9 +4,12 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Control;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import t16.model.Campaign;
+import t16.model.Database;
 
 import java.io.File;
 
@@ -19,6 +22,9 @@ import java.io.File;
 public class NewCampaign {
 
     private boolean isCreatingCampaign = false;
+    private boolean isZipCreate = false;
+
+    // TODO: Add zip option to GUI
 
     //<editor-fold desc="View Controls">
     @FXML
@@ -47,30 +53,33 @@ public class NewCampaign {
 
     @FXML
     private Button createButton;
+
+    @FXML
+    private ProgressBar progressBar;
     //</editor-fold>
 
 
     //<editor-fold desc="View Methods">
     @FXML
-    private void clickLogBrowseAction(ActionEvent event){
+    private void clickLogBrowseAction(ActionEvent event) {
         File file = browseFile("Click Log", event);
         clickLogText.setText(file != null ? file.getAbsolutePath() : "");
     }
 
     @FXML
-    private void impressionLogBrowseAction(ActionEvent event){
+    private void impressionLogBrowseAction(ActionEvent event) {
         File file = browseFile("Impression Log", event);
         impressionLogText.setText(file != null ? file.getAbsolutePath() : "");
     }
 
     @FXML
-    private void serverLogBrowseAction(ActionEvent event){
+    private void serverLogBrowseAction(ActionEvent event) {
         File file = browseFile("Server Log", event);
         serverLogText.setText(file != null ? file.getAbsolutePath() : "");
     }
 
     @FXML
-    private void campaignBrowseAction(ActionEvent event){
+    private void campaignBrowseAction(ActionEvent event) {
         FileChooser fc = new FileChooser();
         fc.setTitle("Save Campaign");
         fc.setInitialDirectory(new File(System.getProperty("user.home")));
@@ -78,26 +87,39 @@ public class NewCampaign {
         FileChooser.ExtensionFilter filter = new FileChooser.ExtensionFilter("H2 (*.h2)", "*.h2");
         fc.getExtensionFilters().add(filter);
 
-        File savePath = fc.showSaveDialog(((Control)event.getSource()).getScene().getWindow());
+        File savePath = fc.showSaveDialog(((Control) event.getSource()).getScene().getWindow());
         campaignSaveText.setText(savePath != null ? savePath.getAbsolutePath() : "");
     }
 
     @FXML
-    private void cancelButtonAction(ActionEvent event){
-        if(isCreatingCampaign){
+    private void cancelButtonAction(ActionEvent event) {
+        if (isCreatingCampaign) {
             //TODO: Cancel campaign creation and cleanup
         }
-        Stage stage = (Stage)cancelButton.getScene().getWindow();
+        Stage stage = (Stage) cancelButton.getScene().getWindow();
         stage.close();
     }
 
     @FXML
-    private void createButtonActive(ActionEvent event){
+    private void createButtonActive(ActionEvent event) {
+        Database database = Database.database;
+        Campaign campaign = null;
+
+        progressBar.setVisible(true);
+
         //TODO: Create campaign
+        if (isZipCreate) {
+            campaign = database.createCampaign(new File("/path/to/database.h2"), new File(campaignSaveText.getText()));
+        } else {
+            campaign = database.createCampaign(new File(clickLogText.getText()), new File(impressionLogText.getText()), new File(serverLogText.getText()), new File(campaignSaveText.getText()));
+        }
+
+
+        progressBar.setVisible(false);
     }
     //</editor-fold>
 
-    private File browseFile(String file, ActionEvent event){
+    private File browseFile(String file, ActionEvent event) {
         FileChooser fc = new FileChooser();
         fc.setTitle("Open " + file);
         fc.setInitialDirectory(new File(System.getProperty("user.home")));
@@ -105,6 +127,6 @@ public class NewCampaign {
         FileChooser.ExtensionFilter filter = new FileChooser.ExtensionFilter("CSV Files (*.csv)", "*.csv");
         fc.getExtensionFilters().add(filter);
 
-        return fc.showOpenDialog(((Control)event.getSource()).getScene().getWindow());
+        return fc.showOpenDialog(((Control) event.getSource()).getScene().getWindow());
     }
 }

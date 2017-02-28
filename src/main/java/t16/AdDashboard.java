@@ -5,12 +5,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import t16.model.Database;
-
-import java.sql.Connection;
-import java.sql.Driver;
-import java.sql.DriverManager;
-import java.sql.Statement;
 
 /**
  * Ad Dashboard Bootstrapper
@@ -47,6 +41,6 @@ public class AdDashboard extends Application {
         primaryStage.show();
 
         //Test for db creation
-        new Database().go();
+        //new Database().go();
     }
 }
