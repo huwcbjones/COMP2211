@@ -98,6 +98,7 @@ public class Main {
 
     @FXML
     private void exitButtonAction(ActionEvent event) {
+        // TODO: Confirm exit
         Stage stage = (Stage) exitButton.getScene().getWindow();
         stage.close();
     }
