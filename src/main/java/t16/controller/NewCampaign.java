@@ -124,7 +124,7 @@ public class NewCampaign {
         fc.setTitle("Save Campaign");
         fc.setInitialDirectory(new File(System.getProperty("user.home")));
 
-        ExtensionFilter filter = new ExtensionFilter("H2 (*.h2)", "*.h2");
+        ExtensionFilter filter = new ExtensionFilter("H2 (*.h2.db)", "*.h2.db");
         fc.getExtensionFilters().add(filter);
 
         File savePath = fc.showSaveDialog(((Control) event.getSource()).getScene().getWindow());
@@ -152,30 +152,40 @@ public class NewCampaign {
 
     @FXML
     private void createButtonActive(ActionEvent event) throws IOException {
-        Database database = Database.database;
-        Campaign campaign;
-
-        progressBar.setVisible(true);
-
         try {
-            if (isZipCreate) {
-                campaign = database.createCampaign(new File("/path/to.zip"), new File(campaignSaveText.getText()));
-            } else {
-                campaign = database.createCampaign(new File(clickLogText.getText()), new File(impressionLogText.getText()), new File(serverLogText.getText()), new File(campaignSaveText.getText()));
-            }
-            Main.openCampaign(campaign);
-            ((Stage) ((Control) event.getSource()).getScene().getWindow()).close();
+            Database.InitialiseDatabase();
+            Database database = Database.database;
+            Campaign campaign;
 
-        } catch (IOException ex) {
+            progressBar.setVisible(true);
+
+            try {
+                if (isZipCreate) {
+                    campaign = database.createCampaign(new File(zipFileText.getText()), new File(campaignSaveText.getText()));
+                } else {
+                    campaign = database.createCampaign(new File(clickLogText.getText()), new File(impressionLogText.getText()), new File(serverLogText.getText()), new File(campaignSaveText.getText()));
+                }
+                Main.openCampaign(campaign);
+                ((Stage) ((Control) event.getSource()).getScene().getWindow()).close();
+
+            } catch (IOException ex) {
+                ExceptionDialog dialog = new ExceptionDialog(
+                        "Failed to create campaign.",
+                        "An exception occurred whilst creating the campaign.",
+                        ex
+                );
+                dialog.showAndWait();
+            }
+        } catch (Exception ex) {
             ExceptionDialog dialog = new ExceptionDialog(
-                    "Failed to create campaign.",
-                    "An exception occurred whilst creating the campaign.",
+                    "Create Campaign Error",
+                    "An error occurred whilst creating the campaign.",
                     ex
             );
-            dialog.showAndWait();
+            dialog.show();
+        } finally {
+            progressBar.setVisible(false);
         }
-
-        progressBar.setVisible(false);
     }
     //</editor-fold>
 
