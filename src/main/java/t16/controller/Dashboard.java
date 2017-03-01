@@ -9,8 +9,11 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import t16.components.dialogs.ConfirmationDialog;
+import t16.components.dialogs.ExceptionDialog;
 import t16.model.Campaign;
+import t16.model.Database;
 
+import java.sql.SQLException;
 import java.util.Optional;
 
 /**
@@ -50,7 +53,17 @@ public class Dashboard {
     //<editor-fold desc="View Methods">
     @FXML
     private void viewClicks(ActionEvent event) {
+        try {
+            campaign.setData("clicks", Database.database.getClicks());
 
+        } catch (SQLException e) {
+            ExceptionDialog dialog = new ExceptionDialog(
+                    "Click Load Error",
+                    "Failed to load clicks.",
+                    e
+            );
+            dialog.showAndWait();
+        }
     }
 
     @FXML
@@ -82,17 +95,18 @@ public class Dashboard {
     @FXML
     public void initialize() {
         if (campaign != null) campaignName.setText(campaign.getName());
-        scene.getWindow().setOnCloseRequest(e -> {
-            ConfirmationDialog confirm = new ConfirmationDialog(
-                    Alert.AlertType.CONFIRMATION,
-                    "Exit Ad Dashboard?",
-                    "Are you sure you want to exit " + campaign.getName() + " Dashboard?",
-                    "Exit " + campaign.getName());
-            Optional<ButtonType> result = confirm.showAndWait();
-            if(result.isPresent() && confirm.isAction(result.get())){
-                Platform.exit();
-            }
-        });
+        if (scene != null)
+            scene.getWindow().setOnCloseRequest(e -> {
+                ConfirmationDialog confirm = new ConfirmationDialog(
+                        Alert.AlertType.CONFIRMATION,
+                        "Exit Ad Dashboard?",
+                        "Are you sure you want to exit " + campaign.getName() + " Dashboard?",
+                        "Exit " + campaign.getName());
+                Optional<ButtonType> result = confirm.showAndWait();
+                if (result.isPresent() && confirm.isAction(result.get())) {
+                    Platform.exit();
+                }
+            });
     }
 
 
@@ -117,4 +131,8 @@ public class Dashboard {
     public void setScene(Scene scene) {
         this.scene = scene;
     }
+
+//    private void renderChart(){
+//        campaign.data
+//    }
 }
