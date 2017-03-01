@@ -28,19 +28,15 @@ public class Campaign {
         MONTHS,
     }
 
-    public Campaign()
-    {
-
-    }
     public Campaign(File dbFile)
     {
+        this.name = dbFile.getName();
     }
 
     public HashMap<Interval, AxisPair> data;
 
     public void setData(String name, ResultSet results) throws SQLException
     {
-        this.name = name;
 		this.data = new HashMap<>();
 		ArrayList<Timestamp> x = new ArrayList<>();
 		ArrayList<Integer> y = new ArrayList<>();

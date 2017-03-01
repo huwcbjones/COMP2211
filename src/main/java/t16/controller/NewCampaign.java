@@ -11,6 +11,7 @@ import t16.model.Campaign;
 import t16.model.Database;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Optional;
 
 /**
@@ -110,7 +111,7 @@ public class NewCampaign {
     }
 
     @FXML
-    private void createButtonActive(ActionEvent event) {
+    private void createButtonActive(ActionEvent event) throws IOException {
         Database database = Database.database;
         Campaign campaign = null;
 
@@ -122,7 +123,6 @@ public class NewCampaign {
         } else {
             campaign = database.createCampaign(new File(clickLogText.getText()), new File(impressionLogText.getText()), new File(serverLogText.getText()), new File(campaignSaveText.getText()));
         }
-
 
         progressBar.setVisible(false);
     }

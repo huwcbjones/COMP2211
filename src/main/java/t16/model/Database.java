@@ -29,13 +29,10 @@ public class Database {
     }
 
     /**
-     * Loads a Campaign from a Database file
-     *
-     * @param databaseFile Campaign file
-     * @return Campaign
+     * Loads a Campaign from a Database file.
      */
     public Campaign loadCampaign(File databaseFile) {
-        return Campaign.fromFile(databaseFile);
+        return new Campaign(databaseFile);
     }
 
 
@@ -45,7 +42,7 @@ public class Database {
      * @param zipFile An input .zip containing click_log.csv, impression_log.csv and server_log.csv.
      * @return the result of creating the campaign with the extracted .csv files
      */
-    public Campaign createCampaign(File zipFile, File databaseFile) throws FileNotFoundException, IOException {
+    public Campaign createCampaign(File zipFile, File databaseFile) throws IOException {
         //Create temp folder
         File outputFolder = new File("temp");
         if (!outputFolder.exists()) {
@@ -100,7 +97,7 @@ public class Database {
     public Campaign createCampaign(File clicks, File impressions, File server, File databaseFile) throws IOException {
         this.createDB(databaseFile.getAbsolutePath(), "login", "password");
         this.addTables(clicks, impressions, server);
-        return new Campaign("Campaign");
+        return new Campaign(databaseFile);
     }
 
     private void createDB(String name, String login, String password) throws IOException {
