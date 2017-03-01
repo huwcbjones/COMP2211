@@ -2,6 +2,10 @@ package t16.model;
 
 import java.io.File;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * A Campaign
@@ -24,9 +28,17 @@ public class Campaign {
         MONTHS,
     }
 
+    public Campaign()
+    {
+
+    }
+    public Campaign(File dbFile)
+    {
+    }
+
     public HashMap<Interval, AxisPair> data;
 
-    public Campaign(String name, ResultSet results)
+    public void setData(String name, ResultSet results) throws SQLException
     {
         this.name = name;
 		this.data = new HashMap<>();
@@ -36,15 +48,10 @@ public class Campaign {
 		while(!results.isLast())
 		{
 			x.add(results.getTimestamp(1));
-			y.add(results.getInteger(2));
+			y.add(results.getInt(2));
 			results.next();
 		}
-		this.axes.put(Interval.SECONDS, new AxisPair(x, y));
-    }
-
-    public static Campaign fromFile(File dbFile)
-    {
-        return new Campaign(dbFile.getName());
+		this.data.put(Interval.SECONDS, new AxisPair(x, y));
     }
 
     public String getName()
