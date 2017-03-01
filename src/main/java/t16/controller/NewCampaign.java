@@ -151,7 +151,7 @@ public class NewCampaign {
     }
 
     @FXML
-    private void createButtonActive(ActionEvent event) {
+    private void createButtonActive(ActionEvent event) throws IOException {
         Database database = Database.database;
         Campaign campaign;
 
@@ -174,6 +174,7 @@ public class NewCampaign {
             );
             dialog.showAndWait();
         }
+
         progressBar.setVisible(false);
     }
     //</editor-fold>
