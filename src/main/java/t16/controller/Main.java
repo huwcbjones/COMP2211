@@ -124,7 +124,7 @@ public class Main {
         fc.setTitle("Open Campaign");
         fc.setInitialDirectory(new File(System.getProperty("user.home")));
 
-        FileChooser.ExtensionFilter filter = new FileChooser.ExtensionFilter("Ad Dashboard Database (*.h2)", "*.h2");
+        FileChooser.ExtensionFilter filter = new FileChooser.ExtensionFilter("Ad Dashboard Database (*.h2.db)", "*.h2.db");
         fc.getExtensionFilters().add(filter);
 
         return fc.showOpenDialog(((Control) event.getSource()).getScene().getWindow());
