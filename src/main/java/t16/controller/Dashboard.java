@@ -1,13 +1,20 @@
 package t16.controller;
 
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
+import javafx.scene.layout.BorderPane;
 import t16.components.dialogs.ConfirmationDialog;
 import t16.components.dialogs.ExceptionDialog;
 import t16.model.Campaign;
@@ -48,6 +55,9 @@ public class Dashboard {
 
     @FXML
     private Button clickThroughsButton;
+
+    @FXML
+    private BorderPane chartPane;
     //</editor-fold>
 
     //<editor-fold desc="View Methods">
@@ -55,7 +65,7 @@ public class Dashboard {
     private void viewClicks(ActionEvent event) {
         try {
             campaign.setData("clicks", Database.database.getClicks());
-
+            renderChart();
         } catch (SQLException e) {
             ExceptionDialog dialog = new ExceptionDialog(
                     "Click Load Error",
@@ -125,14 +135,38 @@ public class Dashboard {
      * @param campaign Campaign to view
      */
     public void setCampaign(Campaign campaign) {
-        if (this.campaign != null) this.campaign = campaign;
+        if (this.campaign == null) this.campaign = campaign;
     }
 
     public void setScene(Scene scene) {
         this.scene = scene;
     }
 
-//    private void renderChart(){
-//        campaign.data
-//    }
+    private void renderChart(){
+        Campaign.AxisPair axis = campaign.data.get(Campaign.Interval.SECONDS);
+        CategoryAxis xAxis = new CategoryAxis();
+        xAxis.setLabel("Time");
+        xAxis.setAutoRanging(true);
+
+        NumberAxis yAxis = new NumberAxis();
+        yAxis.setLabel("Clicks per Hour");
+
+        LineChart<String, Number> chart = new LineChart<>(xAxis, yAxis);
+        chart.setTitle("Clicks per Hour");
+
+
+         XYChart.Series<String, Number> seriesData = new XYChart.Series<>();
+         seriesData.setName("Clicks");
+
+        Campaign.AxisPair axisPair = campaign.data.get(Campaign.Interval.SECONDS);
+         for(int i = 0; i < axisPair.getXAxis().size(); i++){
+             seriesData.getData().add(new XYChart.Data<>(axisPair.getXAxis().get(i), axisPair.getYAxis().get(i)));
+         }
+
+        ObservableList<XYChart.Series<String, Number>> data = FXCollections.observableArrayList();
+        data.add(seriesData);
+         chart.setData(data);
+
+         chartPane.setCenter(chart);
+    }
 }
