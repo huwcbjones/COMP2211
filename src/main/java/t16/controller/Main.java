@@ -15,6 +15,7 @@ import javafx.stage.Stage;
 import t16.components.dialogs.ConfirmationDialog;
 import t16.components.dialogs.ErrorDialog;
 import t16.components.dialogs.ExceptionDialog;
+import t16.exceptions.DatabaseConnectionException;
 import t16.model.Campaign;
 import t16.model.Database;
 
@@ -102,6 +103,14 @@ public class Main {
             // Close Main Window
             ((Stage) ((Control) event.getSource()).getScene().getWindow()).close();
 
+        } catch (DatabaseConnectionException e){
+            ExceptionDialog dialog = new ExceptionDialog(
+                    "Open Campaign Error!",
+                    "Failed to open campaign",
+                    e
+            );
+            e.printStackTrace();
+            dialog.showAndWait();
         } catch (Exception e) {
             ErrorDialog dialog = new ErrorDialog(
                     "Open Campaign Error!",
@@ -137,7 +146,7 @@ public class Main {
         return fc.showOpenDialog(((Control) event.getSource()).getScene().getWindow());
     }
 
-    private Campaign loadCampaign(File campaignDatabase) {
+    private Campaign loadCampaign(File campaignDatabase) throws DatabaseConnectionException {
         Database database = Database.InitialiseDatabase();
         return database.loadCampaign(campaignDatabase);
     }
