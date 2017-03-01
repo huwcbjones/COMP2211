@@ -58,7 +58,7 @@
                 </BorderPane>
             </left>
             <center>
-                <BorderPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+                <BorderPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" fx:id="chartPane">
                     <center>
                         <ProgressIndicator scaleX="0.2" scaleY="0.2" BorderPane.alignment="CENTER">
                             <BorderPane.margin>

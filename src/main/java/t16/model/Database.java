@@ -115,7 +115,7 @@ public class Database {
 
     public Campaign createCampaign(File clicks, File impressions, File server, File databaseFile) throws IOException, CampaignCreationException {
         try {
-            this.connect(databaseFile, "login", "password");
+            this.connect(databaseFile, "login", "password", false);
         } catch (DatabaseException e) {
             databaseFile.delete();
             throw new CampaignCreationException("Failed to create campaign - database error.", e);
@@ -132,10 +132,16 @@ public class Database {
     }
 
     private void connect(File databaseFile, String user, String password) throws DatabaseConnectionException {
-        if (!databaseFile.exists())
-            throw new DatabaseConnectionException("Database file does not exist.");
-        if (!databaseFile.canWrite())
-            throw new DatabaseConnectionException("Cannot open database to write");
+        connect(databaseFile, user, password, true);
+    }
+
+    private void connect(File databaseFile, String user, String password, boolean checkExist) throws DatabaseConnectionException {
+        if(checkExist) {
+            if (!databaseFile.exists())
+                throw new DatabaseConnectionException("Database file does not exist.");
+            if (!databaseFile.canWrite())
+                throw new DatabaseConnectionException("Cannot open database to write");
+        }
 
         String databasePath = databaseFile.getAbsolutePath();
         if (databasePath.contains(".h2.db")) databasePath = databasePath.replace(".h2.db", "");
@@ -241,7 +247,7 @@ public class Database {
      */
     public ResultSet getClicks() throws SQLException {
         Statement s = this.connection.createStatement();
-        s.execute("SELECT Date, COUNT(*) FROM Click GROUP BY Date");
+        s.execute("SELECT CONCAT(TO_CHAR(date, 'YYYY-MM-DD HH24'), ':00') as label, COUNT(*) AS click FROM Click GROUP BY label ORDER BY label ASC;");
         return s.getResultSet();
     }
 
