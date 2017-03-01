@@ -132,9 +132,6 @@ public class Main {
 
     private Campaign loadCampaign(File campaignDatabase) {
         Database database = Database.database;
-        //return database.loadCampaign(campaignDatabase);
-        Campaign c = new Campaign();
-        c.setName("Test");
-        return c;
+        return database.loadCampaign(campaignDatabase);
     }
 }
