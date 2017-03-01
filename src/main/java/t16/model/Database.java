@@ -109,6 +109,7 @@ public class Database {
 
         try {
             Campaign result = createCampaign(clickFile, impressionFile, serverFile, databaseFile);
+            deleteTemporaryFiles();
             return result;
         } catch (CampaignCreationException e) {
             deleteTemporaryFiles();
