@@ -6,7 +6,7 @@ package t16.exceptions;
  * @author Huw Jones
  * @since 01/03/2017
  */
-public class DatabaseCreationException extends Exception {
+public class DatabaseCreationException extends DatabaseException {
 
     /**
      * Constructs a new exception with the specified detail message.  The
