@@ -81,7 +81,7 @@ public class Dashboard {
 
     @FXML
     public void initialize() {
-        campaignName.setText(campaign.getName());
+        if (campaign != null) campaignName.setText(campaign.getName());
         scene.getWindow().setOnCloseRequest(e -> {
             ConfirmationDialog confirm = new ConfirmationDialog(
                     Alert.AlertType.CONFIRMATION,

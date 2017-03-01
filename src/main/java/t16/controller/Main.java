@@ -97,7 +97,7 @@ public class Main {
 
                 Stage stage = new Stage();
                 stage.setTitle(campaign.getName() + " - Ad Dashboard");
-                stage.setScene(new Scene(scene, 500, 400));
+                stage.setScene(new Scene(scene, 1280, 720));
                 stage.show();
             } catch (Exception e) {
                 ExceptionDialog dialog = new ExceptionDialog("Load error!", "Failed to load campaign.", e);
