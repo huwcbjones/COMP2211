@@ -4,7 +4,6 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-<?import org.controlsfx.control.RangeSlider?>
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.101☺" xmlns:fx="http://javafx.com/fxml/1" fx:controller="t16.controller.Dashboard">
     <center>
         <BorderPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
@@ -59,7 +58,7 @@
                 </BorderPane>
             </left>
             <center>
-                <BorderPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+                <BorderPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" fx:id="chartPane">
                     <center>
                         <ProgressIndicator scaleX="0.2" scaleY="0.2" BorderPane.alignment="CENTER">
                             <BorderPane.margin>
@@ -68,7 +67,6 @@
                         </ProgressIndicator>
                     </center>
                     <bottom>
-                        <RangeSlider />
                     </bottom>
                 </BorderPane>
             </center>

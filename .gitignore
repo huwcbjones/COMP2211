@@ -72,6 +72,5 @@ buildNumber.properties
 # Exclude maven wrapper
 !/.mvn/wrapper/maven-wrapper.jar
 
-
-### Resources
-/resources/extractedLogs
+### H2 DB
+*.db
