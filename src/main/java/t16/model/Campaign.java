@@ -3,7 +3,6 @@ package t16.model;
 import java.io.File;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -38,12 +37,12 @@ public class Campaign {
     public void setData(String name, ResultSet results) throws SQLException
     {
 		this.data = new HashMap<>();
-		ArrayList<Timestamp> x = new ArrayList<>();
+		ArrayList<String> x = new ArrayList<>();
 		ArrayList<Integer> y = new ArrayList<>();
         results.next();
 		while(!results.isLast())
 		{
-			x.add(results.getTimestamp(1));
+			x.add(results.getString(1));
 			y.add(results.getInt(2));
 			results.next();
 		}
@@ -55,17 +54,17 @@ public class Campaign {
         return this.name;
     }
 
-    private class AxisPair
+    public class AxisPair
     {
-        private ArrayList<Timestamp> xAxis;
+        private ArrayList<String> xAxis;
 		private ArrayList<Integer> yAxis;
-		public AxisPair(ArrayList<Timestamp> xAxis, ArrayList<Integer> yAxis)
+		private AxisPair(ArrayList<String> xAxis, ArrayList<Integer> yAxis)
 		{
 			this.xAxis = xAxis;
 			this.yAxis = yAxis;
 		}
 		
-		public ArrayList<Timestamp> getXAxis()
+		public ArrayList<String> getXAxis()
 		{
 			return this.xAxis;
 		}
