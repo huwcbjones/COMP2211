@@ -45,7 +45,7 @@ public class Main {
             root = FXMLLoader.load(getClass().getResource("/newCampaign.fxml"));
             Stage stage = new Stage();
             stage.setTitle("New Campaign - Ad Dashboard");
-            stage.setScene(new Scene(root, 550, 400));
+            stage.setScene(new Scene(root, 600, 450));
             stage.setResizable(false);
             stage.show();
         } catch (Exception e) {
@@ -72,9 +72,24 @@ public class Main {
 
         try {
             Campaign campaign = loadCampaign(campaignDatabase);
+            openCampaign(campaign);
 
+            // Close Main Window
+            ((Stage)((Control)event.getSource()).getScene().getWindow()).close();
+
+        } catch (Exception e) {
+            ErrorDialog dialog = new ErrorDialog(
+                    "Open Campaign Error!",
+                    "Failed to open campaign",
+                    e.getMessage()
+            );
+            dialog.showAndWait();
+        }
+    }
+
+    public static void openCampaign(Campaign campaign){
             try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/dashboard.fxml"));
+                FXMLLoader loader = new FXMLLoader(ClassLoader.getSystemClassLoader().getResource("/dashboard.fxml"));
                 Parent scene = loader.load();
                 Dashboard controller = loader.getController();
                 controller.setCampaign(campaign);
@@ -84,22 +99,11 @@ public class Main {
                 stage.setTitle(campaign.getName() + " - Ad Dashboard");
                 stage.setScene(new Scene(scene, 500, 400));
                 stage.show();
-
-                // Close Main Window
-                ((Stage)((Control)event.getSource()).getScene().getWindow()).close();
-
             } catch (Exception e) {
                 ExceptionDialog dialog = new ExceptionDialog("Load error!", "Failed to load campaign.", e);
                 dialog.showAndWait();
             }
-        } catch (Exception e) {
-            ErrorDialog dialog = new ErrorDialog(
-                    "Open Campaign Error!",
-                    "Failed to open campaign",
-                    e.getMessage()
-            );
-            dialog.showAndWait();
-        }
+
     }
 
     @FXML
