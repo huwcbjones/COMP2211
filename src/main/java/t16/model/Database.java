@@ -73,6 +73,7 @@ public class Database {
         //Extract click log
         File clickFile = new File(outputFolder + File.separator + "click_log.csv");
         logOutput = new FileOutputStream(clickFile);
+        zis.getNextEntry();
         readLength = zis.read(readBuffer);
         while (readLength > 0) {
             logOutput.write(readBuffer, 0, readLength);
@@ -84,6 +85,7 @@ public class Database {
         //Extract impression log
         File impressionFile = new File(outputFolder + File.separator + "impression_log.csv");
         logOutput = new FileOutputStream(impressionFile);
+        zis.getNextEntry();
         readLength = zis.read(readBuffer);
         while (readLength > 0) {
             logOutput.write(readBuffer, 0, readLength);
@@ -95,6 +97,7 @@ public class Database {
         //Extract server log
         File serverFile = new File(outputFolder + File.separator + "server_log.csv");
         logOutput = new FileOutputStream(serverFile);
+        zis.getNextEntry();
         readLength = zis.read(readBuffer);
         while (readLength > 0) {
             logOutput.write(readBuffer, 0, readLength);
