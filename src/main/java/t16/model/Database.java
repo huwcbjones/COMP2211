@@ -1,6 +1,12 @@
 package t16.model;
 
-import java.io.*;
+import t16.exceptions.CampaignCreationException;
+import t16.exceptions.DatabaseCreationException;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.sql.*;
 import java.util.zip.ZipInputStream;
 
@@ -28,6 +34,13 @@ public class Database {
         Database.database = this;
     }
 
+    public static Database InitialiseDatabase() {
+        if (database == null) {
+            Database database = new Database();
+        }
+        return database;
+    }
+
     /**
      * Loads a Campaign from a Database file.
      */
@@ -42,7 +55,7 @@ public class Database {
      * @param zipFile An input .zip containing click_log.csv, impression_log.csv and server_log.csv.
      * @return the result of creating the campaign with the extracted .csv files
      */
-    public Campaign createCampaign(File zipFile, File databaseFile) throws IOException {
+    public Campaign createCampaign(File zipFile, File databaseFile) throws IOException, CampaignCreationException {
         //Create temp folder
         File outputFolder = new File("temp");
         if (!outputFolder.exists()) {
@@ -89,34 +102,49 @@ public class Database {
         zis.closeEntry();
         zis.close();
 
-        Campaign result = createCampaign(clickFile, impressionFile, serverFile, databaseFile);
-        deleteTemporaryFiles();
-        return result;
+        try {
+            Campaign result = createCampaign(clickFile, impressionFile, serverFile, databaseFile);
+            return result;
+        } catch (CampaignCreationException e) {
+            deleteTemporaryFiles();
+            throw e;
+        }
     }
 
-    public Campaign createCampaign(File clicks, File impressions, File server, File databaseFile) throws IOException {
-        this.createDB(databaseFile.getAbsolutePath(), "login", "password");
-        this.addTables(clicks, impressions, server);
+    public Campaign createCampaign(File clicks, File impressions, File server, File databaseFile) throws IOException, CampaignCreationException {
+        try {
+            this.createDB(databaseFile.getAbsolutePath(), "login", "password");
+        } catch (DatabaseCreationException e) {
+            databaseFile.delete();
+            throw new CampaignCreationException("Failed to create campaign - database error.", e);
+        }
+        try {
+            this.addTables(clicks, impressions, server);
+        } catch (SQLException e){
+            databaseFile.delete();
+            throw new CampaignCreationException("Failed to create campaign - error creating tables.", e);
+        }
         return new Campaign(databaseFile);
     }
 
-    private void createDB(String name, String login, String password) throws IOException {
+    private void createDB(String fileName, String login, String password) throws IOException, DatabaseCreationException {
+        // Remove .h2 from the end of file names
+        if(fileName.contains(".h2.db")) fileName = fileName.replace(".h2.db", "");
         try {
             Class.forName("org.h2.Driver");
         } catch (ClassNotFoundException e) {
-            // TODO: We probably shouldn't just hide this error, if we can't find the database, we should bubble an Exception back up. Just my 0,02€ - HJ
-            e.printStackTrace();
+           throw new DatabaseCreationException("Database driver not present.", e);
         }
         try {
-            this.connection = DriverManager.getConnection("jdbc:h2:~" + name, login, password);
+            this.connection = DriverManager.getConnection("jdbc:h2:" + fileName, login, password);
+            this.connection.createStatement().execute("DROP ALL OBJECTS");
 //            this.connection = (PooledConnection) DriverManager.getConnection("jdbc:h2:~"+name, login, password);
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new DatabaseCreationException("Failed to create database.", e);
         }
     }
 
-    private void addTables(File click, File impression, File server) {
-        try {
+    private void addTables(File click, File impression, File server) throws SQLException {
             /*
                 - From connections, create SQL statement to create the table from the files in parameters
              */
@@ -129,13 +157,10 @@ public class Database {
                     "Age varchar(20), Income varchar(20), Context varchar(20), Impression_cost decimal(10,7)) " +
                     "AS SELECT * FROM CSVREAD('" + impression.getPath() + "')");
 
-            Statement doserver = this.connection.createStatement();
+            // TODO: Fix the import
+            /*Statement doserver = this.connection.createStatement();
             doserver.execute("CREATE TABLE Server(Date timestamp, ID float(53), Exit_date timestamp, Page_viewed int, " +
-                    "Conversion varchar(20)) AS SELECT * FROM CSVREAD('" + server.getPath() + "')");
-
-        } catch (SQLException e) {
-            // TODO: Please don't silently kill exceptions, bubble them up and handle them
-        }
+                    "Conversion varchar(20)) AS SELECT * FROM CSVREAD('" + server.getPath() + "')");*/
     }
 
     private void deleteTemporaryFiles() {
