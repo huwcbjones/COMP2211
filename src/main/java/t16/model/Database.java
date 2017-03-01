@@ -1,6 +1,13 @@
 package t16.model;
 
-import java.io.*;
+import t16.exceptions.CampaignCreationException;
+import t16.exceptions.DatabaseConnectionException;
+import t16.exceptions.DatabaseException;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.sql.*;
 import java.util.zip.ZipInputStream;
 
@@ -28,10 +35,18 @@ public class Database {
         Database.database = this;
     }
 
+    public static Database InitialiseDatabase() {
+        if (database == null) {
+            Database database = new Database();
+        }
+        return database;
+    }
+
     /**
      * Loads a Campaign from a Database file.
      */
-    public Campaign loadCampaign(File databaseFile) {
+    public Campaign loadCampaign(File databaseFile) throws DatabaseConnectionException {
+        this.connect(databaseFile, "login", "password");
         return new Campaign(databaseFile);
     }
 
@@ -42,7 +57,7 @@ public class Database {
      * @param zipFile An input .zip containing click_log.csv, impression_log.csv and server_log.csv.
      * @return the result of creating the campaign with the extracted .csv files
      */
-    public Campaign createCampaign(File zipFile, File databaseFile) throws IOException {
+    public Campaign createCampaign(File zipFile, File databaseFile) throws IOException, CampaignCreationException {
         //Create temp folder
         File outputFolder = new File("temp");
         if (!outputFolder.exists()) {
@@ -89,53 +104,71 @@ public class Database {
         zis.closeEntry();
         zis.close();
 
-        Campaign result = createCampaign(clickFile, impressionFile, serverFile, databaseFile);
-        deleteTemporaryFiles();
-        return result;
+        try {
+            Campaign result = createCampaign(clickFile, impressionFile, serverFile, databaseFile);
+            return result;
+        } catch (CampaignCreationException e) {
+            deleteTemporaryFiles();
+            throw e;
+        }
     }
 
-    public Campaign createCampaign(File clicks, File impressions, File server, File databaseFile) throws IOException {
-        this.createDB(databaseFile.getAbsolutePath(), "login", "password");
-        this.addTables(clicks, impressions, server);
+    public Campaign createCampaign(File clicks, File impressions, File server, File databaseFile) throws IOException, CampaignCreationException {
+        try {
+            this.connect(databaseFile, "login", "password");
+        } catch (DatabaseException e) {
+            databaseFile.delete();
+            throw new CampaignCreationException("Failed to create campaign - database error.", e);
+        }
+        try {
+            // Clear out database
+            this.connection.createStatement().execute("DROP ALL OBJECTS");
+            this.addTables(clicks, impressions, server);
+        } catch (SQLException e) {
+            databaseFile.delete();
+            throw new CampaignCreationException("Failed to create campaign - error creating tables.", e);
+        }
         return new Campaign(databaseFile);
     }
 
-    private void createDB(String name, String login, String password) throws IOException {
+    private void connect(File databaseFile, String user, String password) throws DatabaseConnectionException {
+        if (!databaseFile.exists())
+            throw new DatabaseConnectionException("Database file does not exist.");
+        if (!databaseFile.canWrite())
+            throw new DatabaseConnectionException("Cannot open database to write");
+
+        String databasePath = databaseFile.getAbsolutePath();
+        if (databasePath.contains(".h2.db")) databasePath = databasePath.replace(".h2.db", "");
         try {
             Class.forName("org.h2.Driver");
         } catch (ClassNotFoundException e) {
-            // TODO: We probably shouldn't just hide this error, if we can't find the database, we should bubble an Exception back up. Just my 0,02€ - HJ
-            e.printStackTrace();
+            throw new DatabaseConnectionException("Could not connect to database driver not present.", e);
         }
+
         try {
-            this.connection = DriverManager.getConnection("jdbc:h2:~" + name, login, password);
-//            this.connection = (PooledConnection) DriverManager.getConnection("jdbc:h2:~"+name, login, password);
+            this.connection = DriverManager.getConnection("jdbc:h2:" + databasePath, user, password);
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new DatabaseConnectionException("Failed to open database.", e);
         }
     }
 
-    private void addTables(File click, File impression, File server) {
-        try {
+    private void addTables(File click, File impression, File server) throws SQLException {
             /*
                 - From connections, create SQL statement to create the table from the files in parameters
              */
-            Statement doclick = this.connection.createStatement();
-            doclick.execute("CREATE TABLE Click(Date timestamp, ID float(53), Click_cost decimal(10,7)) " +
-                    "AS SELECT * FROM CSVREAD('" + click.getPath() + "')");
+        Statement doclick = this.connection.createStatement();
+        doclick.execute("CREATE TABLE Click(Date timestamp, ID float(53), Click_cost decimal(10,7)) " +
+                "AS SELECT * FROM CSVREAD('" + click.getPath() + "')");
 
-            Statement doimpression = this.connection.createStatement();
-            doimpression.execute("CREATE TABLE Impression(Date timestamp, ID float(53), Gender varchar(20), " +
-                    "Age varchar(20), Income varchar(20), Context varchar(20), Impression_cost decimal(10,7)) " +
-                    "AS SELECT * FROM CSVREAD('" + impression.getPath() + "')");
+        Statement doimpression = this.connection.createStatement();
+        doimpression.execute("CREATE TABLE Impression(Date timestamp, ID float(53), Gender varchar(20), " +
+                "Age varchar(20), Income varchar(20), Context varchar(20), Impression_cost decimal(10,7)) " +
+                "AS SELECT * FROM CSVREAD('" + impression.getPath() + "')");
 
-            Statement doserver = this.connection.createStatement();
+        // TODO: Fix the import
+            /*Statement doserver = this.connection.createStatement();
             doserver.execute("CREATE TABLE Server(Date timestamp, ID float(53), Exit_date timestamp, Page_viewed int, " +
-                    "Conversion varchar(20)) AS SELECT * FROM CSVREAD('" + server.getPath() + "')");
-
-        } catch (SQLException e) {
-            // TODO: Please don't silently kill exceptions, bubble them up and handle them
-        }
+                    "Conversion varchar(20)) AS SELECT * FROM CSVREAD('" + server.getPath() + "')");*/
     }
 
     private void deleteTemporaryFiles() {
@@ -246,45 +279,39 @@ public class Database {
     /*
     PROPOSED SQL "HEAVY" ACCESS METHODS FOR VIEW
      */
-    public ResultSet getClickCost(String n, String m) throws SQLException
-    {
+    public ResultSet getClickCost(String n, String m) throws SQLException {
         Statement s = this.connection.createStatement();
-        s.execute("Select Date, ID FROM Click WHERE click_cost>="+n+" AND click_cost<="+m+" ;");
+        s.execute("Select Date, ID FROM Click WHERE click_cost>=" + n + " AND click_cost<=" + m + " ;");
         return s.getResultSet();
     }
 
-    public ResultSet getGender(String gender) throws SQLException
-    {
+    public ResultSet getGender(String gender) throws SQLException {
         Statement s = this.connection.createStatement();
-        s.execute("Select Date, ID FROM Impression WHERE Gender='"+gender+"' ;");
+        s.execute("Select Date, ID FROM Impression WHERE Gender='" + gender + "' ;");
         return s.getResultSet();
     }
 
-    public ResultSet getIncome(String income) throws SQLException
-    {
+    public ResultSet getIncome(String income) throws SQLException {
         Statement s = this.connection.createStatement();
-        s.execute("Select Date, ID FROM Impression WHERE Income='"+income+"' ;");
+        s.execute("Select Date, ID FROM Impression WHERE Income='" + income + "' ;");
         return s.getResultSet();
     }
 
-    public ResultSet geContext(String context) throws SQLException
-    {
+    public ResultSet geContext(String context) throws SQLException {
         Statement s = this.connection.createStatement();
-        s.execute("Select Date, ID FROM Impression WHERE Context='"+context+"' ;");
+        s.execute("Select Date, ID FROM Impression WHERE Context='" + context + "' ;");
         return s.getResultSet();
     }
 
-    public ResultSet getImpressionCost(String n, String m) throws SQLException
-    {
+    public ResultSet getImpressionCost(String n, String m) throws SQLException {
         Statement s = this.connection.createStatement();
-        s.execute("Select Date, ID FROM Impression WHERE Impression_cost>="+n+" AND Impression_cost<="+m+" ;");
+        s.execute("Select Date, ID FROM Impression WHERE Impression_cost>=" + n + " AND Impression_cost<=" + m + " ;");
         return s.getResultSet();
     }
 
-    public ResultSet getServer(String id) throws SQLException
-    {
+    public ResultSet getServer(String id) throws SQLException {
         Statement s = this.connection.createStatement();
-        s.execute("Select * FROM Server WHERE ID='"+id+"' ;");
+        s.execute("Select * FROM Server WHERE ID='" + id + "' ;");
         return s.getResultSet();
     }
 
