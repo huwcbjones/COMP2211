@@ -25,15 +25,15 @@ then
 fi
 
 source_dir="team_16_increment${increment}"
+echo -e \\n\# Setting up Environment
+branch=$(git symbolic-ref HEAD | sed 's!refs\/heads\/!!')
 
-echo -e \\n\# Fetching branches from repo
+echo -e \\n\# Updating Repo
 git fetch
-echo -e \\n\# Checking out branch increment${increment}
-git checkout master
-git branch -d increment${increment}
-if ! git checkout tags/increment${increment} -b increment${increment} ;
+echo -e \\n\# Checking out tag increment${increment}
+if ! git checkout tags/increment${increment} -b increment${increment}_build ;
 then
-    errormsg "Failed to checkout branch 'increment"${increment}"'.\nPlease create branch and try again."
+    errormsg "Failed to checkout tag 'increment"${increment}"'.\nPlease create tag and try again."
     exit 1
 fi
 
@@ -57,3 +57,6 @@ zip -r increment${increment}.zip ${source_dir}
 
 echo -e \\n\# Cleaning up
 rm -rf ${source_dir}
+
+git checkout ${branch}
+git branch -d increment${increment}_build
