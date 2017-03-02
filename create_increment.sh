@@ -29,7 +29,9 @@ source_dir="team_16_increment${increment}"
 echo -e \\n\# Fetching branches from repo
 git fetch
 echo -e \\n\# Checking out branch increment${increment}
-if ! git checkout increment${increment} ;
+git checkout master
+git branch -d increment${increment}
+if ! git checkout tags/increment${increment} -b increment${increment} ;
 then
     errormsg "Failed to checkout branch 'increment"${increment}"'.\nPlease create branch and try again."
     exit 1
@@ -39,7 +41,8 @@ echo -e \\n\# Creating directories
 mkdir -p ${source_dir}/code
 mkdir -p ${source_dir}/documentation
 
-echo -e \n\# Building project
+echo -e \\n\# Building project
+mvn clean
 mvn package
 
 echo -e \\n\# Copying files

@@ -10,3 +10,14 @@ Team 16:
 * Prabhav Gupta	, pg9g15
 * Huw Jones, hcbj1g15
 * Scott Williams, saw1g15
+
+## Compilation Instructions
+This repository uses Maven for dependency management and build control.
+
+1. Clone Repo
+2. Run `mvn clean` to clean the build
+3. Run `mvn package` to build jar
+
+## To Run Application
+- Double Click on /target/Ad-Dashboard-0.1.0-jar-with-dependencies.jar
+- Run `javaw -jar target/Ad-Dashboard-0.1.0-jar-with-dependencies.jar` in terminal
