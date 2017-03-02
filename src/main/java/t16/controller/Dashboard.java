@@ -64,7 +64,7 @@ public class Dashboard {
     @FXML
     private void viewClicks(ActionEvent event) {
         try {
-            campaign.setData("clicks", Database.database.getClicks());
+            campaign.setData("clicks", Database.database.getClicks(), false);
             renderChart();
         } catch (SQLException e) {
             ExceptionDialog dialog = new ExceptionDialog(
@@ -99,12 +99,36 @@ public class Dashboard {
     @FXML
     private void viewClickThrough(ActionEvent event) {
         try {
-            campaign.setData("click->through", Database.database.getClickThrough());
-            renderChart();
+            campaign.setData("clickThrough", Database.database.getClickThrough(), true);
+
+            CategoryAxis xAxis = new CategoryAxis();
+            xAxis.setLabel("Time");
+            xAxis.setAutoRanging(true);
+
+            NumberAxis yAxis = new NumberAxis();
+            yAxis.setLabel("Click Through Rate (%age)");
+
+            LineChart<String, Number> chart = new LineChart<>(xAxis, yAxis);
+            chart.setTitle("Average Click Through Rate per Hour");
+
+
+            XYChart.Series<String, Number> seriesData = new XYChart.Series<>();
+            seriesData.setName("Click Through");
+
+            Campaign.AxisPair axisPair = campaign.data.get(Campaign.Interval.SECONDS);
+            for(int i = 0; i < axisPair.getXAxis().size(); i++){
+                seriesData.getData().add(new XYChart.Data<>(axisPair.getXAxis().get(i), axisPair.getYAxis().get(i).doubleValue() * 100d));
+            }
+
+            ObservableList<XYChart.Series<String, Number>> data = FXCollections.observableArrayList();
+            data.add(seriesData);
+            chart.setData(data);
+
+            chartPane.setCenter(chart);
         } catch (SQLException e) {
             ExceptionDialog dialog = new ExceptionDialog(
                     "Click Load Error",
-                    "Failed to load click through.",
+                    "Failed to load clickthrough.",
                     e
             );
             dialog.showAndWait();

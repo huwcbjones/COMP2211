@@ -274,7 +274,13 @@ public class Database {
     }
 
     public ResultSet getClickThrough() throws SQLException {
-        return null;
+        Statement s = this.connection.createStatement();
+        s.execute("SELECT CONCAT(impression_rate.id, ':00') AS label, CAST(clicks AS FLOAT) / CAST(impressions AS FLOAT) AS clickThrough FROM" +
+                "  (SELECT TO_CHAR(`Impression`.`date`, 'YYYY-MM-DD HH24') AS id, COUNT(`Impression`.`date`) AS impressions FROM `Impression` GROUP BY id) impression_rate" +
+                "  LEFT JOIN" +
+                "  (SELECT TO_CHAR(`Click`.`date`, 'YYYY-MM-DD HH24') AS id, COUNT(`Click`.`date`) AS clicks FROM `Click` GROUP BY id) click_rate" +
+                "  ON impression_rate.id = click_rate.id");
+        return s.getResultSet();
     }
 
     /**
