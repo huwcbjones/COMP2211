@@ -24,11 +24,8 @@ then
     exit 1
 fi
 
+echo -e \\n\# Setting up Environment
 source_dir="team_16_increment${increment}"
-echo -e \\n\# Setting up Environment
-branch=$(git symbolic-ref HEAD | sed 's!refs\/heads\/!!')
-
-echo -e \\n\# Setting up Environment
 branch=$(git symbolic-ref HEAD | sed 's!refs\/heads\/!!')
 git stash
 
