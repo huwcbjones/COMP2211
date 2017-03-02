@@ -21,6 +21,7 @@ Action:
             - Discussion on SQL, using Timestamp.valueOf(String) to convert .csv times into SQL timestamps
             - Creation of unit tests on the model
             - Creation of a config file
+            - Creation of UML/class diagrams for use in the increment report
         - Marking day
 
 Follow-up:
