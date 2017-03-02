@@ -234,6 +234,16 @@ public class Database {
         return s.getResultSet().getInt(1);
     }
 
+    /**
+     * @return the total number of conversions that occurred during the campaign
+     * @throws SQLException if an error occurs during SQL execution
+     */
+    public int getTotalConversions() throws SQLException {
+        Statement s = this.connection.createStatement();
+        s.execute("SELECT COUNT(*) FROM Server WHERE Conversion = 'Yes'");
+        return s.getResultSet().getInt(1);
+    }
+
 
     /**
      * @return a set of dates and times, and the number of impressions on each date and time

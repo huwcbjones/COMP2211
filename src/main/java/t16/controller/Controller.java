@@ -57,4 +57,13 @@ public class Controller
     public int getTotalBounces() throws SQLException {
         return this.db.getTotalBounces();
     }
+
+    /**
+     * @return the total number of conversions that occurred during the campaign
+     * @throws SQLException if an error occurs during SQL execution
+     */
+    public int getTotalConversions() throws SQLException
+    {
+        return this.db.getTotalConversions();
+    }
 }
