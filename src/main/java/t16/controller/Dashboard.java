@@ -98,7 +98,17 @@ public class Dashboard {
 
     @FXML
     private void viewClickThrough(ActionEvent event) {
-
+        try {
+            campaign.setData("click->through", Database.database.getClickThrough());
+            renderChart();
+        } catch (SQLException e) {
+            ExceptionDialog dialog = new ExceptionDialog(
+                    "Click Load Error",
+                    "Failed to load click through.",
+                    e
+            );
+            dialog.showAndWait();
+        }
     }
     //</editor-fold>
 

@@ -127,6 +127,7 @@ public class Database {
         try {
             // Clear out database
             this.connection.createStatement().execute("DROP ALL OBJECTS");
+            this.createTables();
             this.addTables(clicks, impressions, server);
         } catch (SQLException e) {
             databaseFile.delete();
@@ -162,23 +163,30 @@ public class Database {
         }
     }
 
+    private void createTables() throws SQLException {
+        Statement createStmt = this.connection.createStatement();
+
+        // Create tables
+        createStmt.execute("CREATE TABLE Click(date TIMESTAMP, id FLOAT, click_cost DECIMAL(10, 7))");
+        createStmt.execute("CREATE TABLE Impression(date TIMESTAMP, id FLOAT, gender CHAR(20), age CHAR(20), income CHAR(20), context VARCHAR(80), cost DECIMAL(10, 7))");
+        createStmt.execute("CREATE TABLE Server(date TIMESTAMP, id FLOAT, exit_date TIMESTAMP NULL, page_viewed INT(11), conversion CHAR(20))");
+
+        // Add indicies
+        createStmt.execute("CREATE INDEX Click_ID on CLICK(ID)");
+        createStmt.execute("CREATE INDEX Impression_ID on Impression(ID)");
+        createStmt.execute("CREATE INDEX Server_ID on Server(ID)");
+
+    }
     private void addTables(File click, File impression, File server) throws SQLException {
             /*
                 - From connections, create SQL statement to create the table from the files in parameters
              */
-        Statement doclick = this.connection.createStatement();
-        doclick.execute("CREATE TABLE Click(Date timestamp, ID float(53), Click_cost decimal(10,7)) " +
-                "AS SELECT * FROM CSVREAD('" + click.getPath() + "')");
-
-        Statement doimpression = this.connection.createStatement();
-        doimpression.execute("CREATE TABLE Impression(Date timestamp, ID float(53), Gender varchar(20), " +
-                "Age varchar(20), Income varchar(20), Context varchar(20), Impression_cost decimal(10,7)) " +
-                "AS SELECT * FROM CSVREAD('" + impression.getPath() + "')");
+        Statement importStmt = this.connection.createStatement();
+        importStmt.execute("INSERT INTO Click (SELECT * FROM CSVREAD('" + click.getPath() + "'))");
+        importStmt.execute("INSERT INTO Impression (SELECT * FROM CSVREAD('" + impression.getPath() + "'))");
 
         // TODO: Fix the import
-            /*Statement doserver = this.connection.createStatement();
-            doserver.execute("CREATE TABLE Server(Date timestamp, ID float(53), Exit_date timestamp, Page_viewed int, " +
-                    "Conversion varchar(20)) AS SELECT * FROM CSVREAD('" + server.getPath() + "')");*/
+        //importStmt.execute("INSERT INTO Server AS SELECT * FROM CSVREAD('" + server.getPath() + "')");
     }
 
     private void deleteTemporaryFiles() {
@@ -265,6 +273,10 @@ public class Database {
         return s.getResultSet();
     }
 
+    public ResultSet getClickThrough() throws SQLException {
+        return null;
+    }
+
     /**
      * Unfinished.
      *
@@ -274,7 +286,7 @@ public class Database {
     public ResultSet getUniques() throws SQLException {
         Statement s = this.connection.createStatement();
         //Need to add FROM and ;
-        s.execute("SELECT Date, COUNT(DISTINCT )");
+//        s.execute("SELECT Date, COUNT(DISTINCT )");
         return s.getResultSet();
     }
 
