@@ -1,0 +1,29 @@
+Meeting 2017-02-28 13:00
+Zeppler Level 3 Labs
+
+Attendees:
+        - JC
+        - HJ
+        - PG
+        - CG
+        - SW
+        - Supervisor (Abdullah)
+
+Agenda:
+        - Responsibilities for final push for increment 1
+        - Supervisor supervision/feedback
+
+Action:
+        - Supervisor decrees exit button must have confirmation
+        - Division of tasks left to be completed
+            - Discussion on range of start/end dates with method getRange(startDate, endData)
+            - Discussion on processing input file line by line as opposed to using csv.read
+            - Discussion on SQL, using Timestamp.valueOf(String) to convert .csv times into SQL timestamps
+            - Creation of unit tests on the model
+            - Creation of a config file
+        - Marking day
+
+Follow-up:
+        - Finish the first sprint (increment 1)
+        - Hand in increment by 2017/03/02 16:00
+        - https://handin.ecs.soton.ac.uk/handin/1617/COMP2211/3/
