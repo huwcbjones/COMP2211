@@ -8,6 +8,9 @@ package t16.exceptions;
  */
 public class CampaignCreationException extends Exception {
 
+    public CampaignCreationException(String message) {
+        super(message);
+    }
     public CampaignCreationException(String message, Throwable cause) {
         super(message, cause);
     }
