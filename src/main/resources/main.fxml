@@ -4,40 +4,48 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-<BorderPane maxHeight="400" maxWidth="600" minHeight="400" minWidth="600.0" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.101" xmlns:fx="http://javafx.com/fxml/1" fx:controller="t16.controller.Main">
-   <center>
-      <Pane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
-         <Label layoutX="138.0" layoutY="36.0" text="Ad Dashboard">
-            <font>
-               <Font name="System Italic" size="24.0" />
-            </font>
-         </Label>
-         <VBox layoutX="112.0" layoutY="220.0" prefHeight="126.0" prefWidth="201.0">
-            <opaqueInsets>
-               <Insets />
-            </opaqueInsets>
-            <padding>
-               <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-            </padding>
-            <Button mnemonicParsing="false" fx:id="newCampaignButton" onAction="#createNewCampaignButtonAction" text="Create new campaign">
-               <VBox.margin>
-                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-               </VBox.margin>
-            </Button>
-            <Button mnemonicParsing="false" fx:id="openCampaignButton" onAction="#openCampaignButtonAction" text="Open existing campaign">
-               <VBox.margin>
-                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-               </VBox.margin>
-            </Button>
-            <Button mnemonicParsing="false" fx:id="exitButton" onAction="#exitButtonAction" text="Exit" cancelButton="true">
-               <VBox.margin>
-                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-               </VBox.margin>
-            </Button>
-         </VBox>
-      </Pane>
-   </center>
+<BorderPane maxHeight="400" maxWidth="600" minHeight="400" minWidth="600.0" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="t16.controller.Main">
    <left>
       <ListView prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
    </left>
+   <center>
+      <BorderPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <center>
+            <VBox alignment="CENTER_LEFT" prefHeight="126.0" prefWidth="201.0" spacing="5.0" BorderPane.alignment="CENTER">
+               <opaqueInsets>
+                  <Insets />
+               </opaqueInsets>
+               <padding>
+                  <Insets left="100.0" right="50.0" top="115.0" />
+               </padding>
+               <Button fx:id="newCampaignButton" mnemonicParsing="false" onAction="#createNewCampaignButtonAction" text="Create new campaign">
+               </Button>
+               <Button fx:id="openCampaignButton" mnemonicParsing="false" onAction="#openCampaignButtonAction" text="Open existing campaign">
+               </Button>
+               <Button fx:id="exitButton" cancelButton="true" mnemonicParsing="false" onAction="#exitButtonAction" text="Exit">
+               </Button>
+            </VBox>
+         </center>
+         <top>
+            <Label text="Ad Dashboard" BorderPane.alignment="CENTER">
+               <font>
+                  <Font name="System Italic" size="24.0" />
+               </font>
+               <padding>
+                  <Insets bottom="30.0" left="50.0" right="50.0" top="30.0" />
+               </padding>
+            </Label>
+         </top>
+         <bottom>
+            <ProgressBar fx:id="progressBar" prefWidth="200.0" visible="false" BorderPane.alignment="CENTER">
+               <opaqueInsets>
+                  <Insets />
+               </opaqueInsets>
+               <BorderPane.margin>
+                  <Insets bottom="60.0" />
+               </BorderPane.margin>
+            </ProgressBar>
+         </bottom>
+      </BorderPane>
+   </center>
 </BorderPane>
