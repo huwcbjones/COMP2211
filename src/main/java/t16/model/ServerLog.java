@@ -14,14 +14,14 @@ public class ServerLog {
     private long id;
     private Timestamp exit;
     private long pageViews;
-    private boolean wasConversion;
+    private boolean isConversion;
 
-    public ServerLog(Timestamp entry, long id, Timestamp exit, long pageViews, boolean wasConversion) {
+    public ServerLog(Timestamp entry, long id, Timestamp exit, long pageViews, boolean isConversion) {
         this.entry = entry;
         this.id = id;
         this.exit = exit;
         this.pageViews = pageViews;
-        this.wasConversion = wasConversion;
+        this.isConversion = isConversion;
     }
 
     public Timestamp getEntry() {
@@ -40,7 +40,7 @@ public class ServerLog {
         return pageViews;
     }
 
-    public boolean isWasConversion() {
-        return wasConversion;
+    public boolean isConversion() {
+        return isConversion;
     }
 }
