@@ -14,12 +14,6 @@ import java.util.zip.ZipInputStream;
 /**
  * Created by Charles Gandon on 25/02/2017.
  * Modified by James Curran 26/2/17
- * This increment:
- * TODO Total conversions
- * TODO Uniques over time
- * TODO Bounces over time
- * TODO Conversions over time
- * TODO Click-through rate
  * Future increments:
  * TODO Total bounces when bounces are measured by time spent as opposed to pages viewed
  */
@@ -231,7 +225,7 @@ public class Database {
     }
 
     /**
-     * Currently a bounce is decided by only 1 page being viewed.
+     * Currently a bounce is defined as only 1 page being viewed.
      *
      * @return the total number of bounces that occurred during the campaign
      * @throws SQLException if an error occurs during SQL execution
@@ -257,9 +251,11 @@ public class Database {
      * @return a set of dates and times, and the number of impressions on each date and time
      * @throws SQLException if an error occurs during SQL execution
      */
-    public ResultSet getImpressions() throws SQLException {
+    public ResultSet getImpressionsOverTime() throws SQLException {
         Statement s = this.connection.createStatement();
-        s.execute("SELECT Date, COUNT(*) FROM Impression GROUP BY Date");
+        s.execute("SELECT CONCAT(TO_CHAR(Date, 'YYYY-MM-DD HH24'), ':00') AS dates, " +
+                "COUNT(*) AS impressions " +
+                "FROM Impression GROUP BY dates ORDER BY dates ASC;");
         return s.getResultSet();
     }
 
@@ -267,9 +263,51 @@ public class Database {
      * @return a set of dates and times, and the number of clicks on each date and time
      * @throws SQLException if an error occurs during SQL execution
      */
-    public ResultSet getClicks() throws SQLException {
+    public ResultSet getClicksOverTime() throws SQLException {
         Statement s = this.connection.createStatement();
-        s.execute("SELECT CONCAT(TO_CHAR(date, 'YYYY-MM-DD HH24'), ':00') as label, COUNT(*) AS click FROM Click GROUP BY label ORDER BY label ASC;");
+        s.execute("SELECT CONCAT(TO_CHAR(date, 'YYYY-MM-DD HH24'), ':00') AS dates, " +
+                "COUNT(*) AS clicks " +
+                "FROM Click GROUP BY dates ORDER BY dates ASC;");
+        return s.getResultSet();
+    }
+
+    /**
+     * @return a set of dates and times, and the number of unique users on each date and time
+     * @throws SQLException if an error occurs during SQL execution
+     */
+    public ResultSet getUniquesOverTime() throws SQLException {
+        Statement s = this.connection.createStatement();
+        s.execute("SELECT CONCAT(TO_CHAR(Date, 'YYYY-MM-DD HH24'), ':00') AS dates, " +
+                "COUNT(DISTINCT Id) AS uniques " +
+                "FROM Click GROUP BY dates ORDER BY dates ASC;");
+        return s.getResultSet();
+    }
+
+    /**
+     * Currently a bounce is defined as only 1 page being viewed.
+     *
+     * @return a set of dates and times, and the number of bounces that occurred on each date and time
+     * @throws SQLException if an error occurs during SQL execution
+     */
+    public ResultSet getBouncesOverTime() throws SQLException {
+        Statement s = this.connection.createStatement();
+        s.execute("SELECT CONCAT(TO_CHAR(Date, 'YYYY-MM-DD HH24'), ':00') AS dates, " +
+                "COUNT(*) AS bounces " +
+                "FROM Server WHERE Page_viewed = 1 " +
+                "GROUP BY dates ORDER BY dates ASC;");
+        return s.getResultSet();
+    }
+
+    /**
+     * @return a set of dates and times, and the number of conversions that occurred on each date and time
+     * @throws SQLException if an error occurs during SQL execution
+     */
+    public ResultSet getConversionsOverTime() throws SQLException {
+        Statement s = this.connection.createStatement();
+        s.execute("SELECT CONCAT(TO_CHAR(Date, 'YYYY-MM-DD HH24'), ':00') AS dates, " +
+                "COUNT(*) AS conversions " +
+                "FROM Server WHERE Conversion = 'Yes' " +
+                "GROUP BY dates ORDER BY dates ASC;");
         return s.getResultSet();
     }
 
@@ -280,37 +318,6 @@ public class Database {
                 "  LEFT JOIN" +
                 "  (SELECT TO_CHAR(`Click`.`date`, 'YYYY-MM-DD HH24') AS id, COUNT(`Click`.`date`) AS clicks FROM `Click` GROUP BY id) click_rate" +
                 "  ON impression_rate.id = click_rate.id");
-        return s.getResultSet();
-    }
-
-    /**
-     * Unfinished.
-     *
-     * @return a set of dates and times, and the number of unique users
-     * @throws SQLException
-     */
-    public ResultSet getUniques() throws SQLException {
-        Statement s = this.connection.createStatement();
-        //Need to add FROM and ;
-//        s.execute("SELECT Date, COUNT(DISTINCT )");
-        return s.getResultSet();
-    }
-
-    /**
-     * Unfinished.
-     */
-    public ResultSet getBounces() throws SQLException {
-        Statement s = this.connection.createStatement();
-        s.execute("");
-        return s.getResultSet();
-    }
-
-    /**
-     * Unfinished.
-     */
-    public ResultSet getConversions() throws SQLException {
-        Statement s = this.connection.createStatement();
-        s.execute("");
         return s.getResultSet();
     }
 
