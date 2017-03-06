@@ -161,9 +161,9 @@ public class NewCampaign {
 
             try {
                 if (isZipCreate) {
-                    campaign = database.createCampaign(new File(zipFileText.getText()), new File(campaignSaveText.getText()));
+                    campaign = database.createCampaignWithZipInput(new File(zipFileText.getText()), new File(campaignSaveText.getText()));
                 } else {
-                    campaign = database.createCampaign(new File(clickLogText.getText()), new File(impressionLogText.getText()), new File(serverLogText.getText()), new File(campaignSaveText.getText()));
+                    campaign = database.createCampaignWithCsvInput(new File(clickLogText.getText()), new File(impressionLogText.getText()), new File(serverLogText.getText()), new File(campaignSaveText.getText()));
                 }
                 Main.openCampaign(campaign);
                 ((Stage) ((Control) event.getSource()).getScene().getWindow()).close();

@@ -4,10 +4,7 @@ import t16.exceptions.CampaignCreationException;
 import t16.exceptions.DatabaseConnectionException;
 import t16.exceptions.DatabaseException;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.sql.*;
 import java.util.zip.ZipInputStream;
 
@@ -49,9 +46,10 @@ public class Database {
      * Creates a campaign.
      *
      * @param zipFile An input .zip containing click_log.csv, impression_log.csv and server_log.csv.
+     * @param databaseFile [filename].h2.db
      * @return the result of creating the campaign with the extracted .csv files
      */
-    public Campaign createCampaign(File zipFile, File databaseFile) throws IOException, CampaignCreationException {
+    public Campaign createCampaignWithZipInput(File zipFile, File databaseFile) throws IOException, CampaignCreationException {
         //Create temp folder
         File outputFolder = new File("temp");
         if (!outputFolder.exists()) {
@@ -60,49 +58,54 @@ public class Database {
 
         //Begin extracting .csvs to temp folder
         ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFile));
-        FileOutputStream logOutput;
-        byte[] readBuffer = new byte[1024];
-        int readLength;
+        BufferedReader fileReader = new BufferedReader(new InputStreamReader(zis));
+        BufferedWriter fileWriter;
+        String currentLine;
 
         //Extract click log
         File clickFile = new File(outputFolder + File.separator + "click_log.csv");
-        logOutput = new FileOutputStream(clickFile);
+        fileWriter = new BufferedWriter(new FileWriter(clickFile));
         zis.getNextEntry();
-        readLength = zis.read(readBuffer);
-        while (readLength > 0) {
-            logOutput.write(readBuffer, 0, readLength);
-            readLength = zis.read(readBuffer);
+        currentLine = fileReader.readLine();
+        while (currentLine != null) {
+            fileWriter.write(currentLine.replaceAll(",n/a,", ",NULL,"));
+            fileWriter.newLine();
+            currentLine = fileReader.readLine();
         }
-        logOutput.close();
+        fileWriter.close();
         zis.closeEntry();
 
         //Extract impression log
         File impressionFile = new File(outputFolder + File.separator + "impression_log.csv");
-        logOutput = new FileOutputStream(impressionFile);
+        fileWriter = new BufferedWriter(new FileWriter(impressionFile));
         zis.getNextEntry();
-        readLength = zis.read(readBuffer);
-        while (readLength > 0) {
-            logOutput.write(readBuffer, 0, readLength);
-            readLength = zis.read(readBuffer);
+        currentLine = fileReader.readLine();
+        while (currentLine != null) {
+            fileWriter.write(currentLine.replaceAll(",n/a,", ",NULL,"));
+            fileWriter.newLine();
+            currentLine = fileReader.readLine();
         }
-        logOutput.close();
+        fileWriter.close();
         zis.closeEntry();
 
         //Extract server log
         File serverFile = new File(outputFolder + File.separator + "server_log.csv");
-        logOutput = new FileOutputStream(serverFile);
+        fileWriter = new BufferedWriter(new FileWriter(serverFile));
         zis.getNextEntry();
-        readLength = zis.read(readBuffer);
-        while (readLength > 0) {
-            logOutput.write(readBuffer, 0, readLength);
-            readLength = zis.read(readBuffer);
+        currentLine = fileReader.readLine();
+        while(currentLine != null)
+        {
+            fileWriter.write(currentLine.replaceAll(",n/a,", ",NULL,"));
+            fileWriter.newLine();
+            currentLine = fileReader.readLine();
         }
-        logOutput.close();
         zis.closeEntry();
         zis.close();
+        fileReader.close();
+        fileWriter.close();
 
         try {
-            Campaign result = createCampaign(clickFile, impressionFile, serverFile, databaseFile);
+            Campaign result = this.createCampaignFinal(clickFile, impressionFile, serverFile, databaseFile);
             deleteTemporaryFiles();
             return result;
         } catch (CampaignCreationException e) {
@@ -111,7 +114,78 @@ public class Database {
         }
     }
 
-    public Campaign createCampaign(File clicks, File impressions, File server, File databaseFile) throws IOException, CampaignCreationException {
+    /**
+     * Creates a campaign.
+     *
+     * @param clickFile click_log.csv
+     * @param impressionFile impression_log.csv
+     * @param serverFile server_log.csv
+     * @param databaseFile [filename].h2.db
+     * @return the result of creating the campaign with the extracted .csv files
+     */
+    public Campaign createCampaignWithCsvInput(File clickFile, File impressionFile, File serverFile, File databaseFile) throws IOException, CampaignCreationException {
+        //Create temp folder
+        File outputFolder = new File("temp");
+        if (!outputFolder.exists()) {
+            outputFolder.mkdir();
+        }
+
+        //Begin copying .csvs to temp folder
+        BufferedReader fileReader;
+        BufferedWriter fileWriter;
+        String currentLine;
+
+        //Extract click log
+        File newClickFile = new File(outputFolder + File.separator + "click_log.csv");
+        fileWriter = new BufferedWriter(new FileWriter(newClickFile));
+        fileReader = new BufferedReader(new FileReader(clickFile));
+        currentLine = fileReader.readLine();
+        while (currentLine != null) {
+            fileWriter.write(currentLine.replaceAll(",n/a,", ",NULL,"));
+            fileWriter.newLine();
+            currentLine = fileReader.readLine();
+        }
+        fileWriter.close();
+        fileReader.close();
+
+        //Extract impression log
+        File newImpressionFile = new File(outputFolder + File.separator + "impression_log.csv");
+        fileWriter = new BufferedWriter(new FileWriter(newImpressionFile));
+        fileReader = new BufferedReader(new FileReader(impressionFile));
+        currentLine = fileReader.readLine();
+        while (currentLine != null) {
+            fileWriter.write(currentLine.replaceAll(",n/a,", ",NULL,"));
+            fileWriter.newLine();
+            currentLine = fileReader.readLine();
+        }
+        fileWriter.close();
+        fileReader.close();
+
+        //Extract server log
+        File newServerFile = new File(outputFolder + File.separator + "server_log.csv");
+        fileWriter = new BufferedWriter(new FileWriter(newServerFile));
+        fileReader = new BufferedReader(new FileReader(serverFile));
+        currentLine = fileReader.readLine();
+        while(currentLine != null)
+        {
+            fileWriter.write(currentLine.replaceAll(",n/a,", ",NULL,"));
+            fileWriter.newLine();
+            currentLine = fileReader.readLine();
+        }
+        fileReader.close();
+        fileWriter.close();
+
+        try {
+            Campaign result = this.createCampaignFinal(newClickFile, newImpressionFile, newServerFile, databaseFile);
+            deleteTemporaryFiles();
+            return result;
+        } catch (CampaignCreationException e) {
+            deleteTemporaryFiles();
+            throw e;
+        }
+    }
+
+    private Campaign createCampaignFinal(File clicks, File impressions, File server, File databaseFile) throws IOException, CampaignCreationException {
         try {
             this.connect(databaseFile, "login", "password", false);
         } catch (DatabaseException e) {
@@ -165,12 +239,13 @@ public class Database {
         createStmt.execute("CREATE TABLE Impression(date TIMESTAMP, id FLOAT, gender CHAR(20), age CHAR(20), income CHAR(20), context VARCHAR(80), cost DECIMAL(10, 7))");
         createStmt.execute("CREATE TABLE Server(date TIMESTAMP, id FLOAT, exit_date TIMESTAMP NULL, page_viewed INT(11), conversion CHAR(20))");
 
-        // Add indicies
+        // Add indices
         createStmt.execute("CREATE INDEX Click_ID on CLICK(ID)");
         createStmt.execute("CREATE INDEX Impression_ID on Impression(ID)");
         createStmt.execute("CREATE INDEX Server_ID on Server(ID)");
 
     }
+
     private void addTables(File click, File impression, File server) throws SQLException {
             /*
                 - From connections, create SQL statement to create the table from the files in parameters
@@ -178,9 +253,7 @@ public class Database {
         Statement importStmt = this.connection.createStatement();
         importStmt.execute("INSERT INTO Click (SELECT * FROM CSVREAD('" + click.getPath() + "'))");
         importStmt.execute("INSERT INTO Impression (SELECT * FROM CSVREAD('" + impression.getPath() + "'))");
-
-        // TODO: Fix the import
-        //importStmt.execute("INSERT INTO Server AS SELECT * FROM CSVREAD('" + server.getPath() + "')");
+        importStmt.execute("INSERT INTO Server AS SELECT * FROM CSVREAD('" + server.getPath() + "')");
     }
 
     private void deleteTemporaryFiles() {
