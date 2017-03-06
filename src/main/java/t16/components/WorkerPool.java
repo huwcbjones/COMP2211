@@ -1,5 +1,6 @@
 package t16.components;
 
+import javafx.concurrent.Task;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import t16.utils.RunnableAdapter;
@@ -11,8 +12,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Worker Pool for Running Tasks
  *
- * @form COMP1206 - Assignment 2
  * @author Huw Jones
+ * @form COMP1206 - Assignment 2
  * @since 28/03/2016
  */
 public final class WorkerPool {
@@ -22,7 +23,7 @@ public final class WorkerPool {
     private final ArrayList<ScheduledFuture> futureTasks = new ArrayList<>();
     private final ScheduledExecutorService workerPool;
 
-    public WorkerPool(){
+    public WorkerPool() {
         this(Runtime.getRuntime().availableProcessors());
     }
 
@@ -63,7 +64,7 @@ public final class WorkerPool {
      */
     public void queueTask(RunnableAdapter task) {
         if (this.workerPool.isShutdown()) {
-            log.warn("Failed to queue task ({}). Worker Pool shutting down...", task.toString());
+            log.warn("Failed to queue task ({}). Worker Pool is shutting down...", task.toString());
             return;
         }
         log.debug("Queuing task ({}) to run now", task.toString());
@@ -77,7 +78,21 @@ public final class WorkerPool {
      */
     public void queueTask(Callable task) {
         if (this.workerPool.isShutdown()) {
-            log.warn("Failed to queue task ({}). Worker Pool shutting down...", task.toString());
+            log.warn("Failed to queue task ({}). Worker Pool is shutting down...", task.toString());
+            return;
+        }
+        log.debug("Queuing task ({}) to run now", task.toString());
+        this.workerPool.submit(task);
+    }
+
+    /**
+     * Runs a task asynchronously in the worker pool
+     *
+     * @param task Task to run
+     */
+    public void queueTask(Task task) {
+        if (this.workerPool.isShutdown()) {
+            log.warn("Failed to queue task ({}). Worker Pool is shutting down...", task.toString());
             return;
         }
         log.debug("Queuing task ({}) to run now", task.toString());
@@ -92,7 +107,7 @@ public final class WorkerPool {
      */
     public void scheduleTask(RunnableAdapter task, long timeDelay) {
         if (this.workerPool.isShutdown()) {
-            log.warn("Failed to schedule task ({}). Worker Pool shutting down...", task.toString());
+            log.warn("Failed to schedule task ({}). Worker Pool is shutting down...", task.toString());
             return;
         }
         log.debug("Scheduling task ({}) to run in {}ms", task.toString(), timeDelay);
@@ -108,7 +123,23 @@ public final class WorkerPool {
      */
     public void scheduleTask(Callable task, long timeDelay) {
         if (this.workerPool.isShutdown()) {
-            log.warn("Failed to schedule task ({}). Worker Pool shutting down...", task.toString());
+            log.warn("Failed to schedule task ({}). Worker Pool is shutting down...", task.toString());
+            return;
+        }
+        log.debug("Scheduling task ({}) to run in {}ms", task.toString(), timeDelay);
+        ScheduledFuture futureTask = this.workerPool.schedule(task, timeDelay, TimeUnit.MILLISECONDS);
+        this.futureTasks.add(futureTask);
+    }
+
+    /**
+     * Schedules a task to run after a delay
+     *
+     * @param task      Task to run
+     * @param timeDelay Time to delay task (in milliseconds);
+     */
+    public void scheduleTask(Task task, long timeDelay) {
+        if (this.workerPool.isShutdown()) {
+            log.warn("Failed to schedule task ({}). Worker Pool is shutting down...", task.toString());
             return;
         }
         log.debug("Scheduling task ({}) to run in {}ms", task.toString(), timeDelay);
@@ -129,7 +160,7 @@ public final class WorkerPool {
                     cancelledTasks++;
                 }
             }
-            log.info("Cancelled {} task(s).", cancelledTasks);
+            if (cancelledTasks != 0) log.info("Cancelled {} task(s).", cancelledTasks);
 
             // Wait for running tasks to finish
             ThreadPoolExecutor executor = (ThreadPoolExecutor) this.workerPool;
