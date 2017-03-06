@@ -1,5 +1,6 @@
 package t16.model;
 
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import t16.exceptions.CampaignCreationException;
 import t16.exceptions.DatabaseConnectionException;
 import t16.exceptions.DatabaseException;
@@ -26,6 +27,7 @@ import java.util.zip.ZipInputStream;
 public class Database {
     public static Database database;
     private Connection connection;
+    private boolean isConnected = false;
     /*
     - We could use PooledConnection but it seems incompatible with the use of testament
      */
@@ -353,5 +355,11 @@ public class Database {
         return s.getResultSet();
     }
 
+    public boolean isConnected() {
+        return isConnected;
+    }
 
+    public void disconnect() {
+        throw new NotImplementedException();
+    }
 }
