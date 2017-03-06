@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="720" minWidth="1280" prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="t16.controller.Dashboard">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="720" minWidth="1280" prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="t16.controller.Dashboard">
     <center>
         <BorderPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
             <left>
@@ -71,6 +71,18 @@
                <top>
                   <HBox alignment="CENTER_RIGHT" prefWidth="200.0" spacing="6.0" BorderPane.alignment="CENTER">
                      <children>
+                        <HBox>
+                           <children>
+                              <ToggleButton mnemonicParsing="false" selected="true" text="Hourly">
+                                 <toggleGroup>
+                                    <ToggleGroup fx:id="timeControls" />
+                                 </toggleGroup>
+                              </ToggleButton>
+                              <ToggleButton mnemonicParsing="false" text="Daily" toggleGroup="$timeControls" />
+                              <ToggleButton mnemonicParsing="false" text="Weekly" toggleGroup="$timeControls" />
+                              <ToggleButton mnemonicParsing="false" text="Monthly" toggleGroup="$timeControls" />
+                           </children>
+                        </HBox>
                         <Label text="From" />
                         <DatePicker fx:id="startDate" promptText="Start Date" />
                         <Label text="To" />
