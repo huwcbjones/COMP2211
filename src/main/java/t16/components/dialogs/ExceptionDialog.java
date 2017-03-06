@@ -17,7 +17,7 @@ import java.io.StringWriter;
  */
 public class ExceptionDialog extends GenericDialog {
 
-    private java.lang.Exception exception;
+    private Throwable exception;
 
     /**
      * Creates an Exception Dialog.
@@ -26,7 +26,7 @@ public class ExceptionDialog extends GenericDialog {
      * @param header Header of dialog
      * @param ex     Exception to display
      */
-    public ExceptionDialog(String title, String header, java.lang.Exception ex) {
+    public ExceptionDialog(String title, String header, Throwable ex) {
         super(AlertType.ERROR, title, header, ex.getLocalizedMessage());
         this.exception = ex;
         init();
@@ -38,7 +38,7 @@ public class ExceptionDialog extends GenericDialog {
      * @param title Title of dialog
      * @param ex    Exception to display
      */
-    public ExceptionDialog(String title, java.lang.Exception ex) {
+    public ExceptionDialog(String title, Throwable ex) {
         this(title, title, ex);
     }
 
@@ -47,7 +47,7 @@ public class ExceptionDialog extends GenericDialog {
      *
      * @param ex Exception to display
      */
-    public ExceptionDialog(java.lang.Exception ex) {
+    public ExceptionDialog(Throwable ex) {
         this("An exception occurred!", ex);
     }
 
