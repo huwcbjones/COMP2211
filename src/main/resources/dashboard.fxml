@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.101☺" xmlns:fx="http://javafx.com/fxml/1" fx:controller="t16.controller.Dashboard">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="720" minWidth="1280" prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="t16.controller.Dashboard">
     <center>
         <BorderPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
             <left>
@@ -58,7 +58,7 @@
                 </BorderPane>
             </left>
             <center>
-                <BorderPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" fx:id="chartPane">
+                <BorderPane fx:id="chartPane" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
                     <center>
                         <ProgressIndicator scaleX="0.2" scaleY="0.2" BorderPane.alignment="CENTER">
                             <BorderPane.margin>
@@ -68,6 +68,22 @@
                     </center>
                     <bottom>
                     </bottom>
+               <top>
+                  <HBox alignment="CENTER_RIGHT" prefWidth="200.0" spacing="6.0" BorderPane.alignment="CENTER">
+                     <children>
+                        <Label text="From" />
+                        <DatePicker fx:id="startDate" promptText="Start Date" />
+                        <Label text="To" />
+                        <DatePicker fx:id="endDate" promptText="End Date" />
+                     </children>
+                     <opaqueInsets>
+                        <Insets />
+                     </opaqueInsets>
+                     <padding>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </padding>
+                  </HBox>
+               </top>
                 </BorderPane>
             </center>
         </BorderPane>
