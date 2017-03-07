@@ -259,6 +259,7 @@ public class DataController {
                 }
                 try {
                     insert.executeBatch();
+                    con.setAutoCommit(true);
                     double time = (System.currentTimeMillis() - startTime) / 1000d;
 
                     log.info("Inserted {} rows in {} ({} per row).", logList.size(), DecimalFormat.getInstance().format(time), time / logList.size());
@@ -306,6 +307,7 @@ public class DataController {
                 }
                 try {
                     insert.executeBatch();
+                    con.setAutoCommit(true);
                     double time = (System.currentTimeMillis() - startTime) / 1000d;
 
                     log.info("Inserted {} rows in {} ({} per row).", logList.size(), DecimalFormat.getInstance().format(time), time / logList.size());
@@ -351,6 +353,7 @@ public class DataController {
                 }
                 try {
                     insert.executeBatch();
+                    con.setAutoCommit(true);
                     double time = (System.currentTimeMillis() - startTime) / 1000d;
 
                     log.info("Inserted {} rows in {} ({} per row).", logList.size(), DecimalFormat.getInstance().format(time), time / logList.size());
