@@ -1,0 +1,30 @@
+Increment 2 Scrum 1 - 7/3/2017
+
+All present
+
+Results from latest marking meeting:
+  - Poor team communication.
+    - Moving from Trello to Github Issues for task tracking.
+    - More regular Scrums.
+  - Reports need to be coordinated better.
+    - Allocate tasks for report as well as application.
+    - Team members must write up exactly what they contributed to the increment in the Google Doc report.
+    - Before the presentation, ensure everyone has a copy of the finished .zip that will be handed in,
+      and tries to bring a laptop.
+  - Application was poorly optimised.
+    - Huw has begun optimising the application backend.
+  - Graph took up too much screen space.
+    - Need some "stub" GUI components even if features aren't there yet.
+
+Completed tasks:
+  - James has finished off user stories 1 and 2.
+  - Huw has been working on GUI and optimising backend.
+
+Assigned tasks:
+  - Scott has assigned himself to writing JUnit tests.
+  - Charles has assigned himself to the burndown chart.
+  - James has assigned himself to implementing filters.
+  - James has assigned himself to the sprint plan, conditional on the marks for the last one.
+
+    
+--NEXT SCRUM SCHEDULED FOR FRIDAY, 13.00, ZEPLER 3--
