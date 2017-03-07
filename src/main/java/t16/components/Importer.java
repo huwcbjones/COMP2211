@@ -113,7 +113,7 @@ public class Importer {
 
         try {
             log.debug("Waiting for inserters to complete...");
-            parseLatch.await();
+            importLatch.await();
         } catch (AbortableCountDownLatch.AbortedException e) {
             log.warn("Insertion aborted.");
         } catch (InterruptedException e) {
@@ -223,7 +223,10 @@ public class Importer {
                 return null;
             }
         };
-        clickInsertTask.setOnSucceeded(e1 -> importLatch.countDown());
+        clickInsertTask.setOnSucceeded(e1 -> {
+            log.info("Finished INSERT -> Clicks");
+            importLatch.countDown();
+        });
         clickInsertTask.setOnFailed(e1 -> {
             exception = e1.getSource().getException();
             importLatch.abort();
@@ -238,7 +241,11 @@ public class Importer {
                 return null;
             }
         };
-        impressionInsertTask.setOnSucceeded(e1 -> importLatch.countDown());
+        impressionInsertTask.setOnSucceeded(
+                e1 -> {
+                    log.info("Completed INSERT -> Impressions");
+                    importLatch.countDown();
+                });
         impressionInsertTask.setOnFailed(e1 -> {
             exception = e1.getSource().getException();
             importLatch.abort();
@@ -253,7 +260,10 @@ public class Importer {
                 return null;
             }
         };
-        serverInsertTask.setOnSucceeded(e1 -> importLatch.countDown());
+        serverInsertTask.setOnSucceeded(e1 -> {
+            log.info("Finished INSERT -> Server");
+            importLatch.countDown();
+        });
         serverInsertTask.setOnFailed(e1 -> {
             exception = e1.getSource().getException();
             importLatch.abort();
