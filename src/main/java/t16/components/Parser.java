@@ -197,6 +197,8 @@ public class Parser {
             clickLog.add(new ClickLog(t, ID, cost));
         }
 
+        br.close();
+
         double time = (System.currentTimeMillis() - startTime) / 1000d;
         log.info("Parsed {} clicks in {} ({} per click).", clickLog.size(), DecimalFormat.getInstance().format(time), time / clickLog.size());
     }
@@ -273,6 +275,8 @@ public class Parser {
             impressionLog.add(new ImpressionLog(t, ID, gender, age, income, context, cost));
         }
 
+        br.close();
+
         double time = (System.currentTimeMillis() - startTime) / 1000d;
         log.info("Parsed {} impressions in {} ({} per impression).", impressionLog.size(), DecimalFormat.getInstance().format(time), time / impressionLog.size());
     }
@@ -337,6 +341,8 @@ public class Parser {
 
             serverLog.add(new ServerLog(entryDate, ID, exitDate, pageViews, conversion));
         }
+
+        br.close();
 
         double time = (System.currentTimeMillis() - startTime) / 1000d;
         log.info("Parsed {} server logs in {} ({} per log).", serverLog.size(), DecimalFormat.getInstance().format(time), time / serverLog.size());
