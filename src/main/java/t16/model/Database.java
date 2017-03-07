@@ -195,9 +195,9 @@ public class Database {
     public ResultSet getClickThrough() throws SQLException {
         Statement s = this.connectionPool.getConnection().createStatement();
         s.execute("SELECT CONCAT(impression_rate.id, ':00') AS label, CAST(clicks AS FLOAT) / CAST(impressions AS FLOAT) AS clickThrough FROM" +
-                "  (SELECT TO_CHAR(`Impression`.`date`, 'YYYY-MM-DD HH24') AS id, COUNT(`Impressions`.`date`) AS impressions FROM `Impressions` GROUP BY id) impression_rate" +
+                "  (SELECT TO_CHAR(`Impressions`.`date`, 'YYYY-MM-DD HH24') AS id, COUNT(`Impressions`.`date`) AS impressions FROM `Impressions` GROUP BY id) impression_rate" +
                 "  LEFT JOIN" +
-                "  (SELECT TO_CHAR(`Click`.`date`, 'YYYY-MM-DD HH24') AS id, COUNT(`Clicks`.`date`) AS clicks FROM `Clicks` GROUP BY id) click_rate" +
+                "  (SELECT TO_CHAR(`Clicks`.`date`, 'YYYY-MM-DD HH24') AS id, COUNT(`Clicks`.`date`) AS clicks FROM `Clicks` GROUP BY id) click_rate" +
                 "  ON impression_rate.id = click_rate.id");
         return s.getResultSet();
     }

@@ -1,11 +1,12 @@
 package t16.controller;
 
+import javafx.util.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import t16.components.Importer;
 import t16.exceptions.CampaignCreationException;
 import t16.exceptions.DatabaseConnectionException;
-import t16.interfaces.IChartRenderer;
 import t16.model.*;
 import t16.utils.FileUtils;
 
@@ -13,10 +14,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -376,9 +374,45 @@ public class DataController {
      * @param from
      * @param to
      */
-    public void getClicks(RANGE range, Timestamp from, Timestamp to, IChartRenderer renderer) {
+    public List<Pair<String, Number>> getClicks(RANGE range, Timestamp from, Timestamp to) throws SQLException {
+        try (Connection c = database.getConnection()) {
+            String where;
+            if (from != null && to != null) {
+                where = "`date` IN RANGE (" + from.toString() + ", " + to.toString() + ")";
+            } else if (from != null) {
+                where = "`date` < " + from.toString();
+            } else if (to != null) {
+                where = "`date` > " + to.toString();
+            } else {
+                where = "";
+            }
+            PreparedStatement s = c.prepareStatement(
+                    "SELECT CONCAT(TO_CHAR(date, '" + getRangeString(range) + "'), ':00') AS label, COUNT(*) AS click" +
+                            " FROM `Clicks` " + where + "GROUP BY label ORDER BY label ASC");
+            try (ResultSet res = s.executeQuery()) {
+                List<Pair<String, Number>> list = new ArrayList<>();
+                while (res.next()) {
+                    list.add(new Pair<>(res.getString(1), res.getInt(2)));
+                }
+                return list;
+            }
+        }
+    }
 
-
+    private String getRangeString(RANGE range) {
+        switch (range) {
+            case HOURLY:
+                return "YYYY-MM-DD HH24";
+            case DAILY:
+                return "YYYY-MM-DD";
+            case WEEKLY:
+                // TODO: Work out how to do weekly
+                throw new NotImplementedException();
+            case MONTHLY:
+                return "YYYY-MM";
+            default:
+                throw new IllegalArgumentException();
+        }
     }
 
     /**
@@ -422,7 +456,6 @@ public class DataController {
     public int getTotalConversions() throws SQLException {
         return this.database.getTotalConversions();
     }
-
 
     public enum RANGE {
         DAILY,

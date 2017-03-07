@@ -3,6 +3,7 @@ package t16.controller;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
@@ -12,12 +13,18 @@ import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import t16.AdDashboard;
 import t16.components.dialogs.ConfirmationDialog;
 import t16.components.dialogs.ExceptionDialog;
+import t16.controller.DataController.RANGE;
 import t16.model.Campaign;
+import t16.model.Chart;
 import t16.model.Database;
 
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.Optional;
 
 /**
@@ -27,6 +34,7 @@ import java.util.Optional;
  * @since 25/02/2017
  */
 public class Dashboard {
+    protected static final Logger log = LogManager.getLogger(Dashboard.class);
 
     private Scene scene = null;
     private Campaign campaign = null;
@@ -61,22 +69,51 @@ public class Dashboard {
 
     @FXML
     private DatePicker endDate;
+
+    @FXML
+    private ToggleButton hourlyButton;
+
+    @FXML
+    private ToggleButton dailyButton;
+
+    @FXML
+    private ToggleButton weeklyButton;
+
+    @FXML
+    private ToggleButton monthlyButton;
+
+    @FXML
+    private ToggleGroup rangeToggle;
     //</editor-fold>
 
     //<editor-fold desc="View Methods">
     @FXML
     private void viewClicks(ActionEvent event) {
-        try {
-            campaign.setData("clicks", Database.database.getClicksOverTime(), false);
-            renderChart();
-        } catch (SQLException e) {
+        Task<Chart> getClicksTask = new Task<Chart>() {
+            @Override
+            protected Chart call() throws Exception {
+                Chart c = new Chart("Clicks per Hour", "Time", "Clicks per Hour");
+
+                Timestamp from = (startDate.getValue() == null) ? null : Timestamp.valueOf(startDate.getValue().atStartOfDay());
+                Timestamp to = (endDate.getValue() == null) ? null : Timestamp.valueOf(endDate.getValue().atStartOfDay());
+
+                c.addSeries("Clicks", AdDashboard.getDataController().getClicks(getRange(), from, to));
+                return c;
+            }
+        };
+
+        getClicksTask.setOnSucceeded(e -> {
+            chartPane.setCenter(((Chart) e.getSource().getValue()).renderChart());
+        });
+        getClicksTask.setOnFailed(e -> {
             ExceptionDialog dialog = new ExceptionDialog(
                     "Click Load Error",
-                    "Failed to load clicks.",
-                    e
+                    "Failed end load clicks.",
+                    e.getSource().getException()
             );
             dialog.showAndWait();
-        }
+        });
+        AdDashboard.getWorkerPool().queueTask(getClicksTask);
     }
 
     @FXML
@@ -119,7 +156,7 @@ public class Dashboard {
             seriesData.setName("Click Through");
 
             Campaign.AxisPair axisPair = campaign.data.get(Campaign.Interval.SECONDS);
-            for(int i = 0; i < axisPair.getXAxis().size(); i++){
+            for (int i = 0; i < axisPair.getXAxis().size(); i++) {
                 seriesData.getData().add(new XYChart.Data<>(axisPair.getXAxis().get(i), axisPair.getYAxis().get(i).doubleValue() * 100d));
             }
 
@@ -129,9 +166,10 @@ public class Dashboard {
 
             chartPane.setCenter(chart);
         } catch (SQLException e) {
+            log.catching(e);
             ExceptionDialog dialog = new ExceptionDialog(
                     "Click Load Error",
-                    "Failed to load clickthrough.",
+                    "Failed end load clickthrough.",
                     e
             );
             dialog.showAndWait();
@@ -147,7 +185,7 @@ public class Dashboard {
                 ConfirmationDialog confirm = new ConfirmationDialog(
                         Alert.AlertType.CONFIRMATION,
                         "Exit Ad Dashboard?",
-                        "Are you sure you want to exit " + campaign.getName() + " Dashboard?",
+                        "Are you sure you want end exit " + campaign.getName() + " Dashboard?",
                         "Exit " + campaign.getName());
                 Optional<ButtonType> result = confirm.showAndWait();
                 if (result.isPresent() && confirm.isAction(result.get())) {
@@ -169,7 +207,7 @@ public class Dashboard {
     /**
      * Set the campaign of the view, if the Campaign has not already been set
      *
-     * @param campaign Campaign to view
+     * @param campaign Campaign end view
      */
     public void setCampaign(Campaign campaign) {
         if (this.campaign == null) this.campaign = campaign;
@@ -179,31 +217,20 @@ public class Dashboard {
         this.scene = scene;
     }
 
-    private void renderChart(){
-        Campaign.AxisPair axis = campaign.data.get(Campaign.Interval.SECONDS);
-        CategoryAxis xAxis = new CategoryAxis();
-        xAxis.setLabel("Time");
-        xAxis.setAutoRanging(true);
+    private RANGE getRange(){
+        if(hourlyButton.isSelected()){
+            return RANGE.HOURLY;
+        }
+        if(dailyButton.isSelected()){
+            return RANGE.DAILY;
+        }
+        if(weeklyButton.isSelected()){
+            return RANGE.WEEKLY;
+        }
+        if(monthlyButton.isSelected()){
+            return RANGE.MONTHLY;
+        }
 
-        NumberAxis yAxis = new NumberAxis();
-        yAxis.setLabel("Clicks per Hour");
-
-        LineChart<String, Number> chart = new LineChart<>(xAxis, yAxis);
-        chart.setTitle("Clicks per Hour");
-
-
-         XYChart.Series<String, Number> seriesData = new XYChart.Series<>();
-         seriesData.setName("Clicks");
-
-        Campaign.AxisPair axisPair = campaign.data.get(Campaign.Interval.SECONDS);
-         for(int i = 0; i < axisPair.getXAxis().size(); i++){
-             seriesData.getData().add(new XYChart.Data<>(axisPair.getXAxis().get(i), axisPair.getYAxis().get(i)));
-         }
-
-        ObservableList<XYChart.Series<String, Number>> data = FXCollections.observableArrayList();
-        data.add(seriesData);
-         chart.setData(data);
-
-         chartPane.setCenter(chart);
+        throw new IllegalStateException();
     }
 }
