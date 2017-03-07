@@ -67,7 +67,7 @@ public class Dashboard {
     @FXML
     private void viewClicks(ActionEvent event) {
         try {
-            campaign.setData("clicks", Database.database.getClicks(), false);
+            campaign.setData("clicks", Database.database.getClicksOverTime(), false);
             renderChart();
         } catch (SQLException e) {
             ExceptionDialog dialog = new ExceptionDialog(
