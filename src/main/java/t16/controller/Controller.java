@@ -4,7 +4,6 @@ import t16.model.Database;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 /**
  * Modified by James Curran 27/2/17
@@ -65,5 +64,47 @@ public class Controller
     public int getTotalConversions() throws SQLException
     {
         return this.db.getTotalConversions();
+    }
+
+    /**
+     * @return a set of dates and times, and the number of impressions on each date and time
+     * @throws SQLException if an error occurs during SQL execution
+     */
+    public ResultSet getImpressionsOverTime() throws SQLException {
+        return this.db.getImpressionsOverTime();
+    }
+
+    /**
+     * @return a set of dates and times, and the number of clicks on each date and time
+     * @throws SQLException if an error occurs during SQL execution
+     */
+    public ResultSet getClicksOverTime() throws SQLException {
+        return this.db.getClicksOverTime();
+    }
+
+    /**
+     * @return a set of dates and times, and the number of unique users on each date and time
+     * @throws SQLException if an error occurs during SQL execution
+     */
+    public ResultSet getUniquesOverTime() throws SQLException {
+        return this.db.getUniquesOverTime();
+    }
+
+    /**
+     * Currently a bounce is defined as only 1 page being viewed.
+     *
+     * @return a set of dates and times, and the number of bounces that occurred on each date and time
+     * @throws SQLException if an error occurs during SQL execution
+     */
+    public ResultSet getBouncesOverTime() throws SQLException {
+        return this.db.getBouncesOverTime();
+    }
+
+    /**
+     * @return a set of dates and times, and the number of conversions that occurred on each date and time
+     * @throws SQLException if an error occurs during SQL execution
+     */
+    public ResultSet getConversionsOverTime() throws SQLException {
+        return this.db.getConversionsOverTime();
     }
 }
