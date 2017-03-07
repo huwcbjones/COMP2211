@@ -10,10 +10,7 @@ import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import t16.components.dialogs.ConfirmationDialog;
 import t16.components.dialogs.ExceptionDialog;
@@ -58,13 +55,19 @@ public class Dashboard {
 
     @FXML
     private BorderPane chartPane;
+
+    @FXML
+    private DatePicker startDate;
+
+    @FXML
+    private DatePicker endDate;
     //</editor-fold>
 
     //<editor-fold desc="View Methods">
     @FXML
     private void viewClicks(ActionEvent event) {
         try {
-            campaign.setData("clicks", Database.database.getClicks(), false);
+            campaign.setData("clicks", Database.database.getClicksOverTime(), false);
             renderChart();
         } catch (SQLException e) {
             ExceptionDialog dialog = new ExceptionDialog(

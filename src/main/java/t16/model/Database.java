@@ -148,7 +148,7 @@ public class Database {
     }
 
     /**
-     * Currently a bounce is decided by only 1 page being viewed.
+     * Currently a bounce is defined as only 1 page being viewed.
      *
      * @return the total number of bounces that occurred during the campaign
      * @throws SQLException if an error occurs during SQL execution
@@ -176,7 +176,9 @@ public class Database {
      *//*
     public ResultSet getImpressions() throws SQLException {
         Statement s = this.connection.createStatement();
-        s.execute("SELECT Date, COUNT(*) FROM Impression GROUP BY Date");
+        s.execute("SELECT CONCAT(TO_CHAR(Date, 'YYYY-MM-DD HH24'), ':00') AS dates, " +
+                "COUNT(*) AS impressions " +
+                "FROM Impression GROUP BY dates ORDER BY dates ASC;");
         return s.getResultSet();
     }*/
 
@@ -201,15 +203,17 @@ public class Database {
     }
 
     /**
-     * Unfinished.
+     * Currently a bounce is defined as only 1 page being viewed.
      *
-     * @return a set of dates and times, and the number of unique users
-     * @throws SQLException
+     * @return a set of dates and times, and the number of bounces that occurred on each date and time
+     * @throws SQLException if an error occurs during SQL execution
      */
   /*  public ResultSet getUniques() throws SQLException {
         Statement s = this.connection.createStatement();
-        //Need to add FROM and ;
-//        s.execute("SELECT Date, COUNT(DISTINCT )");
+        s.execute("SELECT CONCAT(TO_CHAR(Date, 'YYYY-MM-DD HH24'), ':00') AS dates, " +
+                "COUNT(*) AS bounces " +
+                "FROM Server WHERE Page_viewed = 1 " +
+                "GROUP BY dates ORDER BY dates ASC;");
         return s.getResultSet();
     }
 
@@ -220,13 +224,20 @@ public class Database {
      *//*
     public ResultSet getBounces() throws SQLException {
         Statement s = this.connection.createStatement();
-        s.execute("");
+        s.execute("SELECT CONCAT(TO_CHAR(Date, 'YYYY-MM-DD HH24'), ':00') AS dates, " +
+                "COUNT(*) AS conversions " +
+                "FROM Server WHERE Conversion = 'Yes' " +
+                "GROUP BY dates ORDER BY dates ASC;");
         return s.getResultSet();
     }
 
     public ResultSet getConversions() throws SQLException {
         Statement s = this.connection.createStatement();
-        s.execute("");
+        s.execute("SELECT CONCAT(impression_rate.id, ':00') AS label, CAST(clicks AS FLOAT) / CAST(impressions AS FLOAT) AS clickThrough FROM" +
+                "  (SELECT TO_CHAR(`Impression`.`date`, 'YYYY-MM-DD HH24') AS id, COUNT(`Impression`.`date`) AS impressions FROM `Impression` GROUP BY id) impression_rate" +
+                "  LEFT JOIN" +
+                "  (SELECT TO_CHAR(`Click`.`date`, 'YYYY-MM-DD HH24') AS id, COUNT(`Click`.`date`) AS clicks FROM `Click` GROUP BY id) click_rate" +
+                "  ON impression_rate.id = click_rate.id");
         return s.getResultSet();
     }*/
 
