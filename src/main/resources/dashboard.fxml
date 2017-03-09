@@ -4,7 +4,8 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="720" minWidth="1280" prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="t16.controller.Dashboard">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="720" minWidth="1280" prefHeight="720.0" prefWidth="1280.0"
+            xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="t16.controller.Dashboard">
     <center>
         <BorderPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
             <left>
@@ -12,49 +13,55 @@
                     <top>
                         <Label fx:id="campaignName" text="Title" BorderPane.alignment="CENTER">
                             <font>
-                                <Font size="18.0" />
+                                <Font size="18.0"/>
                             </font>
                         </Label>
                     </top>
-               <center>
-                  <VBox prefHeight="200.0" prefWidth="100.0" spacing="5.0" BorderPane.alignment="CENTER">
-                     <children>
-                                <Button fx:id="clicksButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false" onAction="#viewClicks" text="Clicks">
+                    <center>
+                        <VBox prefHeight="200.0" prefWidth="100.0" spacing="5.0" BorderPane.alignment="CENTER">
+                            <children>
+                                <Button fx:id="clicksButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false"
+                                        onAction="#viewClicks" text="Clicks">
                                     <opaqueInsets>
-                                        <Insets />
+                                        <Insets/>
                                     </opaqueInsets>
                                 </Button>
-                                <Button fx:id="impressionsButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false" onAction="#viewImpressions" text="Impresssions">
+                                <Button fx:id="impressionsButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity"
+                                        mnemonicParsing="false" onAction="#viewImpressions" text="Impresssions">
                                     <opaqueInsets>
-                                        <Insets />
+                                        <Insets/>
                                     </opaqueInsets>
                                 </Button>
-                                <Button fx:id="uniqueButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false" onAction="#viewUnique" text="Unique Visitors">
+                                <Button fx:id="uniqueButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false"
+                                        onAction="#viewUnique" text="Unique Visitors">
                                     <opaqueInsets>
-                                        <Insets />
+                                        <Insets/>
                                     </opaqueInsets>
                                 </Button>
-                                <Button fx:id="bouncesButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false" onAction="#viewBounces" text="Bounces">
+                                <Button fx:id="bouncesButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false"
+                                        onAction="#viewBounces" text="Bounces">
                                     <opaqueInsets>
-                                        <Insets />
+                                        <Insets/>
                                     </opaqueInsets>
                                 </Button>
-                                <Button fx:id="conversionsButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false" onAction="#viewConversion" text="Conversions">
+                                <Button fx:id="conversionsButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity"
+                                        mnemonicParsing="false" onAction="#viewConversion" text="Conversions">
                                     <opaqueInsets>
-                                        <Insets />
+                                        <Insets/>
                                     </opaqueInsets>
                                 </Button>
-                                <Button fx:id="clickThroughsButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false" onAction="#viewClickThrough" text="Click Throughs">
+                                <Button fx:id="clickThroughsButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity"
+                                        mnemonicParsing="false" onAction="#viewClickThrough" text="Click Throughs">
                                     <opaqueInsets>
-                                        <Insets />
+                                        <Insets/>
                                     </opaqueInsets>
                                 </Button>
-                     </children>
-                     <padding>
-                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                     </padding>
-                  </VBox>
-               </center>
+                            </children>
+                            <padding>
+                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                            </padding>
+                        </VBox>
+                    </center>
                 </BorderPane>
             </left>
             <center>
@@ -62,40 +69,40 @@
                     <center>
                         <ProgressIndicator scaleX="0.2" scaleY="0.2" BorderPane.alignment="CENTER">
                             <BorderPane.margin>
-                                <Insets />
+                                <Insets/>
                             </BorderPane.margin>
                         </ProgressIndicator>
                     </center>
                     <bottom>
                     </bottom>
-               <top>
-                  <HBox alignment="CENTER_RIGHT" prefWidth="200.0" spacing="6.0" BorderPane.alignment="CENTER">
-                     <children>
-                        <HBox>
-                           <children>
-                              <ToggleButton mnemonicParsing="false" selected="true" text="Hourly">
-                                 <toggleGroup>
-                                    <ToggleGroup fx:id="timeControls" />
-                                 </toggleGroup>
-                              </ToggleButton>
-                              <ToggleButton mnemonicParsing="false" text="Daily" toggleGroup="$timeControls" />
-                              <ToggleButton mnemonicParsing="false" text="Weekly" toggleGroup="$timeControls" />
-                              <ToggleButton mnemonicParsing="false" text="Monthly" toggleGroup="$timeControls" />
-                           </children>
+                    <top>
+                        <HBox alignment="CENTER_RIGHT" prefWidth="200.0" spacing="6.0" BorderPane.alignment="CENTER">
+                            <children>
+                                <HBox>
+                                    <children>
+                                        <ToggleButton mnemonicParsing="false" selected="true" text="Hourly" fx:id="hourlyButton">
+                                            <toggleGroup>
+                                                <ToggleGroup fx:id="timeControls"/>
+                                            </toggleGroup>
+                                        </ToggleButton>
+                                        <ToggleButton mnemonicParsing="false" text="Daily" toggleGroup="$timeControls" fx:id="dailyButton"/>
+                                        <ToggleButton mnemonicParsing="false" text="Weekly" toggleGroup="$timeControls" fx:id="weeklyButton"/>
+                                        <ToggleButton mnemonicParsing="false" text="Monthly" toggleGroup="$timeControls" fx:id="monthlyButton"/>
+                                    </children>
+                                </HBox>
+                                <Label text="From"/>
+                                <DatePicker fx:id="startDate" promptText="Start Date"/>
+                                <Label text="To"/>
+                                <DatePicker fx:id="endDate" promptText="End Date"/>
+                            </children>
+                            <opaqueInsets>
+                                <Insets/>
+                            </opaqueInsets>
+                            <padding>
+                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                            </padding>
                         </HBox>
-                        <Label text="From" />
-                        <DatePicker fx:id="startDate" promptText="Start Date" />
-                        <Label text="To" />
-                        <DatePicker fx:id="endDate" promptText="End Date" />
-                     </children>
-                     <opaqueInsets>
-                        <Insets />
-                     </opaqueInsets>
-                     <padding>
-                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                     </padding>
-                  </HBox>
-               </top>
+                    </top>
                 </BorderPane>
             </center>
         </BorderPane>

@@ -1,15 +1,16 @@
 package t16.controller;
 
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
+import t16.AdDashboard;
 import t16.components.dialogs.ConfirmationDialog;
 import t16.components.dialogs.ExceptionDialog;
 import t16.model.Campaign;
-import t16.model.Database;
 
 import java.io.File;
 import java.io.IOException;
@@ -93,11 +94,25 @@ public class NewCampaign {
         });
     }
 
+    private void toggleCreationMethod() {
+        toggleControls.forEach(e -> e.setDisable(!e.isDisabled()));
+    }
+
     //<editor-fold desc="View Methods">
     @FXML
     private void zipFileBrowseAction(ActionEvent event) {
         File file = browseFile("Data Zip", event, ZIPfilter);
         zipFileText.setText(file != null ? file.getAbsolutePath() : "");
+    }
+
+    private File browseFile(String file, ActionEvent event, ExtensionFilter filter) {
+        FileChooser fc = new FileChooser();
+        fc.setTitle("Open " + file);
+        fc.setInitialDirectory(new File(System.getProperty("user.home")));
+
+        fc.getExtensionFilters().add(filter);
+
+        return fc.showOpenDialog(((Control) event.getSource()).getScene().getWindow());
     }
 
     @FXML
@@ -130,6 +145,7 @@ public class NewCampaign {
         File savePath = fc.showSaveDialog(((Control) event.getSource()).getScene().getWindow());
         campaignSaveText.setText(savePath != null ? savePath.getAbsolutePath() : "");
     }
+    //</editor-fold>
 
     @FXML
     private void cancelButtonAction(ActionEvent event) {
@@ -152,54 +168,56 @@ public class NewCampaign {
 
     @FXML
     private void createButtonActive(ActionEvent event) throws IOException {
-        try {
-            Database.InitialiseDatabase();
-            Database database = Database.database;
-            Campaign campaign;
+        doWork();
+        Task<Campaign> createTask;
+        File databaseFile = new File(campaignSaveText.getText());
+        if (isZipCreate) {
+            File zipFile = new File(zipFileText.getText());
+            createTask = new Task<Campaign>() {
 
-            progressBar.setVisible(true);
-
-            try {
-                if (isZipCreate) {
-                    campaign = database.createCampaignWithZipInput(new File(zipFileText.getText()), new File(campaignSaveText.getText()));
-                } else {
-                    campaign = database.createCampaignWithCsvInput(new File(clickLogText.getText()), new File(impressionLogText.getText()), new File(serverLogText.getText()), new File(campaignSaveText.getText()));
+                @Override
+                protected Campaign call() throws Exception {
+                    return AdDashboard.getDataController().createCampaign(zipFile, databaseFile);
                 }
-                Main.openCampaign(campaign);
-                ((Stage) ((Control) event.getSource()).getScene().getWindow()).close();
+            };
+        } else {
+            File clickFile = new File(clickLogText.getText());
+            File impressionFile = new File(impressionLogText.getText());
+            File serverFile = new File(serverLogText.getText());
 
-            } catch (IOException ex) {
-                ExceptionDialog dialog = new ExceptionDialog(
-                        "Failed to create campaign.",
-                        "An exception occurred whilst creating the campaign.",
-                        ex
-                );
-                dialog.showAndWait();
-            }
-        } catch (Exception ex) {
-            ExceptionDialog dialog = new ExceptionDialog(
-                    "Create Campaign Error",
-                    "An error occurred whilst creating the campaign.",
-                    ex
-            );
-            dialog.show();
-        } finally {
-            progressBar.setVisible(false);
+            createTask = new Task<Campaign>() {
+                @Override
+                protected Campaign call() throws Exception {
+                    return AdDashboard.getDataController().createCampaign(clickFile, impressionFile, serverFile, databaseFile);
+                }
+            };
         }
+
+        createTask.setOnSucceeded(e -> {
+            Main.openCampaign(createTask.getValue());
+            stopWork();
+            ((Stage) ((Control) event.getSource()).getScene().getWindow()).close();
+        });
+        createTask.setOnFailed(e -> {
+            ExceptionDialog dialog = new ExceptionDialog(
+                    "Failed to create campaign.",
+                    "An exception occurred whilst creating the campaign.",
+                    e.getSource().getException()
+            );
+            stopWork();
+            dialog.showAndWait();
+        });
+
+        AdDashboard.getWorkerPool().queueTask(createTask);
     }
-    //</editor-fold>
 
-    private File browseFile(String file, ActionEvent event, ExtensionFilter filter) {
-        FileChooser fc = new FileChooser();
-        fc.setTitle("Open " + file);
-        fc.setInitialDirectory(new File(System.getProperty("user.home")));
-
-        fc.getExtensionFilters().add(filter);
-
-        return fc.showOpenDialog(((Control) event.getSource()).getScene().getWindow());
+    private void doWork() {
+        createButton.setDisable(true);
+        progressBar.setVisible(true);
     }
 
-    private void toggleCreationMethod() {
-        toggleControls.forEach(e -> e.setDisable(!e.isDisabled()));
+    private void stopWork() {
+        createButton.setDisable(false);
+        progressBar.setVisible(false);
     }
 }

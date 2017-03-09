@@ -1,23 +1,21 @@
 package t16.controller;
 
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Control;
+import javafx.scene.control.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import t16.AdDashboard;
 import t16.components.dialogs.ConfirmationDialog;
 import t16.components.dialogs.ErrorDialog;
 import t16.components.dialogs.ExceptionDialog;
-import t16.exceptions.DatabaseConnectionException;
+import t16.components.dialogs.GenericDialog;
 import t16.model.Campaign;
-import t16.model.Database;
 
 import java.io.File;
 import java.util.Optional;
@@ -31,6 +29,9 @@ import java.util.Optional;
 public class Main {
 
     private static Class thisClass;
+
+    private Task task = null;
+
     @FXML
     private Button newCampaignButton;
     @FXML
@@ -38,26 +39,8 @@ public class Main {
     @FXML
     private Button exitButton;
 
-    public static void openCampaign(Campaign campaign) {
-        try {
-            FXMLLoader loader = new FXMLLoader(thisClass.getResource("/dashboard.fxml"));
-            Parent parent = loader.load();
-            Dashboard controller = loader.getController();
-            controller.setCampaign(campaign);
-
-            Scene scene = new Scene(parent, 1280, 720);
-            controller.setScene(scene);
-
-            Stage stage = new Stage();
-            stage.setTitle(campaign.getName() + " - Ad Dashboard");
-            stage.setScene(scene);
-            stage.show();
-        } catch (Exception e) {
-            ExceptionDialog dialog = new ExceptionDialog("Load error!", "Failed to load campaign.", e);
-            dialog.showAndWait();
-        }
-
-    }
+    @FXML
+    private ProgressBar progressBar;
 
     @FXML
     public void initialize() {
@@ -82,9 +65,13 @@ public class Main {
 
     @FXML
     private void openCampaignButtonAction(ActionEvent event) {
+        doWork();
         File campaignDatabase = browseCampaign(event);
 
-        if (campaignDatabase == null) return;
+        if (campaignDatabase == null) {
+            stopWork();
+            return;
+        }
 
         if (!(campaignDatabase.canRead() && campaignDatabase.canWrite())) {
             ErrorDialog dialog = new ErrorDialog(
@@ -93,46 +80,50 @@ public class Main {
                     "Campaign file was not read/writable.\nTo open this campaign, please ensure the file is read/write enabled."
             );
             dialog.showAndWait();
+            stopWork();
             return;
         }
 
-        try {
-            Campaign campaign = loadCampaign(campaignDatabase);
-            openCampaign(campaign);
+        Task<Campaign> openTask = new Task<Campaign>() {
+            @Override
+            protected Campaign call() throws Exception {
+                return AdDashboard.getDataController().openCampaign(campaignDatabase);
+            }
+        };
 
-            // Close Main Window
+        openTask.setOnSucceeded(e -> {
+            openCampaign(openTask.getValue());
+
+            stopWork();
             ((Stage) ((Control) event.getSource()).getScene().getWindow()).close();
+        });
+        openTask.setOnFailed(e -> {
+            GenericDialog dialog;
+            if (e.getSource().getException() != null) {
+                dialog = new ExceptionDialog(
+                        "Open Campaign Error!",
+                        "Failed to open campaign",
+                        e.getSource().getException()
+                );
 
-        } catch (DatabaseConnectionException e){
-            ExceptionDialog dialog = new ExceptionDialog(
-                    "Open Campaign Error!",
-                    "Failed to open campaign",
-                    e
-            );
-            e.printStackTrace();
+            } else {
+                dialog = new ErrorDialog(
+                        "Open Campaign Error!",
+                        "Failed to open campaign",
+                        "An unknown error occurred whilst opening a campaign."
+                );
+            }
             dialog.showAndWait();
-        } catch (Exception e) {
-            ErrorDialog dialog = new ErrorDialog(
-                    "Open Campaign Error!",
-                    "Failed to open campaign",
-                    e.getMessage()
-            );
-            e.printStackTrace();
-            dialog.showAndWait();
-        }
+            stopWork();
+        });
+
+        AdDashboard.getWorkerPool().queueTask(openTask);
     }
 
-    @FXML
-    private void exitButtonAction(ActionEvent event) {
-        ConfirmationDialog confirm = new ConfirmationDialog(
-                Alert.AlertType.CONFIRMATION,
-                "Are you sure you want to exit?",
-                "Are you sure you want to exit?",
-                "Exit");
-        Optional<ButtonType> result = confirm.showAndWait();
-        if (result.isPresent() && confirm.isAction(result.get())) {
-            Platform.exit();
-        }
+    private void doWork() {
+        newCampaignButton.setDisable(true);
+        openCampaignButton.setDisable(true);
+        progressBar.setVisible(true);
     }
 
     private File browseCampaign(ActionEvent event) {
@@ -146,8 +137,43 @@ public class Main {
         return fc.showOpenDialog(((Control) event.getSource()).getScene().getWindow());
     }
 
-    private Campaign loadCampaign(File campaignDatabase) throws DatabaseConnectionException {
-        Database database = Database.InitialiseDatabase();
-        return database.loadCampaign(campaignDatabase);
+    private void stopWork() {
+        newCampaignButton.setDisable(false);
+        openCampaignButton.setDisable(false);
+        progressBar.setVisible(false);
+    }
+
+    public static void openCampaign(Campaign campaign) {
+        try {
+            FXMLLoader loader = new FXMLLoader(thisClass.getResource("/dashboard.fxml"));
+            Parent parent = loader.load();
+            Dashboard controller = loader.getController();
+            controller.setCampaign(campaign);
+
+            Scene scene = new Scene(parent, 1280, 720);
+            controller.setScene(scene);
+
+            Stage stage = new Stage();
+            stage.setTitle(campaign.getName() + " - Ad Dashboard");
+            stage.setScene(scene);
+            stage.show();
+        } catch (Exception e) {
+            ExceptionDialog dialog = new ExceptionDialog("Load error!", "Failed to load campaign.", e);
+            dialog.showAndWait();
+        }
+
+    }
+
+    @FXML
+    private void exitButtonAction(ActionEvent event) {
+        ConfirmationDialog confirm = new ConfirmationDialog(
+                Alert.AlertType.CONFIRMATION,
+                "Are you sure you want to exit?",
+                "Are you sure you want to exit?",
+                "Exit");
+        Optional<ButtonType> result = confirm.showAndWait();
+        if (result.isPresent() && confirm.isAction(result.get())) {
+            Platform.exit();
+        }
     }
 }

@@ -1,6 +1,5 @@
 package t16.model;
 
-import java.io.File;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -18,8 +17,8 @@ public class Campaign {
     public HashMap<Interval, AxisPair> data;
     private String name;
 
-    public Campaign(File dbFile) {
-        this.name = dbFile.getName();
+    public Campaign(String name) {
+        this.name = name;
     }
 
     public void setData(String name, ResultSet results, boolean isFloat) throws SQLException {

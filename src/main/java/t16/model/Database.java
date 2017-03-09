@@ -1,26 +1,38 @@
 package t16.model;
 
-import t16.exceptions.CampaignCreationException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.h2.jdbcx.JdbcConnectionPool;
 import t16.exceptions.DatabaseConnectionException;
-import t16.exceptions.DatabaseException;
 
-import java.io.*;
-import java.sql.*;
-import java.util.zip.ZipInputStream;
+import java.io.File;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 /**
  * Created by Charles Gandon on 25/02/2017.
  * Modified by James Curran 26/2/17
+ * Modified by Huw Jones 06/03/2017
+ * This increment:
+ * TODO Total conversions
+ * TODO Uniques over time
+ * TODO Bounces over time
+ * TODO Conversions over time
+ * TODO Click-through rate
  * Future increments:
  * TODO Total bounces when bounces are measured by time spent as opposed to pages viewed
  */
 public class Database {
+    protected static final Logger log = LogManager.getLogger(Database.class);
+    private static final String usr = "login";
+    private static final String pwd = "password";
+
     public static Database database;
-    private Connection connection;
-    /*
-    - We could use PooledConnection but it seems incompatible with the use of testament
-     */
-//    PooledConnection connection;
+    private JdbcConnectionPool connectionPool;
+    private boolean isConnected = false;
+    private File databaseFile = null;
 
     public Database() {
         Database.database = this;
@@ -28,188 +40,17 @@ public class Database {
 
     public static Database InitialiseDatabase() {
         if (database == null) {
-            Database database = new Database();
+            database = new Database();
         }
         return database;
     }
 
-    /**
-     * Loads a Campaign from a Database file.
-     */
-    public Campaign loadCampaign(File databaseFile) throws DatabaseConnectionException {
-        this.connect(databaseFile, "login", "password");
-        return new Campaign(databaseFile);
+    public void connect(File databaseFile) throws DatabaseConnectionException {
+        connect(databaseFile, usr, pwd, true);
     }
 
-
-    /**
-     * Creates a campaign.
-     *
-     * @param zipFile An input .zip containing click_log.csv, impression_log.csv and server_log.csv.
-     * @param databaseFile [filename].h2.db
-     * @return the result of creating the campaign with the extracted .csv files
-     */
-    public Campaign createCampaignWithZipInput(File zipFile, File databaseFile) throws IOException, CampaignCreationException {
-        //Create temp folder
-        File outputFolder = new File("temp");
-        if (!outputFolder.exists()) {
-            outputFolder.mkdir();
-        }
-
-        //Begin extracting .csvs to temp folder
-        ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFile));
-        BufferedReader fileReader = new BufferedReader(new InputStreamReader(zis));
-        BufferedWriter fileWriter;
-        String currentLine;
-
-        //Extract click log
-        File clickFile = new File(outputFolder + File.separator + "click_log.csv");
-        fileWriter = new BufferedWriter(new FileWriter(clickFile));
-        zis.getNextEntry();
-        currentLine = fileReader.readLine();
-        while (currentLine != null) {
-            fileWriter.write(currentLine.replaceAll(",n/a,", ",NULL,"));
-            fileWriter.newLine();
-            currentLine = fileReader.readLine();
-        }
-        fileWriter.close();
-        zis.closeEntry();
-
-        //Extract impression log
-        File impressionFile = new File(outputFolder + File.separator + "impression_log.csv");
-        fileWriter = new BufferedWriter(new FileWriter(impressionFile));
-        zis.getNextEntry();
-        currentLine = fileReader.readLine();
-        while (currentLine != null) {
-            fileWriter.write(currentLine.replaceAll(",n/a,", ",NULL,"));
-            fileWriter.newLine();
-            currentLine = fileReader.readLine();
-        }
-        fileWriter.close();
-        zis.closeEntry();
-
-        //Extract server log
-        File serverFile = new File(outputFolder + File.separator + "server_log.csv");
-        fileWriter = new BufferedWriter(new FileWriter(serverFile));
-        zis.getNextEntry();
-        currentLine = fileReader.readLine();
-        while(currentLine != null)
-        {
-            fileWriter.write(currentLine.replaceAll(",n/a,", ",NULL,"));
-            fileWriter.newLine();
-            currentLine = fileReader.readLine();
-        }
-        zis.closeEntry();
-        zis.close();
-        fileReader.close();
-        fileWriter.close();
-
-        try {
-            Campaign result = this.createCampaignFinal(clickFile, impressionFile, serverFile, databaseFile);
-            deleteTemporaryFiles();
-            return result;
-        } catch (CampaignCreationException e) {
-            deleteTemporaryFiles();
-            throw e;
-        }
-    }
-
-    /**
-     * Creates a campaign.
-     *
-     * @param clickFile click_log.csv
-     * @param impressionFile impression_log.csv
-     * @param serverFile server_log.csv
-     * @param databaseFile [filename].h2.db
-     * @return the result of creating the campaign with the extracted .csv files
-     */
-    public Campaign createCampaignWithCsvInput(File clickFile, File impressionFile, File serverFile, File databaseFile) throws IOException, CampaignCreationException {
-        //Create temp folder
-        File outputFolder = new File("temp");
-        if (!outputFolder.exists()) {
-            outputFolder.mkdir();
-        }
-
-        //Begin copying .csvs to temp folder
-        BufferedReader fileReader;
-        BufferedWriter fileWriter;
-        String currentLine;
-
-        //Extract click log
-        File newClickFile = new File(outputFolder + File.separator + "click_log.csv");
-        fileWriter = new BufferedWriter(new FileWriter(newClickFile));
-        fileReader = new BufferedReader(new FileReader(clickFile));
-        currentLine = fileReader.readLine();
-        while (currentLine != null) {
-            fileWriter.write(currentLine.replaceAll(",n/a,", ",NULL,"));
-            fileWriter.newLine();
-            currentLine = fileReader.readLine();
-        }
-        fileWriter.close();
-        fileReader.close();
-
-        //Extract impression log
-        File newImpressionFile = new File(outputFolder + File.separator + "impression_log.csv");
-        fileWriter = new BufferedWriter(new FileWriter(newImpressionFile));
-        fileReader = new BufferedReader(new FileReader(impressionFile));
-        currentLine = fileReader.readLine();
-        while (currentLine != null) {
-            fileWriter.write(currentLine.replaceAll(",n/a,", ",NULL,"));
-            fileWriter.newLine();
-            currentLine = fileReader.readLine();
-        }
-        fileWriter.close();
-        fileReader.close();
-
-        //Extract server log
-        File newServerFile = new File(outputFolder + File.separator + "server_log.csv");
-        fileWriter = new BufferedWriter(new FileWriter(newServerFile));
-        fileReader = new BufferedReader(new FileReader(serverFile));
-        currentLine = fileReader.readLine();
-        while(currentLine != null)
-        {
-            fileWriter.write(currentLine.replaceAll(",n/a,", ",NULL,"));
-            fileWriter.newLine();
-            currentLine = fileReader.readLine();
-        }
-        fileReader.close();
-        fileWriter.close();
-
-        try {
-            Campaign result = this.createCampaignFinal(newClickFile, newImpressionFile, newServerFile, databaseFile);
-            deleteTemporaryFiles();
-            return result;
-        } catch (CampaignCreationException e) {
-            deleteTemporaryFiles();
-            throw e;
-        }
-    }
-
-    private Campaign createCampaignFinal(File clicks, File impressions, File server, File databaseFile) throws IOException, CampaignCreationException {
-        try {
-            this.connect(databaseFile, "login", "password", false);
-        } catch (DatabaseException e) {
-            databaseFile.delete();
-            throw new CampaignCreationException("Failed to create campaign - database error.", e);
-        }
-        try {
-            // Clear out database
-            this.connection.createStatement().execute("DROP ALL OBJECTS");
-            this.createTables();
-            this.addTables(clicks, impressions, server);
-        } catch (SQLException e) {
-            databaseFile.delete();
-            throw new CampaignCreationException("Failed to create campaign - error creating tables.", e);
-        }
-        return new Campaign(databaseFile);
-    }
-
-    private void connect(File databaseFile, String user, String password) throws DatabaseConnectionException {
-        connect(databaseFile, user, password, true);
-    }
-
-    private void connect(File databaseFile, String user, String password, boolean checkExist) throws DatabaseConnectionException {
-        if(checkExist) {
+    public void connect(File databaseFile, String user, String password, boolean checkExist) throws DatabaseConnectionException {
+        if (checkExist) {
             if (!databaseFile.exists())
                 throw new DatabaseConnectionException("Database file does not exist.");
             if (!databaseFile.canWrite())
@@ -224,43 +65,52 @@ public class Database {
             throw new DatabaseConnectionException("Could not connect to database driver not present.", e);
         }
 
-        try {
-            this.connection = DriverManager.getConnection("jdbc:h2:" + databasePath, user, password);
-        } catch (SQLException e) {
-            throw new DatabaseConnectionException("Failed to open database.", e);
+        this.connectionPool = JdbcConnectionPool.create("jdbc:h2:" + databasePath, user, password);
+        this.isConnected = true;
+        this.databaseFile = databaseFile;
+    }
+
+    public Connection getConnection() throws SQLException {
+        return connectionPool.getConnection();
+    }
+
+    public void createTables() throws SQLException {
+        try (Statement createStmt = connectionPool.getConnection().createStatement()) {
+
+            // Create tables
+            createStmt.execute("DROP ALL OBJECTS");
+            createStmt.execute("CREATE TABLE Clicks(date TIMESTAMP, id BIGINT, click_cost DECIMAL(10, 7))");
+            createStmt.execute("CREATE TABLE Impressions(date TIMESTAMP, id BIGINT, gender CHAR(6), age CHAR(5), income CHAR(6), context CHAR(12), cost DECIMAL(10, 7))");
+            createStmt.execute("CREATE TABLE Server(date TIMESTAMP, id BIGINT, exit_date TIMESTAMP NULL, page_viewed INT(11), conversion TINYINT)");
         }
     }
 
-    private void createTables() throws SQLException {
-        Statement createStmt = this.connection.createStatement();
+    public void connect(File databaseFile, boolean checkExist) throws DatabaseConnectionException {
+        connect(databaseFile, usr, pwd, checkExist);
+    }
 
-        // Create tables
-        createStmt.execute("CREATE TABLE Click(date TIMESTAMP, id FLOAT, click_cost DECIMAL(10, 7))");
-        createStmt.execute("CREATE TABLE Impression(date TIMESTAMP, id FLOAT, gender CHAR(20), age CHAR(20), income CHAR(20), context VARCHAR(80), cost DECIMAL(10, 7))");
-        createStmt.execute("CREATE TABLE Server(date TIMESTAMP, id FLOAT, exit_date TIMESTAMP NULL, page_viewed INT(11), conversion CHAR(20))");
+    public void connect(File databaseFile, String user, String password) throws DatabaseConnectionException {
+        connect(databaseFile, user, password, true);
+    }
 
-        // Add indices
-        createStmt.execute("CREATE INDEX Click_ID on CLICK(ID)");
-        createStmt.execute("CREATE INDEX Impression_ID on Impression(ID)");
-        createStmt.execute("CREATE INDEX Server_ID on Server(ID)");
+    public void createIndices() throws SQLException {
+        try (Statement indexStmt = this.connectionPool.getConnection().createStatement()) {
+
+            // Add indices
+            indexStmt.execute("CREATE INDEX Click_ID ON Clicks(ID)");
+            indexStmt.execute("CREATE INDEX Impression_ID ON Impressions(ID)");
+            indexStmt.execute("CREATE INDEX Server_ID ON Server(ID)");
+        }
 
     }
 
-    private void addTables(File click, File impression, File server) throws SQLException {
-            /*
-                - From connections, create SQL statement to create the table from the files in parameters
-             */
-        Statement importStmt = this.connection.createStatement();
-        importStmt.execute("INSERT INTO Click (SELECT * FROM CSVREAD('" + click.getPath() + "'))");
-        importStmt.execute("INSERT INTO Impression (SELECT * FROM CSVREAD('" + impression.getPath() + "'))");
-        importStmt.execute("INSERT INTO Server AS SELECT * FROM CSVREAD('" + server.getPath() + "')");
-    }
-
-    private void deleteTemporaryFiles() {
-        new File("temp/click_log.csv").delete();
-        new File("temp/impression_log.csv").delete();
-        new File("temp/server_log.csv").delete();
-        new File("temp").delete();
+    /**
+     * Gets the current database file
+     *
+     * @return
+     */
+    public File getDatabaseFile() {
+        return databaseFile;
     }
 
     /*
@@ -272,8 +122,8 @@ public class Database {
      * @throws SQLException if an error occurs during SQL execution
      */
     public int getTotalImpressions() throws SQLException {
-        Statement s = this.connection.createStatement();
-        s.execute("SELECT COUNT(*) FROM Impression");
+        Statement s = this.connectionPool.getConnection().createStatement();
+        s.execute("SELECT COUNT(*) FROM Impressions");
         return s.getResultSet().getInt(1);
     }
 
@@ -282,8 +132,8 @@ public class Database {
      * @throws SQLException if an error occurs during SQL execution
      */
     public int getTotalClicks() throws SQLException {
-        Statement s = this.connection.createStatement();
-        s.execute("SELECT COUNT(*) FROM Click");
+        Statement s = this.connectionPool.getConnection().createStatement();
+        s.execute("SELECT COUNT(*) FROM Clicks");
         return s.getResultSet().getInt(1);
     }
 
@@ -292,8 +142,8 @@ public class Database {
      * @throws SQLException if an error occurs during SQL execution
      */
     public int getTotalUniques() throws SQLException {
-        Statement s = this.connection.createStatement();
-        s.execute("SELECT COUNT(DISTINCT ID) FROM Click");
+        Statement s = this.connectionPool.getConnection().createStatement();
+        s.execute("SELECT COUNT(DISTINCT ID) FROM Clicks");
         return s.getResultSet().getInt(1);
     }
 
@@ -304,7 +154,7 @@ public class Database {
      * @throws SQLException if an error occurs during SQL execution
      */
     public int getTotalBounces() throws SQLException {
-        Statement s = this.connection.createStatement();
+        Statement s = this.connectionPool.getConnection().createStatement();
         s.execute("SELECT COUNT(*) FROM Server WHERE Page_viewed = 1");
         return s.getResultSet().getInt(1);
     }
@@ -314,45 +164,41 @@ public class Database {
      * @throws SQLException if an error occurs during SQL execution
      */
     public int getTotalConversions() throws SQLException {
-        Statement s = this.connection.createStatement();
+        Statement s = this.connectionPool.getConnection().createStatement();
         s.execute("SELECT COUNT(*) FROM Server WHERE Conversion = 'Yes'");
         return s.getResultSet().getInt(1);
     }
 
 
-    /**
+/*    *//**
      * @return a set of dates and times, and the number of impressions on each date and time
      * @throws SQLException if an error occurs during SQL execution
-     */
-    public ResultSet getImpressionsOverTime() throws SQLException {
+     *//*
+    public ResultSet getImpressions() throws SQLException {
         Statement s = this.connection.createStatement();
         s.execute("SELECT CONCAT(TO_CHAR(Date, 'YYYY-MM-DD HH24'), ':00') AS dates, " +
                 "COUNT(*) AS impressions " +
                 "FROM Impression GROUP BY dates ORDER BY dates ASC;");
         return s.getResultSet();
-    }
+    }*/
 
     /**
      * @return a set of dates and times, and the number of clicks on each date and time
      * @throws SQLException if an error occurs during SQL execution
      */
-    public ResultSet getClicksOverTime() throws SQLException {
-        Statement s = this.connection.createStatement();
-        s.execute("SELECT CONCAT(TO_CHAR(date, 'YYYY-MM-DD HH24'), ':00') AS dates, " +
-                "COUNT(*) AS clicks " +
-                "FROM Click GROUP BY dates ORDER BY dates ASC;");
+    public ResultSet getClicks() throws SQLException {
+        Statement s = this.connectionPool.getConnection().createStatement();
+        s.execute("SELECT CONCAT(TO_CHAR(date, 'YYYY-MM-DD HH24'), ':00') AS label, COUNT(*) AS click FROM `Clicks` GROUP BY label ORDER BY label ASC;");
         return s.getResultSet();
     }
 
-    /**
-     * @return a set of dates and times, and the number of unique users on each date and time
-     * @throws SQLException if an error occurs during SQL execution
-     */
-    public ResultSet getUniquesOverTime() throws SQLException {
-        Statement s = this.connection.createStatement();
-        s.execute("SELECT CONCAT(TO_CHAR(Date, 'YYYY-MM-DD HH24'), ':00') AS dates, " +
-                "COUNT(DISTINCT Id) AS uniques " +
-                "FROM Click GROUP BY dates ORDER BY dates ASC;");
+    public ResultSet getClickThrough() throws SQLException {
+        Statement s = this.connectionPool.getConnection().createStatement();
+        s.execute("SELECT CONCAT(impression_rate.id, ':00') AS label, CAST(clicks AS FLOAT) / CAST(impressions AS FLOAT) AS clickThrough FROM" +
+                "  (SELECT TO_CHAR(`Impressions`.`date`, 'YYYY-MM-DD HH24') AS id, COUNT(`Impressions`.`date`) AS impressions FROM `Impressions` GROUP BY id) impression_rate" +
+                "  LEFT JOIN" +
+                "  (SELECT TO_CHAR(`Clicks`.`date`, 'YYYY-MM-DD HH24') AS id, COUNT(`Clicks`.`date`) AS clicks FROM `Clicks` GROUP BY id) click_rate" +
+                "  ON impression_rate.id = click_rate.id");
         return s.getResultSet();
     }
 
@@ -362,7 +208,7 @@ public class Database {
      * @return a set of dates and times, and the number of bounces that occurred on each date and time
      * @throws SQLException if an error occurs during SQL execution
      */
-    public ResultSet getBouncesOverTime() throws SQLException {
+  /*  public ResultSet getUniques() throws SQLException {
         Statement s = this.connection.createStatement();
         s.execute("SELECT CONCAT(TO_CHAR(Date, 'YYYY-MM-DD HH24'), ':00') AS dates, " +
                 "COUNT(*) AS bounces " +
@@ -371,11 +217,12 @@ public class Database {
         return s.getResultSet();
     }
 
+    */
+
     /**
-     * @return a set of dates and times, and the number of conversions that occurred on each date and time
-     * @throws SQLException if an error occurs during SQL execution
-     */
-    public ResultSet getConversionsOverTime() throws SQLException {
+     * Unfinished.
+     *//*
+    public ResultSet getBounces() throws SQLException {
         Statement s = this.connection.createStatement();
         s.execute("SELECT CONCAT(TO_CHAR(Date, 'YYYY-MM-DD HH24'), ':00') AS dates, " +
                 "COUNT(*) AS conversions " +
@@ -384,7 +231,7 @@ public class Database {
         return s.getResultSet();
     }
 
-    public ResultSet getClickThrough() throws SQLException {
+    public ResultSet getConversions() throws SQLException {
         Statement s = this.connection.createStatement();
         s.execute("SELECT CONCAT(impression_rate.id, ':00') AS label, CAST(clicks AS FLOAT) / CAST(impressions AS FLOAT) AS clickThrough FROM" +
                 "  (SELECT TO_CHAR(`Impression`.`date`, 'YYYY-MM-DD HH24') AS id, COUNT(`Impression`.`date`) AS impressions FROM `Impression` GROUP BY id) impression_rate" +
@@ -392,12 +239,12 @@ public class Database {
                 "  (SELECT TO_CHAR(`Click`.`date`, 'YYYY-MM-DD HH24') AS id, COUNT(`Click`.`date`) AS clicks FROM `Click` GROUP BY id) click_rate" +
                 "  ON impression_rate.id = click_rate.id");
         return s.getResultSet();
-    }
+    }*/
 
     /*
     PROPOSED SQL "HEAVY" ACCESS METHODS FOR VIEW
      */
-    public ResultSet getClickCost(String n, String m) throws SQLException {
+  /*  public ResultSet getClickCost(String n, String m) throws SQLException {
         Statement s = this.connection.createStatement();
         s.execute("Select Date, ID FROM Click WHERE click_cost>=" + n + " AND click_cost<=" + m + " ;");
         return s.getResultSet();
@@ -431,7 +278,15 @@ public class Database {
         Statement s = this.connection.createStatement();
         s.execute("Select * FROM Server WHERE ID='" + id + "' ;");
         return s.getResultSet();
+    }*/
+    public void disconnect() throws SQLException {
+        log.warn("There are {} active connections", connectionPool.getActiveConnections());
+        if (!isConnected()) return;
+        connectionPool.dispose();
+        this.isConnected = false;
     }
 
-
+    public boolean isConnected() {
+        return isConnected;
+    }
 }
