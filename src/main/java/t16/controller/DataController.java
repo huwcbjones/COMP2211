@@ -378,17 +378,19 @@ public class DataController {
         try (Connection c = database.getConnection()) {
             String where;
             if (from != null && to != null) {
-                where = "`date` IN RANGE (" + from.toString() + ", " + to.toString() + ")";
+//                where = "WHERE `date` IN RANGE (" + from.toString() + ", " + to.toString() + ")";
+//                where = "WHERE `date` > '" + from.toString() + "' AND `date` < '" + from.toString() + "'";
+                where = "WHERE `date` BETWEEN '" + from.toString() + "' AND '" + to.toString()+"'";
             } else if (from != null) {
-                where = "`date` < " + from.toString();
+                where = "WHERE `date` > '" + from.toString() + "'";
             } else if (to != null) {
-                where = "`date` > " + to.toString();
+                where = "WHERE `date` < '" + to.toString()+"'";
             } else {
                 where = "";
             }
             PreparedStatement s = c.prepareStatement(
                     "SELECT CONCAT(TO_CHAR(date, '" + getRangeString(range) + "'), ':00') AS label, COUNT(*) AS click" +
-                            " FROM `Clicks` " + where + "GROUP BY label ORDER BY label ASC");
+                            " FROM `Clicks` " + where + " GROUP BY label ORDER BY label ASC");
             try (ResultSet res = s.executeQuery()) {
                 List<Pair<String, Number>> list = new ArrayList<>();
                 while (res.next()) {
