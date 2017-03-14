@@ -6,6 +6,7 @@ import org.h2.jdbcx.JdbcConnectionPool;
 import t16.exceptions.DatabaseConnectionException;
 
 import java.io.File;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -121,30 +122,48 @@ public class Database {
      * @return the total number of impressions in the campaign
      * @throws SQLException if an error occurs during SQL execution
      */
-    public int getTotalImpressions() throws SQLException {
-        Statement s = this.connectionPool.getConnection().createStatement();
-        s.execute("SELECT COUNT(*) FROM Impressions");
-        return s.getResultSet().getInt(1);
+    public long getTotalImpressions() throws SQLException {
+        try (Connection c = this.connectionPool.getConnection()) {
+            try (Statement s = c.createStatement()) {
+                ResultSet set = s.executeQuery("SELECT COUNT(*) as numberOfImpressions FROM `Impressions`");
+                while(set.next()){
+                    return set.getLong("numberOfImpressions");
+                }
+                return 0;
+            }
+        }
     }
 
     /**
      * @return the total number of clicks in the campaign
      * @throws SQLException if an error occurs during SQL execution
      */
-    public int getTotalClicks() throws SQLException {
-        Statement s = this.connectionPool.getConnection().createStatement();
-        s.execute("SELECT COUNT(*) FROM Clicks");
-        return s.getResultSet().getInt(1);
+    public long getTotalClicks() throws SQLException {
+        try (Connection c = this.connectionPool.getConnection()) {
+            try (Statement s = c.createStatement()) {
+                ResultSet set = s.executeQuery("SELECT COUNT(*) as numberOfClicks FROM `Clicks`");
+                while(set.next()){
+                    return set.getLong("numberOfClicks");
+                }
+                return 0;
+            }
+        }
     }
 
     /**
      * @return the total number of unique users that clicked an ad during the campaign
      * @throws SQLException if an error occurs during SQL execution
      */
-    public int getTotalUniques() throws SQLException {
-        Statement s = this.connectionPool.getConnection().createStatement();
-        s.execute("SELECT COUNT(DISTINCT ID) FROM Clicks");
-        return s.getResultSet().getInt(1);
+    public long getTotalUniques() throws SQLException {
+        try (Connection c = this.connectionPool.getConnection()) {
+            try (Statement s = c.createStatement()) {
+                ResultSet set = s.executeQuery("SELECT COUNT(DISTINCT ID) as numberOfUniques FROM `Clicks`");
+                while(set.next()){
+                    return set.getLong("numberOfUniques");
+                }
+                return 0;
+            }
+        }
     }
 
     /**
@@ -153,20 +172,113 @@ public class Database {
      * @return the total number of bounces that occurred during the campaign
      * @throws SQLException if an error occurs during SQL execution
      */
-    public int getTotalBounces() throws SQLException {
-        Statement s = this.connectionPool.getConnection().createStatement();
-        s.execute("SELECT COUNT(*) FROM Server WHERE Page_viewed = 1");
-        return s.getResultSet().getInt(1);
+    public long getTotalBounces() throws SQLException {
+        try (Connection c = this.connectionPool.getConnection()) {
+            try (Statement s = c.createStatement()) {
+                ResultSet set = s.executeQuery("SELECT COUNT(*) as numberOfBounces FROM `Server` WHERE `page_viewed`=1");
+                while(set.next()){
+                    return set.getLong("numberOfBounces");
+                }
+                return 0;
+            }
+        }
     }
 
     /**
      * @return the total number of conversions that occurred during the campaign
      * @throws SQLException if an error occurs during SQL execution
      */
-    public int getTotalConversions() throws SQLException {
-        Statement s = this.connectionPool.getConnection().createStatement();
-        s.execute("SELECT COUNT(*) FROM Server WHERE Conversion = 'Yes'");
-        return s.getResultSet().getInt(1);
+    public long getTotalConversions() throws SQLException {
+        try (Connection c = this.connectionPool.getConnection()) {
+            try (Statement s = c.createStatement()) {
+                ResultSet set = s.executeQuery("SELECT COUNT(*) as numberOfConversions FROM `Server` WHERE `conversion`=1");
+                while(set.next()){
+                    return set.getLong("numberOfConversions");
+                }
+                return 0;
+            }
+        }
+    }
+
+    public BigDecimal getTotalCost() throws SQLException {
+        try (Connection c = this.connectionPool.getConnection()) {
+            try (Statement s = c.createStatement()) {
+                ResultSet set = s.executeQuery(
+                "SELECT (" +
+                    "   (SELECT SUM(`clicks`.`click_cost`) FROM `clicks`)" +
+                    "   + (SELECT SUM(`impressions`.`cost`) FROM `impressions`)" +
+                    ") / 100 AS totalCost"
+                );
+                while(set.next()){
+                    return set.getBigDecimal("totalCost");
+                }
+                return BigDecimal.ZERO;
+            }
+        }
+    }
+
+    public BigDecimal getCostPerClick() throws SQLException {
+        try (Connection c = this.connectionPool.getConnection()) {
+            try (Statement s = c.createStatement()) {
+                ResultSet set = s.executeQuery(
+                "SELECT" +
+                    "  (SELECT " +
+                    "     (" +
+                    "       (SELECT SUM(`clicks`.`click_cost`) FROM `clicks`)" +
+                    "      + (SELECT SUM(`impressions`.`cost`) FROM `impressions`)" +
+                    "     ) / 100" +
+                    "  ) / COUNT(*) AS costPerClick FROM `clicks`"
+                );
+                while(set.next()){
+                    return set.getBigDecimal("costPerClick");
+                }
+                return BigDecimal.ZERO;
+            }
+        }
+    }
+
+    public BigDecimal getCostPerAcquisition() throws SQLException {
+        try (Connection c = this.connectionPool.getConnection()) {
+            try (Statement s = c.createStatement()) {
+                ResultSet set = s.executeQuery(
+                "SELECT" +
+                    "  (SELECT" +
+                    "     (" +
+                    "       (SELECT SUM(`clicks`.`click_cost`) FROM `clicks`)" +
+                    "      + (SELECT SUM(`impressions`.`cost`) FROM `impressions`)" +
+                    "     ) / 100" +
+                    "  ) / COUNT(*) AS costPerAcquisition FROM `Impressions`" +
+                    "LEFT JOIN `Server`" +
+                    "ON `Server`.`ID` = `Impressions`.`ID` AND" +
+                    "    `Server`.`Date` = `Impressions`.`Date`" +
+                    "WHERE `Server`.`Conversion` = 1"
+                );
+                while(set.next()){
+                    return set.getBigDecimal("costPerAcquisition");
+                }
+                return BigDecimal.ZERO;
+            }
+        }
+    }
+
+    public BigDecimal getCostPer1kImpressions() throws SQLException {
+        try (Connection c = this.connectionPool.getConnection()) {
+            try (Statement s = c.createStatement()) {
+                ResultSet set = s.executeQuery(
+                    "SELECT" +
+                    "  (SELECT " +
+                    "     (" +
+                    "       (SELECT SUM(`clicks`.`click_cost`) FROM `clicks`)" +
+                    "      + (SELECT SUM(`impressions`.`cost`) FROM `impressions`)" +
+                    "     ) / 100" +
+                    "  ) / COUNT(*) / 1000 AS costPer1kImpressions FROM `impressions`"
+                );
+                while(set.next()){
+                    return set.getBigDecimal("costPer1kImpressions");
+                }
+                return BigDecimal.ZERO;
+            }
+        }
     }
 
 
@@ -280,8 +392,8 @@ public class Database {
         return s.getResultSet();
     }*/
     public void disconnect() throws SQLException {
-        log.warn("There are {} active connections", connectionPool.getActiveConnections());
         if (!isConnected()) return;
+        log.warn("There are {} active connections", connectionPool.getActiveConnections());
         connectionPool.dispose();
         this.isConnected = false;
     }

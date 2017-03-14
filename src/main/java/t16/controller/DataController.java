@@ -3,9 +3,9 @@ package t16.controller;
 import javafx.util.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import t16.components.Importer;
 import t16.exceptions.CampaignCreationException;
+import t16.exceptions.CampaignLoadException;
 import t16.exceptions.DatabaseConnectionException;
 import t16.model.*;
 import t16.utils.FileUtils;
@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.sql.*;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -54,7 +55,7 @@ public class DataController {
      * @return Created campaign
      * @throws CampaignCreationException Throw if an error occurred whilst creating the campaign
      */
-    public Campaign createCampaign(File zipFile, File databaseFile) throws CampaignCreationException {
+    public Campaign createCampaign(File zipFile, File databaseFile) throws CampaignCreationException, CampaignLoadException {
         File outputDirectory = new File("temp");
         List<File> fileList;
         try {
@@ -148,7 +149,7 @@ public class DataController {
      * @return Created campaign
      * @throws CampaignCreationException Thrown if an error occurred whilst creating the campaign
      */
-    public Campaign createCampaign(File clickFile, File impressionFile, File serverFile, File databaseFile) throws CampaignCreationException {
+    public Campaign createCampaign(File clickFile, File impressionFile, File serverFile, File databaseFile) throws CampaignCreationException, CampaignLoadException {
         log.info("Connecting to database {}", databaseFile.getAbsolutePath());
         try {
             database.connect(databaseFile, false);
@@ -209,7 +210,13 @@ public class DataController {
         }
 
         // TODO: Fix this mess!
-        return new Campaign("This name should be changed");
+        Campaign c = new Campaign(databaseFile.getName());
+        try {
+            return setStats(c);
+        } catch (SQLException e) {
+            log.catching(e);
+            throw new CampaignLoadException("Could not load stats.", e);
+        }
     }
 
     /**
@@ -218,13 +225,19 @@ public class DataController {
      * @param databaseFile Campaign file to open
      * @return The opened Campaign
      */
-    public Campaign openCampaign(File databaseFile) {
+    public Campaign openCampaign(File databaseFile) throws CampaignLoadException {
         try {
             database.connect(databaseFile);
         } catch (DatabaseConnectionException e) {
             log.catching(e);
         }
-        return new Campaign(databaseFile.getName());
+        Campaign c = new Campaign(databaseFile.getName());
+        try {
+            return setStats(c);
+        } catch (SQLException e) {
+            log.catching(e);
+            throw new CampaignLoadException("Could not load stats.", e);
+        }
     }
 
     /**
@@ -271,6 +284,19 @@ public class DataController {
         }
     }
 
+    private Campaign setStats(Campaign c) throws SQLException {
+        c.setNumberImpressions(getTotalImpressions());
+        c.setNumberClicks(getTotalClicks());
+        c.setNumberUniques(getTotalUniques());
+        c.setNumberConversions(getTotalConversions());
+        c.setNumberBounces(getTotalBounces());
+
+        c.setTotalCost(getTotalCost());
+        c.setCostPerClick(getCostPerClick());
+        c.setCostPerAcquisition(getCostPerAcquisition());
+        c.setCostPer1kImpressions(getCostPer1kImpressions());
+        return c;
+    }
     /**
      * Inserts Impression Logs into the database
      *
@@ -399,15 +425,42 @@ public class DataController {
         }
     }
 
+    /**
+     * @param range
+     * @param from
+     * @param to
+     */
+    public List<Pair<String, Number>> getImpressions(RANGE range, Timestamp from, Timestamp to) throws SQLException {
+        try (Connection c = database.getConnection()) {
+            String where;
+            if (from != null && to != null) {
+                where = "`date` IN RANGE (" + from.toString() + ", " + to.toString() + ")";
+            } else if (from != null) {
+                where = "`date` < " + from.toString();
+            } else if (to != null) {
+                where = "`date` > " + to.toString();
+            } else {
+                where = "";
+            }
+            PreparedStatement s = c.prepareStatement(
+                    "SELECT CONCAT(TO_CHAR(date, '" + getRangeString(range) + "'), ':00') AS label, COUNT(*) AS impressions" +
+                            " FROM `Impressions` " + where + "GROUP BY label ORDER BY label ASC");
+            try (ResultSet res = s.executeQuery()) {
+                List<Pair<String, Number>> list = new ArrayList<>();
+                while (res.next()) {
+                    list.add(new Pair<>(res.getString(1), res.getInt(2)));
+                }
+                return list;
+            }
+        }
+    }
+
     private String getRangeString(RANGE range) {
         switch (range) {
             case HOURLY:
                 return "YYYY-MM-DD HH24";
             case DAILY:
                 return "YYYY-MM-DD";
-            case WEEKLY:
-                // TODO: Work out how to do weekly
-                throw new NotImplementedException();
             case MONTHLY:
                 return "YYYY-MM";
             default:
@@ -419,7 +472,7 @@ public class DataController {
      * @return the total number of impressions in the campaign
      * @throws SQLException if an error occurs during SQL execution
      */
-    public int getTotalImpressions() throws SQLException {
+    public long getTotalImpressions() throws SQLException {
         return this.database.getTotalImpressions();
     }
 
@@ -427,7 +480,7 @@ public class DataController {
      * @return the total number of clicks in the campaign
      * @throws SQLException if an error occurs during SQL execution
      */
-    public int getTotalClicks() throws SQLException {
+    public long getTotalClicks() throws SQLException {
         return this.database.getTotalClicks();
     }
 
@@ -435,7 +488,7 @@ public class DataController {
      * @return the total number of unique users that clicked an ad during the campaign
      * @throws SQLException if an error occurs during SQL execution
      */
-    public int getTotalUniques() throws SQLException {
+    public long getTotalUniques() throws SQLException {
         return this.database.getTotalUniques();
     }
 
@@ -445,7 +498,7 @@ public class DataController {
      * @return the total number of bounces that occurred during the campaign
      * @throws SQLException if an error occurs during SQL execution
      */
-    public int getTotalBounces() throws SQLException {
+    public long getTotalBounces() throws SQLException {
         return this.database.getTotalBounces();
     }
 
@@ -453,14 +506,29 @@ public class DataController {
      * @return the total number of conversions that occurred during the campaign
      * @throws SQLException if an error occurs during SQL execution
      */
-    public int getTotalConversions() throws SQLException {
+    public long getTotalConversions() throws SQLException {
         return this.database.getTotalConversions();
+    }
+
+    public BigDecimal getTotalCost() throws SQLException {
+        return this.database.getTotalCost();
+    }
+
+    public BigDecimal getCostPerClick() throws SQLException {
+        return this.database.getCostPerClick();
+    }
+
+    public BigDecimal getCostPerAcquisition() throws SQLException {
+        return this.database.getCostPerAcquisition();
+    }
+
+    public BigDecimal getCostPer1kImpressions() throws SQLException {
+        return this.database.getCostPer1kImpressions();
     }
 
     public enum RANGE {
         DAILY,
         HOURLY,
-        WEEKLY,
         MONTHLY
     }
 }

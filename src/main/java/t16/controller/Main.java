@@ -10,6 +10,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import t16.AdDashboard;
 import t16.components.dialogs.ConfirmationDialog;
 import t16.components.dialogs.ErrorDialog;
@@ -28,6 +30,7 @@ import java.util.Optional;
  */
 public class Main {
 
+    protected static Logger log = LogManager.getLogger(Main.class);
     private static Class thisClass;
 
     private Task task = null;
@@ -98,8 +101,10 @@ public class Main {
             ((Stage) ((Control) event.getSource()).getScene().getWindow()).close();
         });
         openTask.setOnFailed(e -> {
+            log.error("Open task failed!");
             GenericDialog dialog;
             if (e.getSource().getException() != null) {
+                log.catching(e.getSource().getException());
                 dialog = new ExceptionDialog(
                         "Open Campaign Error!",
                         "Failed to open campaign",
@@ -154,10 +159,15 @@ public class Main {
             controller.setScene(scene);
 
             Stage stage = new Stage();
+            stage.setMinHeight(720);
+            stage.setMinWidth(1280);
             stage.setTitle(campaign.getName() + " - Ad Dashboard");
             stage.setScene(scene);
+
+            controller.initialize();
             stage.show();
         } catch (Exception e) {
+            log.catching(e);
             ExceptionDialog dialog = new ExceptionDialog("Load error!", "Failed to load campaign.", e);
             dialog.showAndWait();
         }
