@@ -17,7 +17,6 @@ import java.sql.Statement;
  * Modified by James Curran 26/2/17
  * Modified by Huw Jones 06/03/2017
  * This increment:
- * TODO Total conversions
  * TODO Uniques over time
  * TODO Bounces over time
  * TODO Conversions over time
