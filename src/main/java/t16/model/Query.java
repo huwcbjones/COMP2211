@@ -10,13 +10,18 @@ import java.sql.Timestamp;
  */
 public class Query {
 
-    private TYPE type;
-    private RANGE range;
+    private TYPE type = null;
+    private RANGE range = null;
     private Timestamp from = null;
     private Timestamp to = null;
+    private GENDER gender = null;
+    private String age = null;
+    private INCOME income = null;
+    private CONTEXT context = null;
 
     public Query(TYPE type, RANGE range) {
-        this(type, range, null, null);
+        this.type = type;
+        this.range = range;
     }
 
     public Query(TYPE type, RANGE range, Timestamp from, Timestamp to) {
@@ -24,6 +29,17 @@ public class Query {
         this.range = range;
         this.from = from;
         this.to = to;
+    }
+
+    public Query(TYPE type, RANGE range, Timestamp from, Timestamp to, GENDER gender, String age, INCOME income, CONTEXT context) {
+        this.type = type;
+        this.range = range;
+        this.from = from;
+        this.to = to;
+        this.gender = gender;
+        this.age = age;
+        this.income = income;
+        this.context = context;
     }
 
     public String getQuery() {
@@ -79,10 +95,10 @@ public class Query {
                         "  (SELECT " + rangeString + ", COUNT(*) AS `clicks` FROM `Clicks` GROUP BY " + rangeString + ") c_r" +
                         " ON i_r.YEAR = c_r.YEAR" +
                         "    AND i_r.MONTH = c_r.MONTH";
-        if (range != RANGE.MONTHLY) {
+        if (range != RANGE.MONTH) {
             q += "    AND i_r.DAY = c_r.DAY";
 
-            if (range != RANGE.DAILY) {
+            if (range != RANGE.DAY) {
                 q += "    AND i_r.HOUR = c_r.HOUR";
             }
         }
@@ -90,7 +106,7 @@ public class Query {
         return q;
     }
 
-    protected String uniquesQuery(){
+    protected String uniquesQuery() {
         return
                 "SELECT " + getDateString() + ", COUNT(*) AS numberOfBounces" +
                         " FROM `Server` " +
@@ -122,13 +138,13 @@ public class Query {
         String c = "";
         String f = "";
         switch (range) {
-            case HOURLY:
+            case HOUR:
                 c = ", ' ', " + t + "`HOUR`" + c;
                 f = " HH24" + f;
-            case DAILY:
+            case DAY:
                 c = ", '-', " + t + "`DAY`" + c;
                 f = "-DD" + f;
-            case MONTHLY:
+            case MONTH:
                 c = ", '-', " + t + "`MONTH`" + c;
                 f = "-MM" + f;
                 break;
@@ -165,11 +181,11 @@ public class Query {
     private String getRangeString() {
         String r = "";
         switch (range) {
-            case HOURLY:
+            case HOUR:
                 r = ", `HOUR`" + r;
-            case DAILY:
+            case DAY:
                 r = ", `DAY`" + r;
-            case MONTHLY:
+            case MONTH:
                 r = ", `MONTH`" + r;
                 break;
             default:
@@ -178,10 +194,47 @@ public class Query {
         return "`YEAR`" + r;
     }
 
+    public void setType(TYPE type) {
+        if (this.type == null) this.type = type;
+    }
+
+    public void setRange(RANGE range) {
+        if (this.range == null) this.range = range;
+    }
+
+    public void setFrom(Timestamp from) {
+        if (this.from == null) this.from = from;
+    }
+
+    public void setTo(Timestamp to) {
+        if (this.to == null) this.to = to;
+    }
+
+    public void setGender(GENDER gender) {
+        if (this.gender == null) this.gender = gender;
+    }
+
+    public void setAge(String age) {
+        if (this.age == null) this.age = age;
+    }
+
+    public void setIncome(INCOME income) {
+        if (this.income == null) this.income = income;
+    }
+
+    public void setContext(CONTEXT context) {
+        if (this.context == null) this.context = context;
+    }
+
+    public boolean isInt() {
+        if (type == TYPE.CLICK_THROUGH_RATE) return false;
+        return true;
+    }
+
     public enum RANGE {
-        DAILY,
-        HOURLY,
-        MONTHLY
+        DAY,
+        HOUR,
+        MONTH
     }
 
     public enum TYPE {
@@ -198,8 +251,26 @@ public class Query {
         BOUNCE_RATE
     }
 
-    public boolean isInt(){
-        if(type == TYPE.CLICK_THROUGH_RATE) return false;
-        return true;
+    public enum GENDER {
+        ALL,
+        MALE,
+        FEMALE
+    }
+
+    public enum INCOME {
+        ALL,
+        LOW,
+        MEDIUM,
+        HIGH
+    }
+
+    public enum CONTEXT {
+        ALL,
+        NEWS,
+        SHOPPING,
+        SOCIAL_MEDIA,
+        BLOG,
+        HOBBIES,
+        TRAVEL
     }
 }

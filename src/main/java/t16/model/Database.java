@@ -369,13 +369,13 @@ public class Database {
         return s.getResultSet();
     }
 
-    public ResultSet getGender(String gender) throws SQLException {
+    public ResultSet getContext(String gender) throws SQLException {
         Statement s = this.connection.createStatement();
         s.execute("Select Date, ID FROM Impression WHERE Gender='" + gender + "' ;");
         return s.getResultSet();
     }
 
-    public ResultSet getIncome(String income) throws SQLException {
+    public ResultSet getContext(String income) throws SQLException {
         Statement s = this.connection.createStatement();
         s.execute("Select Date, ID FROM Impression WHERE Income='" + income + "' ;");
         return s.getResultSet();

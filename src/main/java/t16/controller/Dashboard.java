@@ -13,11 +13,8 @@ import org.apache.logging.log4j.Logger;
 import t16.AdDashboard;
 import t16.components.dialogs.ConfirmationDialog;
 import t16.components.dialogs.ExceptionDialog;
-import t16.model.Campaign;
-import t16.model.Chart;
-import t16.model.Query;
-import t16.model.Query.RANGE;
-import t16.model.Query.TYPE;
+import t16.model.*;
+import t16.model.Query.*;
 
 import java.sql.Timestamp;
 import java.text.NumberFormat;
@@ -41,24 +38,6 @@ public class Dashboard {
     private Label campaignName;
 
     @FXML
-    private Button clicksButton;
-
-    @FXML
-    private Button impressionsButton;
-
-    @FXML
-    private Button uniqueButton;
-
-    @FXML
-    private Button bouncesButton;
-
-    @FXML
-    private Button conversionsButton;
-
-    @FXML
-    private Button clickThroughsButton;
-
-    @FXML
     private StackPane mainPane;
 
     @FXML
@@ -68,25 +47,28 @@ public class Dashboard {
     private DatePicker endDate;
 
     @FXML
+    private BorderPane filterPanel;
+
+    @FXML
     private ToggleButton hourlyButton;
 
     @FXML
     private ToggleButton dailyButton;
 
     @FXML
-    private ToggleButton weeklyButton;
-
-    @FXML
     private ToggleButton monthlyButton;
 
     @FXML
-    private ToggleGroup rangeToggle;
+    private ComboBox<Gender> genderCombo;
 
     @FXML
-    private Button updateButton;
+    private ComboBox ageCombo;
 
     @FXML
-    private BorderPane filterPanel;
+    private ComboBox<Income> incomeCombo;
+
+    @FXML
+    private ComboBox<Context> contextCombo;
 
     @FXML
     private StatsController statsPanel;
@@ -102,63 +84,6 @@ public class Dashboard {
         displayStats();
     }
 
-    @FXML
-    private void viewClicks(ActionEvent event) {
-        displayChart(TYPE.CLICKS);
-    }
-
-    @FXML
-    private void viewImpressions(ActionEvent event) {
-        displayChart(TYPE.IMPRESSIONS);
-    }
-
-    @FXML
-    private void viewUnique(ActionEvent event) {
-        displayChart(TYPE.UNIQUES);
-    }
-
-
-    @FXML
-    private void viewBounces(ActionEvent event) {
-        displayChart(TYPE.BOUNCES);
-    }
-
-    @FXML
-    private void viewConversion(ActionEvent event) {
-        displayChart(TYPE.CONVERSIONS);
-    }
-
-    @FXML
-    private void viewClickThrough(ActionEvent event) {
-        displayChart(TYPE.CLICK_THROUGH_RATE);
-    }
-
-    @FXML
-    private void updateChart(ActionEvent event) {
-        displayChart(currentChart);
-    }
-
-    @FXML
-    public void initialize() {
-        if (campaign != null) campaignName.setText(campaign.getName());
-        if (scene != null)
-            scene.getWindow().setOnCloseRequest(e -> {
-                ConfirmationDialog confirm = new ConfirmationDialog(
-                        Alert.AlertType.CONFIRMATION,
-                        "Exit Ad Dashboard?",
-                        "Are you sure you want end exit " + campaign.getName() + " Dashboard?",
-                        "Exit " + campaign.getName());
-                Optional<ButtonType> result = confirm.showAndWait();
-                if (result.isPresent() && confirm.isAction(result.get())) {
-                    Platform.exit();
-                } else {
-                    e.consume();
-                }
-            });
-        if (statsPanel != null) statsPanel.setCampaign(campaign);
-    }
-    //</editor-fold>
-
     private void displayLoading(boolean working) {
         workingIndicator.setVisible(working);
         statsPanel.setVisible(false);
@@ -170,33 +95,19 @@ public class Dashboard {
         filterPanel.setVisible(false);
         statsPanel.setVisible(true);
     }
-    private RANGE getRange() {
-        if (hourlyButton.isSelected()) {
-            return RANGE.HOURLY;
-        }
-        if (dailyButton.isSelected()) {
-            return RANGE.DAILY;
-        }
-        if (monthlyButton.isSelected()) {
-            return RANGE.MONTHLY;
-        }
 
-        throw new IllegalStateException();
-    }
-
-    private void displayChart(Chart chart) {
-        displayLoading(false);
-        filterPanel.setVisible(true);
-        mainPane.getChildren().add(0, chart.renderChart());
+    @FXML
+    private void viewClicks(ActionEvent event) {
+        displayChart(TYPE.CLICKS);
     }
 
     private void displayChart(TYPE t) {
+        if (t == null) return;
         displayLoading(true);
 
         String title, xAxis, yAxis, series;
         RANGE range = getRange();
         xAxis = "Time";
-
         switch (t) {
             case IMPRESSIONS:
                 title = "Impressions per {}";
@@ -257,8 +168,8 @@ public class Dashboard {
                 return;
         }
 
-        title = title.replace("{}", range.toString());
-        yAxis = yAxis.replace("{}", range.toString());
+        title = title.replace("{}", range.toString().substring(0, 1).toUpperCase() + range.toString().substring(1).toLowerCase());
+        yAxis = yAxis.replace("{}", range.toString().substring(0, 1).toUpperCase() + range.toString().substring(1).toLowerCase());
 
         final String fTitle = title;
         final String fyAxis = yAxis;
@@ -272,10 +183,29 @@ public class Dashboard {
 
                 Timestamp from = (startDate.getValue() == null) ? null : Timestamp.valueOf(startDate.getValue().atStartOfDay());
                 Timestamp to = (endDate.getValue() == null) ? null : Timestamp.valueOf(endDate.getValue().atStartOfDay());
-                Query query = new Query(t, range, from, to);
+
+                GENDER gender = null;
+                if (genderCombo.getSelectionModel().getSelectedItem() != null) {
+                    gender = genderCombo.getSelectionModel().getSelectedItem().getType();
+                }
+
+                INCOME income = null;
+                if (incomeCombo.getSelectionModel().getSelectedItem() != null) {
+                    income = incomeCombo.getSelectionModel().getSelectedItem().getType();
+                }
+
+                // TODO: Age
+
+                CONTEXT context = null;
+                if (contextCombo.getSelectionModel().getSelectedItem() != null) {
+                    context = contextCombo.getSelectionModel().getSelectedItem().getType();
+                }
+
+                Query query = new Query(t, range, from, to, gender, null, income, context);
+
                 c.addSeries(fSeries, AdDashboard.getDataController().getQuery(query));
                 time = System.currentTimeMillis() - time;
-                log.info("Chart processed in {}", NumberFormat.getNumberInstance().format(time/1000d));
+                log.info("Chart processed in {}", NumberFormat.getNumberInstance().format(time / 1000d));
                 return c;
             }
         };
@@ -294,6 +224,84 @@ public class Dashboard {
             dialog.showAndWait();
         });
         AdDashboard.getWorkerPool().queueTask(getClicksTask);
+    }
+
+    private RANGE getRange() {
+        if (hourlyButton.isSelected()) {
+            return RANGE.HOUR;
+        }
+        if (dailyButton.isSelected()) {
+            return RANGE.DAY;
+        }
+        if (monthlyButton.isSelected()) {
+            return RANGE.MONTH;
+        }
+
+        throw new IllegalStateException();
+    }
+
+    private void displayChart(Chart chart) {
+        displayLoading(false);
+        filterPanel.setVisible(true);
+        mainPane.getChildren().add(0, chart.renderChart());
+    }
+
+    @FXML
+    private void viewImpressions(ActionEvent event) {
+        displayChart(TYPE.IMPRESSIONS);
+    }
+
+    @FXML
+    private void viewUnique(ActionEvent event) {
+        displayChart(TYPE.UNIQUES);
+    }
+    //</editor-fold>
+
+
+    @FXML
+    public void initialize() {
+        if (campaign != null) campaignName.setText(campaign.getName());
+        if (scene != null)
+            scene.getWindow().setOnCloseRequest(e -> {
+                ConfirmationDialog confirm = new ConfirmationDialog(
+                        Alert.AlertType.CONFIRMATION,
+                        "Exit Ad Dashboard?",
+                        "Are you sure you want end exit " + campaign.getName() + " Dashboard?",
+                        "Exit " + campaign.getName());
+                Optional<ButtonType> result = confirm.showAndWait();
+                if (result.isPresent() && confirm.isAction(result.get())) {
+                    Platform.exit();
+                } else {
+                    e.consume();
+                }
+            });
+
+        genderCombo.getItems().addAll(
+                new Gender(GENDER.ALL, "All"),
+                new Gender(GENDER.FEMALE, "Female"),
+                new Gender(GENDER.MALE, "Male")
+        );
+
+        incomeCombo.getItems().addAll(
+                new Income(INCOME.ALL, "All"),
+                new Income(INCOME.HIGH, "High"),
+                new Income(INCOME.MEDIUM, "Medium"),
+                new Income(INCOME.LOW, "Low")
+        );
+
+        contextCombo.getItems().addAll(
+                new Context(CONTEXT.ALL, "All"),
+                new Context(CONTEXT.BLOG, "Blog"),
+                new Context(CONTEXT.HOBBIES, "Hobbies"),
+                new Context(CONTEXT.NEWS, "News"),
+                new Context(CONTEXT.SHOPPING, "Shopping"),
+                new Context(CONTEXT.SOCIAL_MEDIA, "Social Media"),
+                new Context(CONTEXT.TRAVEL, "Travel")
+        );
+    }
+
+    public void setStats() {
+        if (statsPanel != null) statsPanel.setCampaign(campaign);
     }
 
     /**
