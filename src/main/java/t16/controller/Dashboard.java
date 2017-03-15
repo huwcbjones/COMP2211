@@ -10,7 +10,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import sun.plugin.dom.exception.InvalidStateException;
 import t16.AdDashboard;
 import t16.components.dialogs.ConfirmationDialog;
 import t16.components.dialogs.ExceptionDialog;
@@ -281,7 +280,7 @@ public class Dashboard {
                         query = new Query(Query.TYPE.IMPRESSIONS, range, from, to);
                         break;
                     default:
-                        throw new InvalidStateException("Should not happen");
+                        throw new IllegalStateException("Should not happen");
                 }
                 c.addSeries(fSeries, AdDashboard.getDataController().getQuery(query));
                 time = System.currentTimeMillis() - time;
