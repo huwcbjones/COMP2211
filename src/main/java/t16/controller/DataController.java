@@ -54,7 +54,7 @@ public class DataController {
             log.catching(e);
         }
     }
-
+    //<editor-fold desc="Create/Open Campaign">
     /**
      * Creates a campaign and returns the created campaign
      *
@@ -247,7 +247,9 @@ public class DataController {
             throw new CampaignLoadException("Could not load stats.", e);
         }
     }
+    //</editor-fold>
 
+    //<editor-fold desc="Insert Methods">
     /**
      * Inserts Click Logs into the database
      *
@@ -397,7 +399,7 @@ public class DataController {
             }
         }
     }
-
+    //</editor-fold>
 
     private Campaign setStats(Campaign c) throws SQLException {
         c.setNumberImpressions(getTotalImpressions());
@@ -412,12 +414,13 @@ public class DataController {
         c.setCostPer1kImpressions(getCostPer1kImpressions());
         return c;
     }
-    /*
-     * SQL access statements
-     */
 
     /**
-        */
+     * Queries the database and returns the relevant result based on the Query object
+     * @param query Query Object
+     * @return List of points for chart
+     * @throws SQLException
+     */
     public List<Pair<String, Number>> getQuery(Query query) throws SQLException {
         try (Connection c = database.getConnection()) {
             try (PreparedStatement s = c.prepareStatement(query.getQuery())) {
