@@ -3,9 +3,9 @@ package t16.controller;
 import javafx.util.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import t16.components.Importer;
 import t16.exceptions.CampaignCreationException;
+import t16.exceptions.CampaignLoadException;
 import t16.exceptions.DatabaseConnectionException;
 import t16.model.*;
 import t16.utils.FileUtils;
@@ -14,8 +14,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.sql.*;
+import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -27,6 +32,10 @@ import java.util.zip.ZipInputStream;
  */
 public class DataController {
     protected static final Logger log = LogManager.getLogger(DataController.class);
+
+    protected static final SimpleDateFormat mf = new SimpleDateFormat("MM");
+    protected static final SimpleDateFormat df = new SimpleDateFormat("dd");
+    protected static final SimpleDateFormat hf = new SimpleDateFormat("HH");
 
     private Database database;
 
@@ -45,7 +54,7 @@ public class DataController {
             log.catching(e);
         }
     }
-
+    //<editor-fold desc="Create/Open Campaign">
     /**
      * Creates a campaign and returns the created campaign
      *
@@ -54,7 +63,7 @@ public class DataController {
      * @return Created campaign
      * @throws CampaignCreationException Throw if an error occurred whilst creating the campaign
      */
-    public Campaign createCampaign(File zipFile, File databaseFile) throws CampaignCreationException {
+    public Campaign createCampaign(File zipFile, File databaseFile) throws CampaignCreationException, CampaignLoadException {
         File outputDirectory = new File("temp");
         List<File> fileList;
         try {
@@ -148,7 +157,7 @@ public class DataController {
      * @return Created campaign
      * @throws CampaignCreationException Thrown if an error occurred whilst creating the campaign
      */
-    public Campaign createCampaign(File clickFile, File impressionFile, File serverFile, File databaseFile) throws CampaignCreationException {
+    public Campaign createCampaign(File clickFile, File impressionFile, File serverFile, File databaseFile) throws CampaignCreationException, CampaignLoadException {
         log.info("Connecting to database {}", databaseFile.getAbsolutePath());
         try {
             database.connect(databaseFile, false);
@@ -209,7 +218,13 @@ public class DataController {
         }
 
         // TODO: Fix this mess!
-        return new Campaign("This name should be changed");
+        Campaign c = new Campaign(databaseFile.getName());
+        try {
+            return setStats(c);
+        } catch (SQLException e) {
+            log.catching(e);
+            throw new CampaignLoadException("Could not load stats.", e);
+        }
     }
 
     /**
@@ -218,15 +233,23 @@ public class DataController {
      * @param databaseFile Campaign file to open
      * @return The opened Campaign
      */
-    public Campaign openCampaign(File databaseFile) {
+    public Campaign openCampaign(File databaseFile) throws CampaignLoadException {
         try {
             database.connect(databaseFile);
         } catch (DatabaseConnectionException e) {
             log.catching(e);
         }
-        return new Campaign(databaseFile.getName());
+        Campaign c = new Campaign(databaseFile.getName());
+        try {
+            return setStats(c);
+        } catch (SQLException e) {
+            log.catching(e);
+            throw new CampaignLoadException("Could not load stats.", e);
+        }
     }
+    //</editor-fold>
 
+    //<editor-fold desc="Insert Methods">
     /**
      * Inserts Click Logs into the database
      *
@@ -237,7 +260,7 @@ public class DataController {
         try (Connection con = database.getConnection()) {
             long startTime = System.currentTimeMillis();
             con.setAutoCommit(false);
-            try (PreparedStatement insert = con.prepareStatement("INSERT INTO `Clicks` VALUES (?, ?, ?)")) {
+            try (PreparedStatement insert = con.prepareStatement("INSERT INTO `Clicks` VALUES (?, YEAR(?), MONTH(?), DAY_OF_MONTH(?), HOUR(?), ?, ?)")) {
                 for (ClickLog c : logList) {
                     if (Thread.currentThread().isInterrupted()) {
                         insert.close();
@@ -245,8 +268,12 @@ public class DataController {
                     }
                     try {
                         insert.setTimestamp(1, c.getDate());
-                        insert.setLong(2, c.getId());
-                        insert.setBigDecimal(3, c.getCost());
+                        insert.setTimestamp(2, c.getDate());
+                        insert.setTimestamp(3, c.getDate());
+                        insert.setTimestamp(4, c.getDate());
+                        insert.setTimestamp(5, c.getDate());
+                        insert.setLong(6, c.getId());
+                        insert.setBigDecimal(7, c.getCost());
                         insert.addBatch();
                     } catch (SQLException e) {
                         log.catching(e);
@@ -281,7 +308,7 @@ public class DataController {
         try (Connection con = database.getConnection()) {
             long startTime = System.currentTimeMillis();
             con.setAutoCommit(false);
-            try (PreparedStatement insert = con.prepareStatement("INSERT INTO `Impressions` VALUES (?, ?, ?, ?, ?, ?, ?)")) {
+            try (PreparedStatement insert = con.prepareStatement("INSERT INTO `Impressions` VALUES (?, YEAR(?), MONTH(?), DAY_OF_MONTH(?), HOUR(?), ?, ?, ?, ?, ?, ?)")) {
                 for (ImpressionLog c : logList) {
                     if (Thread.currentThread().isInterrupted()) {
                         insert.close();
@@ -289,12 +316,16 @@ public class DataController {
                     }
                     try {
                         insert.setTimestamp(1, c.getDate());
-                        insert.setLong(2, c.getId());
-                        insert.setString(3, c.getGender().toString());
-                        insert.setString(4, c.getAge());
-                        insert.setString(5, c.getIncome().toString());
-                        insert.setString(6, c.getContext().toString());
-                        insert.setBigDecimal(7, c.getCost());
+                        insert.setTimestamp(2, c.getDate());
+                        insert.setTimestamp(3, c.getDate());
+                        insert.setTimestamp(4, c.getDate());
+                        insert.setTimestamp(5, c.getDate());
+                        insert.setLong(6, c.getId());
+                        insert.setString(7, c.getGender().toString());
+                        insert.setString(8, c.getAge());
+                        insert.setString(9, c.getIncome().toString());
+                        insert.setString(10, c.getContext().toString());
+                        insert.setBigDecimal(11, c.getCost());
                         insert.addBatch();
                     } catch (SQLException e) {
                         log.catching(e);
@@ -329,7 +360,7 @@ public class DataController {
         try (Connection con = database.getConnection()) {
             long startTime = System.currentTimeMillis();
             con.setAutoCommit(false);
-            try (PreparedStatement insert = con.prepareStatement("INSERT INTO `Server` VALUES (?, ?, ?, ?, ?)")) {
+            try (PreparedStatement insert = con.prepareStatement("INSERT INTO `Server` VALUES (?, YEAR(?), MONTH(?), DAY_OF_MONTH(?), HOUR(?), ?, ?, ?, ?)")) {
                 for (ServerLog c : logList) {
                     if (Thread.currentThread().isInterrupted()) {
                         insert.close();
@@ -337,10 +368,14 @@ public class DataController {
                     }
                     try {
                         insert.setTimestamp(1, c.getEntry());
-                        insert.setLong(2, c.getId());
-                        insert.setTimestamp(3, c.getExit());
-                        insert.setLong(4, c.getPageViews());
-                        insert.setBoolean(5, c.isConversion());
+                        insert.setTimestamp(2, c.getEntry());
+                        insert.setTimestamp(3, c.getEntry());
+                        insert.setTimestamp(4, c.getEntry());
+                        insert.setTimestamp(5, c.getEntry());
+                        insert.setLong(6, c.getId());
+                        insert.setTimestamp(7, c.getExit());
+                        insert.setLong(8, c.getPageViews());
+                        insert.setBoolean(9, c.isConversion());
                         insert.addBatch();
                     } catch (SQLException e) {
                         log.catching(e);
@@ -364,54 +399,39 @@ public class DataController {
             }
         }
     }
+    //</editor-fold>
 
-    /*
-     * SQL access statements
-     */
+    private Campaign setStats(Campaign c) throws SQLException {
+        c.setNumberImpressions(getTotalImpressions());
+        c.setNumberClicks(getTotalClicks());
+        c.setNumberUniques(getTotalUniques());
+        c.setNumberConversions(getTotalConversions());
+        c.setNumberBounces(getTotalBounces());
 
-    /**
-     * @param range
-     * @param from
-     * @param to
-     */
-    public List<Pair<String, Number>> getClicks(RANGE range, Timestamp from, Timestamp to) throws SQLException {
-        try (Connection c = database.getConnection()) {
-            String where;
-            if (from != null && to != null) {
-                where = "`date` IN RANGE (" + from.toString() + ", " + to.toString() + ")";
-            } else if (from != null) {
-                where = "`date` < " + from.toString();
-            } else if (to != null) {
-                where = "`date` > " + to.toString();
-            } else {
-                where = "";
-            }
-            PreparedStatement s = c.prepareStatement(
-                    "SELECT CONCAT(TO_CHAR(date, '" + getRangeString(range) + "'), ':00') AS label, COUNT(*) AS click" +
-                            " FROM `Clicks` " + where + "GROUP BY label ORDER BY label ASC");
-            try (ResultSet res = s.executeQuery()) {
-                List<Pair<String, Number>> list = new ArrayList<>();
-                while (res.next()) {
-                    list.add(new Pair<>(res.getString(1), res.getInt(2)));
-                }
-                return list;
-            }
-        }
+        c.setTotalCost(getTotalCost());
+        c.setCostPerClick(getCostPerClick());
+        c.setCostPerAcquisition(getCostPerAcquisition());
+        c.setCostPer1kImpressions(getCostPer1kImpressions());
+        return c;
     }
 
-    private String getRangeString(RANGE range) {
-        switch (range) {
-            case HOURLY:
-                return "YYYY-MM-DD HH24";
-            case DAILY:
-                return "YYYY-MM-DD";
-            case WEEKLY:
-                // TODO: Work out how to do weekly
-                throw new NotImplementedException();
-            case MONTHLY:
-                return "YYYY-MM";
-            default:
-                throw new IllegalArgumentException();
+    /**
+     * Queries the database and returns the relevant result based on the Query object
+     * @param query Query Object
+     * @return List of points for chart
+     * @throws SQLException
+     */
+    public List<Pair<String, Number>> getQuery(Query query) throws SQLException {
+        try (Connection c = database.getConnection()) {
+            try (PreparedStatement s = c.prepareStatement(query.getQuery())) {
+                try (ResultSet res = s.executeQuery()) {
+                    List<Pair<String, Number>> list = new ArrayList<>();
+                    while (res.next()) {
+                        list.add(new Pair<>(res.getString(1), res.getInt(2)));
+                    }
+                    return list;
+                }
+            }
         }
     }
 
@@ -419,7 +439,7 @@ public class DataController {
      * @return the total number of impressions in the campaign
      * @throws SQLException if an error occurs during SQL execution
      */
-    public int getTotalImpressions() throws SQLException {
+    public long getTotalImpressions() throws SQLException {
         return this.database.getTotalImpressions();
     }
 
@@ -427,7 +447,7 @@ public class DataController {
      * @return the total number of clicks in the campaign
      * @throws SQLException if an error occurs during SQL execution
      */
-    public int getTotalClicks() throws SQLException {
+    public long getTotalClicks() throws SQLException {
         return this.database.getTotalClicks();
     }
 
@@ -435,7 +455,7 @@ public class DataController {
      * @return the total number of unique users that clicked an ad during the campaign
      * @throws SQLException if an error occurs during SQL execution
      */
-    public int getTotalUniques() throws SQLException {
+    public long getTotalUniques() throws SQLException {
         return this.database.getTotalUniques();
     }
 
@@ -445,7 +465,7 @@ public class DataController {
      * @return the total number of bounces that occurred during the campaign
      * @throws SQLException if an error occurs during SQL execution
      */
-    public int getTotalBounces() throws SQLException {
+    public long getTotalBounces() throws SQLException {
         return this.database.getTotalBounces();
     }
 
@@ -453,14 +473,23 @@ public class DataController {
      * @return the total number of conversions that occurred during the campaign
      * @throws SQLException if an error occurs during SQL execution
      */
-    public int getTotalConversions() throws SQLException {
+    public long getTotalConversions() throws SQLException {
         return this.database.getTotalConversions();
     }
 
-    public enum RANGE {
-        DAILY,
-        HOURLY,
-        WEEKLY,
-        MONTHLY
+    public BigDecimal getTotalCost() throws SQLException {
+        return this.database.getTotalCost();
+    }
+
+    public BigDecimal getCostPerClick() throws SQLException {
+        return this.database.getCostPerClick();
+    }
+
+    public BigDecimal getCostPerAcquisition() throws SQLException {
+        return this.database.getCostPerAcquisition();
+    }
+
+    public BigDecimal getCostPer1kImpressions() throws SQLException {
+        return this.database.getCostPer1kImpressions();
     }
 }
