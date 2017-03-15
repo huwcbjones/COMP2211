@@ -17,6 +17,7 @@ import t16.model.Campaign;
 import t16.model.Chart;
 import t16.model.Query;
 import t16.model.Query.RANGE;
+import t16.model.Query.TYPE;
 
 import java.sql.Timestamp;
 import java.text.NumberFormat;
@@ -33,7 +34,7 @@ public class Dashboard {
 
     private Scene scene = null;
     private Campaign campaign = null;
-    private ChartTypes currentChart = null;
+    private TYPE currentChart = null;
 
     //<editor-fold desc="View Controls">
     @FXML
@@ -103,33 +104,33 @@ public class Dashboard {
 
     @FXML
     private void viewClicks(ActionEvent event) {
-        displayChart(ChartTypes.CLICKS);
+        displayChart(TYPE.CLICKS);
     }
 
     @FXML
     private void viewImpressions(ActionEvent event) {
-        displayChart(ChartTypes.IMPRESSIONS);
+        displayChart(TYPE.IMPRESSIONS);
     }
 
     @FXML
     private void viewUnique(ActionEvent event) {
-        displayChart(ChartTypes.UNIQUES);
+        displayChart(TYPE.UNIQUES);
     }
 
 
     @FXML
     private void viewBounces(ActionEvent event) {
-        displayChart(ChartTypes.BOUNCES);
+        displayChart(TYPE.BOUNCES);
     }
 
     @FXML
     private void viewConversion(ActionEvent event) {
-        displayChart(ChartTypes.CONVERSIONS);
+        displayChart(TYPE.CONVERSIONS);
     }
 
     @FXML
     private void viewClickThrough(ActionEvent event) {
-        displayChart(ChartTypes.CLICK_THROUGH_RATE);
+        displayChart(TYPE.CLICK_THROUGH_RATE);
     }
 
     @FXML
@@ -189,7 +190,7 @@ public class Dashboard {
         mainPane.getChildren().add(0, chart.renderChart());
     }
 
-    private void displayChart(ChartTypes t) {
+    private void displayChart(TYPE t) {
         displayLoading(true);
 
         String title, xAxis, yAxis, series;
@@ -271,17 +272,7 @@ public class Dashboard {
 
                 Timestamp from = (startDate.getValue() == null) ? null : Timestamp.valueOf(startDate.getValue().atStartOfDay());
                 Timestamp to = (endDate.getValue() == null) ? null : Timestamp.valueOf(endDate.getValue().atStartOfDay());
-                Query query;
-                switch(t) {
-                    case CLICKS:
-                        query = new Query(Query.TYPE.CLICKS, range, from, to);
-                        break;
-                    case IMPRESSIONS:
-                        query = new Query(Query.TYPE.IMPRESSIONS, range, from, to);
-                        break;
-                    default:
-                        throw new IllegalStateException("Should not happen");
-                }
+                Query query = new Query(t, range, from, to);
                 c.addSeries(fSeries, AdDashboard.getDataController().getQuery(query));
                 time = System.currentTimeMillis() - time;
                 log.info("Chart processed in {}", NumberFormat.getNumberInstance().format(time/1000d));
@@ -325,19 +316,5 @@ public class Dashboard {
 
     public void setScene(Scene scene) {
         this.scene = scene;
-    }
-
-    private enum ChartTypes {
-        IMPRESSIONS,
-        CLICKS,
-        UNIQUES,
-        BOUNCES,
-        CONVERSIONS,
-        COST,
-        COST_PER_ACQUISITION,
-        COST_PER_CLICK,
-        COST_PER_1KIMPRESSION,
-        CLICK_THROUGH_RATE,
-        BOUNCE_RATE
     }
 }

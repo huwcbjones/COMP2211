@@ -70,15 +70,15 @@
             <StackPane.margin>
                <Insets bottom="150.0" left="150.0" right="150.0" top="150.0" />
             </StackPane.margin></StatsController>
-            <ProgressIndicator fx:id="workingIndicator" mouseTransparent="true" visible="false" StackPane.alignment="CENTER">
+            <ProgressIndicator fx:id="workingIndicator" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mouseTransparent="true" prefHeight="175.0" prefWidth="175.0" visible="false" StackPane.alignment="CENTER">
                 <StackPane.margin>
-                    <Insets bottom="250.0" left="250.0" right="250.0" top="250.0" />
+                    <Insets />
                 </StackPane.margin>
             </ProgressIndicator>
         </StackPane>
     </center>
     <right>
-        <BorderPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" fx:id="filterPanel">
+        <BorderPane fx:id="filterPanel" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
             <center>
                 <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
                     <children>
@@ -112,7 +112,7 @@
                         <DatePicker fx:id="startDate" promptText="Start Date" />
                         <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="Display To" />
                         <DatePicker fx:id="endDate" promptText="End Date" />
-                  <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Update" onAction="#updateChart">
+                  <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#updateChart" text="Update">
                      <VBox.margin>
                         <Insets top="50.0" />
                      </VBox.margin>
