@@ -36,8 +36,10 @@ public class Query {
                 return clickThroughQuery();
             case UNIQUES:
                 return uniquesQuery();
-            case BOUNCES:
-                return bouncesQuery();
+            case BOUNCES_PAGES:
+                return bouncesQueryPages();
+            case BOUNCES_TIME:
+                return bouncesQueryTime();
             case CONVERSIONS:
                 return conversionsQuery();
             case COST:
@@ -99,13 +101,29 @@ public class Query {
                         " ORDER BY " + getRangeString() + " ASC";
     }
 
-    protected String bouncesQuery() {
+    /**
+     * Here a bounce is when one page is viewed
+     */
+    protected String bouncesQueryPages() {
         return
                 "SELECT " + getDateString() + ", COUNT(*) AS bounces" +
                         " FROM `Server` " +
                         " WHERE `page_viewed`=1 AND " + getWhereClause() +
                         " GROUP BY " + getRangeString() +
                         " ORDER BY " + getRangeString() + " ASC";
+    }
+
+    /**
+     * Here a bounce is when less than 60 seconds are spent on the site
+     */
+    protected String bouncesQueryTime()
+    {
+        return
+                "SELECT " + getDateString() + ", COUNT(*) AS bounces" +
+                        " FROM `Server` " +
+                        " WHERE TIMESTAMPDIFF(2, `exit_date` - `date`) < 60 AND " + getWhereClause() +
+                        " GROUP BY " + getRangeString() +
+                        " ORDER BY " + getRangeString() + "ASC";
     }
 
     protected String conversionsQuery() {
@@ -188,7 +206,8 @@ public class Query {
         IMPRESSIONS,
         CLICKS,
         UNIQUES,
-        BOUNCES,
+        BOUNCES_PAGES,
+        BOUNCES_TIME,
         CONVERSIONS,
         COST,
         COST_PER_ACQUISITION,

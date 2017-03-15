@@ -120,7 +120,7 @@ public class Dashboard {
 
     @FXML
     private void viewBounces(ActionEvent event) {
-        displayChart(TYPE.BOUNCES);
+        displayChart(TYPE.BOUNCES_PAGES);
     }
 
     @FXML
@@ -213,7 +213,12 @@ public class Dashboard {
                 yAxis = "Unique Clicks per {}";
                 series = "Unique Clicks";
                 break;
-            case BOUNCES:
+            case BOUNCES_PAGES:
+                title = "Bounces per {}";
+                yAxis = "Bounces per {}";
+                series = "Bounces";
+                break;
+            case BOUNCES_TIME:
                 title = "Bounces per {}";
                 yAxis = "Bounces per {}";
                 series = "Bounces";
