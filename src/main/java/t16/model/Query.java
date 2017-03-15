@@ -121,7 +121,7 @@ public class Query {
         return
                 "SELECT " + getDateString() + ", COUNT(*) AS bounces" +
                         " FROM `Server` " +
-                        " WHERE TIMESTAMPDIFF(2, `exit_date` - `date`) < 60 AND " + getWhereClause() +
+                        " WHERE TIMESTAMPDIFF(2, `exit_date`-`date`) < 60 AND " + getWhereClause() +
                         " GROUP BY " + getRangeString() +
                         " ORDER BY " + getRangeString() + "ASC";
     }

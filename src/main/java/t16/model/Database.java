@@ -175,15 +175,33 @@ public class Database {
     }
 
     /**
-     * Currently a bounce is defined as only 1 page being viewed.
+     * Defines a bounce as only 1 page being viewed.
      *
      * @return the total number of bounces that occurred during the campaign
      * @throws SQLException if an error occurs during SQL execution
      */
-    public long getTotalBounces() throws SQLException {
+    public long getTotalBouncesPages() throws SQLException {
         try (Connection c = this.connectionPool.getConnection()) {
             try (Statement s = c.createStatement()) {
                 ResultSet set = s.executeQuery("SELECT COUNT(*) AS numberOfBounces FROM `Server` WHERE `page_viewed`=1");
+                while (set.next()) {
+                    return set.getLong("numberOfBounces");
+                }
+                return 0;
+            }
+        }
+    }
+
+    /**
+     * Defines a bounce as less than one minute being spent.
+     *
+     * @return the total number of bounces that occurred during the campaign
+     * @throws SQLException if an error occurs during SQL execution
+     */
+    public long getTotalBouncesTime() throws SQLException {
+        try (Connection c = this.connectionPool.getConnection()) {
+            try (Statement s = c.createStatement()) {
+                ResultSet set = s.executeQuery("SELECT COUNT(*) AS numberOfBounces FROM `Server` WHERE TIMESTAMPDIFF(2,`exit_date`-`date`) < 60");
                 while (set.next()) {
                     return set.getLong("numberOfBounces");
                 }
