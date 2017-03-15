@@ -78,7 +78,7 @@
         </StackPane>
     </center>
     <right>
-        <BorderPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+        <BorderPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" fx:id="filterPanel">
             <center>
                 <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
                     <children>
@@ -112,7 +112,7 @@
                         <DatePicker fx:id="startDate" promptText="Start Date" />
                         <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="Display To" />
                         <DatePicker fx:id="endDate" promptText="End Date" />
-                  <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Update">
+                  <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Update" onAction="#updateChart">
                      <VBox.margin>
                         <Insets top="50.0" />
                      </VBox.margin>

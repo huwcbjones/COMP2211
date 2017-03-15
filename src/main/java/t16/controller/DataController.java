@@ -15,8 +15,12 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -28,6 +32,10 @@ import java.util.zip.ZipInputStream;
  */
 public class DataController {
     protected static final Logger log = LogManager.getLogger(DataController.class);
+
+    protected static final SimpleDateFormat mf = new SimpleDateFormat("MM");
+    protected static final SimpleDateFormat df = new SimpleDateFormat("dd");
+    protected static final SimpleDateFormat hf = new SimpleDateFormat("HH");
 
     private Database database;
 
@@ -250,7 +258,7 @@ public class DataController {
         try (Connection con = database.getConnection()) {
             long startTime = System.currentTimeMillis();
             con.setAutoCommit(false);
-            try (PreparedStatement insert = con.prepareStatement("INSERT INTO `Clicks` VALUES (?, ?, ?)")) {
+            try (PreparedStatement insert = con.prepareStatement("INSERT INTO `Clicks` VALUES (?, YEAR(?), MONTH(?), DAY_OF_MONTH(?), HOUR(?), ?, ?)")) {
                 for (ClickLog c : logList) {
                     if (Thread.currentThread().isInterrupted()) {
                         insert.close();
@@ -258,8 +266,12 @@ public class DataController {
                     }
                     try {
                         insert.setTimestamp(1, c.getDate());
-                        insert.setLong(2, c.getId());
-                        insert.setBigDecimal(3, c.getCost());
+                        insert.setTimestamp(2, c.getDate());
+                        insert.setTimestamp(3, c.getDate());
+                        insert.setTimestamp(4, c.getDate());
+                        insert.setTimestamp(5, c.getDate());
+                        insert.setLong(6, c.getId());
+                        insert.setBigDecimal(7, c.getCost());
                         insert.addBatch();
                     } catch (SQLException e) {
                         log.catching(e);
@@ -284,19 +296,6 @@ public class DataController {
         }
     }
 
-    private Campaign setStats(Campaign c) throws SQLException {
-        c.setNumberImpressions(getTotalImpressions());
-        c.setNumberClicks(getTotalClicks());
-        c.setNumberUniques(getTotalUniques());
-        c.setNumberConversions(getTotalConversions());
-        c.setNumberBounces(getTotalBounces());
-
-        c.setTotalCost(getTotalCost());
-        c.setCostPerClick(getCostPerClick());
-        c.setCostPerAcquisition(getCostPerAcquisition());
-        c.setCostPer1kImpressions(getCostPer1kImpressions());
-        return c;
-    }
     /**
      * Inserts Impression Logs into the database
      *
@@ -307,7 +306,7 @@ public class DataController {
         try (Connection con = database.getConnection()) {
             long startTime = System.currentTimeMillis();
             con.setAutoCommit(false);
-            try (PreparedStatement insert = con.prepareStatement("INSERT INTO `Impressions` VALUES (?, ?, ?, ?, ?, ?, ?)")) {
+            try (PreparedStatement insert = con.prepareStatement("INSERT INTO `Impressions` VALUES (?, YEAR(?), MONTH(?), DAY_OF_MONTH(?), HOUR(?), ?, ?, ?, ?, ?, ?)")) {
                 for (ImpressionLog c : logList) {
                     if (Thread.currentThread().isInterrupted()) {
                         insert.close();
@@ -315,12 +314,16 @@ public class DataController {
                     }
                     try {
                         insert.setTimestamp(1, c.getDate());
-                        insert.setLong(2, c.getId());
-                        insert.setString(3, c.getGender().toString());
-                        insert.setString(4, c.getAge());
-                        insert.setString(5, c.getIncome().toString());
-                        insert.setString(6, c.getContext().toString());
-                        insert.setBigDecimal(7, c.getCost());
+                        insert.setTimestamp(2, c.getDate());
+                        insert.setTimestamp(3, c.getDate());
+                        insert.setTimestamp(4, c.getDate());
+                        insert.setTimestamp(5, c.getDate());
+                        insert.setLong(6, c.getId());
+                        insert.setString(7, c.getGender().toString());
+                        insert.setString(8, c.getAge());
+                        insert.setString(9, c.getIncome().toString());
+                        insert.setString(10, c.getContext().toString());
+                        insert.setBigDecimal(11, c.getCost());
                         insert.addBatch();
                     } catch (SQLException e) {
                         log.catching(e);
@@ -355,7 +358,7 @@ public class DataController {
         try (Connection con = database.getConnection()) {
             long startTime = System.currentTimeMillis();
             con.setAutoCommit(false);
-            try (PreparedStatement insert = con.prepareStatement("INSERT INTO `Server` VALUES (?, ?, ?, ?, ?)")) {
+            try (PreparedStatement insert = con.prepareStatement("INSERT INTO `Server` VALUES (?, YEAR(?), MONTH(?), DAY_OF_MONTH(?), HOUR(?), ?, ?, ?, ?)")) {
                 for (ServerLog c : logList) {
                     if (Thread.currentThread().isInterrupted()) {
                         insert.close();
@@ -363,10 +366,14 @@ public class DataController {
                     }
                     try {
                         insert.setTimestamp(1, c.getEntry());
-                        insert.setLong(2, c.getId());
-                        insert.setTimestamp(3, c.getExit());
-                        insert.setLong(4, c.getPageViews());
-                        insert.setBoolean(5, c.isConversion());
+                        insert.setTimestamp(2, c.getEntry());
+                        insert.setTimestamp(3, c.getEntry());
+                        insert.setTimestamp(4, c.getEntry());
+                        insert.setTimestamp(5, c.getEntry());
+                        insert.setLong(6, c.getId());
+                        insert.setTimestamp(7, c.getExit());
+                        insert.setLong(8, c.getPageViews());
+                        insert.setBoolean(9, c.isConversion());
                         insert.addBatch();
                     } catch (SQLException e) {
                         log.catching(e);
@@ -391,82 +398,37 @@ public class DataController {
         }
     }
 
+
+    private Campaign setStats(Campaign c) throws SQLException {
+        c.setNumberImpressions(getTotalImpressions());
+        c.setNumberClicks(getTotalClicks());
+        c.setNumberUniques(getTotalUniques());
+        c.setNumberConversions(getTotalConversions());
+        c.setNumberBounces(getTotalBounces());
+
+        c.setTotalCost(getTotalCost());
+        c.setCostPerClick(getCostPerClick());
+        c.setCostPerAcquisition(getCostPerAcquisition());
+        c.setCostPer1kImpressions(getCostPer1kImpressions());
+        return c;
+    }
     /*
      * SQL access statements
      */
 
     /**
-     * @param range
-     * @param from
-     * @param to
-     */
-    public List<Pair<String, Number>> getClicks(RANGE range, Timestamp from, Timestamp to) throws SQLException {
+        */
+    public List<Pair<String, Number>> getQuery(Query query) throws SQLException {
         try (Connection c = database.getConnection()) {
-            String where;
-            if (from != null && to != null) {
-//                where = "WHERE `date` IN RANGE (" + from.toString() + ", " + to.toString() + ")";
-//                where = "WHERE `date` > '" + from.toString() + "' AND `date` < '" + from.toString() + "'";
-                where = "WHERE `date` BETWEEN '" + from.toString() + "' AND '" + to.toString()+"'";
-            } else if (from != null) {
-                where = "WHERE `date` > '" + from.toString() + "'";
-            } else if (to != null) {
-                where = "WHERE `date` < '" + to.toString()+"'";
-            } else {
-                where = "";
-            }
-            PreparedStatement s = c.prepareStatement(
-                    "SELECT CONCAT(TO_CHAR(date, '" + getRangeString(range) + "'), ':00') AS label, COUNT(*) AS click" +
-                            " FROM `Clicks` " + where + " GROUP BY label ORDER BY label ASC");
-            try (ResultSet res = s.executeQuery()) {
-                List<Pair<String, Number>> list = new ArrayList<>();
-                while (res.next()) {
-                    list.add(new Pair<>(res.getString(1), res.getInt(2)));
+            try (PreparedStatement s = c.prepareStatement(query.getQuery())) {
+                try (ResultSet res = s.executeQuery()) {
+                    List<Pair<String, Number>> list = new ArrayList<>();
+                    while (res.next()) {
+                        list.add(new Pair<>(res.getString(1), res.getInt(2)));
+                    }
+                    return list;
                 }
-                return list;
             }
-        }
-    }
-
-    /**
-     * @param range
-     * @param from
-     * @param to
-     */
-    public List<Pair<String, Number>> getImpressions(RANGE range, Timestamp from, Timestamp to) throws SQLException {
-        try (Connection c = database.getConnection()) {
-            String where;
-            if (from != null && to != null) {
-                where = "`date` IN RANGE (" + from.toString() + ", " + to.toString() + ")";
-            } else if (from != null) {
-                where = "`date` < " + from.toString();
-            } else if (to != null) {
-                where = "`date` > " + to.toString();
-            } else {
-                where = "";
-            }
-            PreparedStatement s = c.prepareStatement(
-                    "SELECT CONCAT(TO_CHAR(date, '" + getRangeString(range) + "'), ':00') AS label, COUNT(*) AS impressions" +
-                            " FROM `Impressions` " + where + "GROUP BY label ORDER BY label ASC");
-            try (ResultSet res = s.executeQuery()) {
-                List<Pair<String, Number>> list = new ArrayList<>();
-                while (res.next()) {
-                    list.add(new Pair<>(res.getString(1), res.getInt(2)));
-                }
-                return list;
-            }
-        }
-    }
-
-    private String getRangeString(RANGE range) {
-        switch (range) {
-            case HOURLY:
-                return "YYYY-MM-DD HH24";
-            case DAILY:
-                return "YYYY-MM-DD";
-            case MONTHLY:
-                return "YYYY-MM";
-            default:
-                throw new IllegalArgumentException();
         }
     }
 
@@ -526,11 +488,5 @@ public class DataController {
 
     public BigDecimal getCostPer1kImpressions() throws SQLException {
         return this.database.getCostPer1kImpressions();
-    }
-
-    public enum RANGE {
-        DAILY,
-        HOURLY,
-        MONTHLY
     }
 }

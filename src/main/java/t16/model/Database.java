@@ -66,24 +66,23 @@ public class Database {
             throw new DatabaseConnectionException("Could not connect to database driver not present.", e);
         }
 
-        this.connectionPool = JdbcConnectionPool.create("jdbc:h2:" + databasePath, user, password);
+        this.connectionPool = JdbcConnectionPool.create("jdbc:h2:" + databasePath + ";MV_STORE=FALSE", user, password);
         this.isConnected = true;
         this.databaseFile = databaseFile;
     }
 
-    public Connection getConnection() throws SQLException {
-        return connectionPool.getConnection();
-    }
-
     public void createTables() throws SQLException {
-        try (Statement createStmt = connectionPool.getConnection().createStatement()) {
-
-            // Create tables
-            createStmt.execute("DROP ALL OBJECTS");
-            createStmt.execute("CREATE TABLE Clicks(date TIMESTAMP, id BIGINT, click_cost DECIMAL(10, 7))");
-            createStmt.execute("CREATE TABLE Impressions(date TIMESTAMP, id BIGINT, gender CHAR(6), age CHAR(5), income CHAR(6), context CHAR(12), cost DECIMAL(10, 7))");
-            createStmt.execute("CREATE TABLE Server(date TIMESTAMP, id BIGINT, exit_date TIMESTAMP NULL, page_viewed INT(11), conversion TINYINT)");
+        try (Connection c = getConnection()) {
+            try (Statement createStmt = c.createStatement()) {
+                log.debug("Creating tables...");
+                // Create tables
+                createStmt.execute("DROP ALL OBJECTS");
+                createStmt.execute("CREATE TABLE Clicks(date TIMESTAMP, year INT, month TINYINT, day TINYINT, hour TINYINT, id BIGINT, click_cost DECIMAL(10, 7))");
+                createStmt.execute("CREATE TABLE Impressions(date TIMESTAMP, year INT, month TINYINT, day TINYINT, hour TINYINT,  id BIGINT, gender CHAR(6), age CHAR(5), income CHAR(6), context CHAR(12), cost DECIMAL(10, 7))");
+                createStmt.execute("CREATE TABLE Server(date TIMESTAMP, year INT, month TINYINT, day TINYINT, hour TINYINT,  id BIGINT, exit_date TIMESTAMP NULL, page_viewed INT(11), conversion BOOLEAN)");
+            }
         }
+        log.debug("Created tables!");
     }
 
     public void connect(File databaseFile, boolean checkExist) throws DatabaseConnectionException {
@@ -95,14 +94,23 @@ public class Database {
     }
 
     public void createIndices() throws SQLException {
-        try (Statement indexStmt = this.connectionPool.getConnection().createStatement()) {
-
-            // Add indices
-            indexStmt.execute("CREATE INDEX Click_ID ON Clicks(ID)");
-            indexStmt.execute("CREATE INDEX Impression_ID ON Impressions(ID)");
-            indexStmt.execute("CREATE INDEX Server_ID ON Server(ID)");
+        try (Connection c = getConnection()) {
+            try (Statement indexStmt = c.createStatement()) {
+                for (String t : new String[]{"Clicks", "Impressions", "Server"}) {
+                    log.debug("Creating indexes for {}", t);
+                    indexStmt.execute("CREATE INDEX ID_" + t + "_IND ON " + t + "(ID)");
+                    indexStmt.execute("CREATE INDEX date_" + t + "_IND ON " + t + "(year, month, day, hour)");
+                    /*indexStmt.execute("CREATE INDEX month_" + t + "_IND ON " + t + "(month)");
+                    indexStmt.execute("CREATE INDEX day_" + t + "_IND ON " + t + "(day)");
+                    indexStmt.execute("CREATE INDEX hour_" + t + "_IND ON " + t + "(hour)");*/
+                }
+            }
         }
+        log.debug("Created all indexes!");
+    }
 
+    public Connection getConnection() throws SQLException {
+        return connectionPool.getConnection();
     }
 
     /**
@@ -125,8 +133,8 @@ public class Database {
     public long getTotalImpressions() throws SQLException {
         try (Connection c = this.connectionPool.getConnection()) {
             try (Statement s = c.createStatement()) {
-                ResultSet set = s.executeQuery("SELECT COUNT(*) as numberOfImpressions FROM `Impressions`");
-                while(set.next()){
+                ResultSet set = s.executeQuery("SELECT COUNT(*) AS numberOfImpressions FROM `Impressions`");
+                while (set.next()) {
                     return set.getLong("numberOfImpressions");
                 }
                 return 0;
@@ -141,8 +149,8 @@ public class Database {
     public long getTotalClicks() throws SQLException {
         try (Connection c = this.connectionPool.getConnection()) {
             try (Statement s = c.createStatement()) {
-                ResultSet set = s.executeQuery("SELECT COUNT(*) as numberOfClicks FROM `Clicks`");
-                while(set.next()){
+                ResultSet set = s.executeQuery("SELECT COUNT(*) AS numberOfClicks FROM `Clicks`");
+                while (set.next()) {
                     return set.getLong("numberOfClicks");
                 }
                 return 0;
@@ -157,8 +165,8 @@ public class Database {
     public long getTotalUniques() throws SQLException {
         try (Connection c = this.connectionPool.getConnection()) {
             try (Statement s = c.createStatement()) {
-                ResultSet set = s.executeQuery("SELECT COUNT(DISTINCT ID) as numberOfUniques FROM `Clicks`");
-                while(set.next()){
+                ResultSet set = s.executeQuery("SELECT COUNT(DISTINCT ID) AS numberOfUniques FROM `Clicks`");
+                while (set.next()) {
                     return set.getLong("numberOfUniques");
                 }
                 return 0;
@@ -175,8 +183,8 @@ public class Database {
     public long getTotalBounces() throws SQLException {
         try (Connection c = this.connectionPool.getConnection()) {
             try (Statement s = c.createStatement()) {
-                ResultSet set = s.executeQuery("SELECT COUNT(*) as numberOfBounces FROM `Server` WHERE `page_viewed`=1");
-                while(set.next()){
+                ResultSet set = s.executeQuery("SELECT COUNT(*) AS numberOfBounces FROM `Server` WHERE `page_viewed`=1");
+                while (set.next()) {
                     return set.getLong("numberOfBounces");
                 }
                 return 0;
@@ -191,8 +199,8 @@ public class Database {
     public long getTotalConversions() throws SQLException {
         try (Connection c = this.connectionPool.getConnection()) {
             try (Statement s = c.createStatement()) {
-                ResultSet set = s.executeQuery("SELECT COUNT(*) as numberOfConversions FROM `Server` WHERE `conversion`=1");
-                while(set.next()){
+                ResultSet set = s.executeQuery("SELECT COUNT(*) AS numberOfConversions FROM `Server` WHERE `conversion`=1");
+                while (set.next()) {
                     return set.getLong("numberOfConversions");
                 }
                 return 0;
@@ -204,12 +212,12 @@ public class Database {
         try (Connection c = this.connectionPool.getConnection()) {
             try (Statement s = c.createStatement()) {
                 ResultSet set = s.executeQuery(
-                "SELECT (" +
-                    "   (SELECT SUM(`clicks`.`click_cost`) FROM `clicks`)" +
-                    "   + (SELECT SUM(`impressions`.`cost`) FROM `impressions`)" +
-                    ") / 100 AS totalCost"
+                        "SELECT (" +
+                                "   (SELECT SUM(`clicks`.`click_cost`) FROM `clicks`)" +
+                                "   + (SELECT SUM(`impressions`.`cost`) FROM `impressions`)" +
+                                ") / 100 AS totalCost"
                 );
-                while(set.next()){
+                while (set.next()) {
                     return set.getBigDecimal("totalCost");
                 }
                 return BigDecimal.ZERO;
@@ -221,15 +229,15 @@ public class Database {
         try (Connection c = this.connectionPool.getConnection()) {
             try (Statement s = c.createStatement()) {
                 ResultSet set = s.executeQuery(
-                "SELECT" +
-                    "  (SELECT " +
-                    "     (" +
-                    "       (SELECT SUM(`clicks`.`click_cost`) FROM `clicks`)" +
-                    "      + (SELECT SUM(`impressions`.`cost`) FROM `impressions`)" +
-                    "     ) / 100" +
-                    "  ) / COUNT(*) AS costPerClick FROM `clicks`"
+                        "SELECT" +
+                                "  (SELECT " +
+                                "     (" +
+                                "       (SELECT SUM(`clicks`.`click_cost`) FROM `clicks`)" +
+                                "      + (SELECT SUM(`impressions`.`cost`) FROM `impressions`)" +
+                                "     ) / 100" +
+                                "  ) / COUNT(*) AS costPerClick FROM `clicks`"
                 );
-                while(set.next()){
+                while (set.next()) {
                     return set.getBigDecimal("costPerClick");
                 }
                 return BigDecimal.ZERO;
@@ -241,19 +249,19 @@ public class Database {
         try (Connection c = this.connectionPool.getConnection()) {
             try (Statement s = c.createStatement()) {
                 ResultSet set = s.executeQuery(
-                "SELECT" +
-                    "  (SELECT" +
-                    "     (" +
-                    "       (SELECT SUM(`clicks`.`click_cost`) FROM `clicks`)" +
-                    "      + (SELECT SUM(`impressions`.`cost`) FROM `impressions`)" +
-                    "     ) / 100" +
-                    "  ) / COUNT(*) AS costPerAcquisition FROM `Impressions`" +
-                    "LEFT JOIN `Server`" +
-                    "ON `Server`.`ID` = `Impressions`.`ID` AND" +
-                    "    `Server`.`Date` = `Impressions`.`Date`" +
-                    "WHERE `Server`.`Conversion` = 1"
+                        "SELECT" +
+                                "  (SELECT" +
+                                "     (" +
+                                "       (SELECT SUM(`clicks`.`click_cost`) FROM `clicks`)" +
+                                "      + (SELECT SUM(`impressions`.`cost`) FROM `impressions`)" +
+                                "     ) / 100" +
+                                "  ) / COUNT(*) AS costPerAcquisition FROM `Impressions`" +
+                                "LEFT JOIN `Server`" +
+                                "ON `Server`.`ID` = `Impressions`.`ID` AND" +
+                                "    `Server`.`Date` = `Impressions`.`Date`" +
+                                "WHERE `Server`.`Conversion` = 1"
                 );
-                while(set.next()){
+                while (set.next()) {
                     return set.getBigDecimal("costPerAcquisition");
                 }
                 return BigDecimal.ZERO;
@@ -265,15 +273,15 @@ public class Database {
         try (Connection c = this.connectionPool.getConnection()) {
             try (Statement s = c.createStatement()) {
                 ResultSet set = s.executeQuery(
-                    "SELECT" +
-                    "  (SELECT " +
-                    "     (" +
-                    "       (SELECT SUM(`clicks`.`click_cost`) FROM `clicks`)" +
-                    "      + (SELECT SUM(`impressions`.`cost`) FROM `impressions`)" +
-                    "     ) / 100" +
-                    "  ) / COUNT(*) / 1000 AS costPer1kImpressions FROM `impressions`"
+                        "SELECT" +
+                                "  (SELECT " +
+                                "     (" +
+                                "       (SELECT SUM(`clicks`.`click_cost`) FROM `clicks`)" +
+                                "      + (SELECT SUM(`impressions`.`cost`) FROM `impressions`)" +
+                                "     ) / 100" +
+                                "  ) / COUNT(*) / 1000 AS costPer1kImpressions FROM `impressions`"
                 );
-                while(set.next()){
+                while (set.next()) {
                     return set.getBigDecimal("costPer1kImpressions");
                 }
                 return BigDecimal.ZERO;
