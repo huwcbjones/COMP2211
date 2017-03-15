@@ -41,36 +41,6 @@ public class QueryTest {
         contextTestQuery(q);
     }
 
-    public void genderTestQuery(Query q) throws Exception {
-        for(Query.GENDER c: Query.GENDER.values()){
-            q.setGender(c);
-            log.info("Query: {}", q.getQuery());
-
-            List<Pair<String, Number>> l = d.getQuery(q);
-            log.info("Returned {} rows", l.size());
-        }
-    }
-
-    public void incomeTestQuery(Query q) throws Exception {
-        for(Query.INCOME c: Query.INCOME.values()){
-            q.setIncome(c);
-            log.info("Query: {}", q.getQuery());
-
-            List<Pair<String, Number>> l = d.getQuery(q);
-            log.info("Returned {} rows", l.size());
-        }
-    }
-
-    public void contextTestQuery(Query q) throws Exception {
-        for(Query.CONTEXT c: Query.CONTEXT.values()){
-            q.setContext(c);
-            log.info("Query: {}", q.getQuery());
-
-            List<Pair<String, Number>> l = d.getQuery(q);
-            log.info("Returned {} rows", l.size());
-        }
-    }
-
     @Test
     public void clicksQuery() throws Exception {
         Query q = new Query(Query.TYPE.CLICKS, Query.RANGE.HOUR);
@@ -96,12 +66,49 @@ public class QueryTest {
 
     @Test
     public void bouncesQuery() throws Exception {
+        Query q = new Query(Query.TYPE.BOUNCES, Query.RANGE.HOUR);
 
+        genderTestQuery(q);
+        incomeTestQuery(q);
+        contextTestQuery(q);
     }
 
     @Test
     public void conversionsQuery() throws Exception {
+        Query q = new Query(Query.TYPE.CONVERSIONS, Query.RANGE.HOUR);
 
+        genderTestQuery(q);
+        incomeTestQuery(q);
+        contextTestQuery(q);
     }
 
+    public void genderTestQuery(Query q) throws Exception {
+        for (Query.GENDER c : Query.GENDER.values()) {
+            q.setGender(c);
+            log.info("Query: {}", q.getQuery());
+
+            List<Pair<String, Number>> l = d.getQuery(q);
+            log.info("Returned {} rows", l.size());
+        }
+    }
+
+    public void incomeTestQuery(Query q) throws Exception {
+        for (Query.INCOME c : Query.INCOME.values()) {
+            q.setIncome(c);
+            log.info("Query: {}", q.getQuery());
+
+            List<Pair<String, Number>> l = d.getQuery(q);
+            log.info("Returned {} rows", l.size());
+        }
+    }
+
+    public void contextTestQuery(Query q) throws Exception {
+        for (Query.CONTEXT c : Query.CONTEXT.values()) {
+            q.setContext(c);
+            log.info("Query: {}", q.getQuery());
+
+            List<Pair<String, Number>> l = d.getQuery(q);
+            log.info("Returned {} rows", l.size());
+        }
+    }
 }
