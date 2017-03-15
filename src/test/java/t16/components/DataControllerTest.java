@@ -1,6 +1,7 @@
 package t16.components;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import t16.controller.DataController;
 
@@ -16,21 +17,22 @@ import static org.junit.Assert.*;
  */
 public class DataControllerTest {
 
-    private DataController dataController;
+    private static DataController dataController;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeClass
+    public static void setUp() throws Exception {
         dataController = new DataController();
-    }
-
-    @Test
-    public void initialiseDatabase() throws Exception {
         dataController.createCampaign(new File("resources/test/test_data.zip"),new File("resources/test/test_data.h2"));
     }
 
 //    @Test
-//    public void getTotalImpressions() throws Exception {
-//        assertEquals(0,dataController.getTotalImpressions());
+//    public void initialiseDatabase() throws Exception {
+//        dataController.createCampaign(new File("resources/test/test_data.zip"),new File("resources/test/test_data.h2"));
 //    }
+
+    @Test
+    public void getTotalImpressions() throws Exception {
+        assertEquals(0,dataController.getTotalImpressions());
+    }
 
 }
