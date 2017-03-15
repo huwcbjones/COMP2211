@@ -377,21 +377,60 @@ public class DataController {
      */
 
     /**
-     * Take in filters and translate to SQL
+     * Take in filters and translate to SQL.
+     * If a filter category is not a column in tables being queried, pass null instead when calling this method.
      * @return the part of the SQL query which will apply the filters
      */
-    private String filtersToQuery (String queryStart, Timestamp from, Timestamp to)
+    private String filtersToQuery (String queryStart, Timestamp from, Timestamp to, String gender, String age, String income, String context)
     {
-        //Check for existing WHERE previously, and adjust accordingly
-        String where = queryStart.contains("WHERE") ? " AND " : " WHERE ";
+        //Check for existing WHERE previously
+        boolean whereStarted = queryStart.contains("WHERE");
+        String where = "";
         if (from != null && to != null) {
 //                where = "WHERE `date` IN RANGE (" + from.toString() + ", " + to.toString() + ")";
 //                where = "WHERE `date` > '" + from.toString() + "' AND `date` < '" + to.toString() + "'";
-            where += "`date` BETWEEN '" + from.toString() + "' AND '" + to.toString()+"'";
+            where += (whereStarted ? " AND " : " WHERE ") + "`date` BETWEEN '" + from.toString() + "' AND '" + to.toString()+"'";
+            whereStarted = true;
         } else if (from != null) {
-            where += "`date` > '" + from.toString() + "'";
+            where += (whereStarted ? " AND " : " WHERE ") + "`date` > '" + from.toString() + "'";
+            whereStarted = true;
         } else if (to != null) {
-            where += "`date` < '" + to.toString() + "'";
+            where += (whereStarted ? " AND " : " WHERE ") + "`date` < '" + to.toString() + "'";
+            whereStarted = true;
+        }
+
+        if (gender != null)
+        {
+            if(!gender.equals("n/a"))
+            {
+                where += (whereStarted ? " AND " : " WHERE ") + "`gender` = '" + gender + "'";
+                whereStarted = true;
+            }
+        }
+        if (age != null)
+        {
+            if(!age.equals("n/a"))
+            {
+                where += (whereStarted ? " AND " : " WHERE ") + "`age` = '" + age + "'";
+                whereStarted = true;
+            }
+        }
+        if (income != null)
+        {
+            if(!income.equals("n/a"))
+            {
+                where += (whereStarted ? " AND ": " WHERE ") + "`income` = '"+income+"'";
+                whereStarted = true;
+            }
+        }
+        if(context != null)
+        {
+            if(!context.equals("n/a"))
+            {
+                where += (whereStarted ? " AND " : " WHERE ") + "`context` = '" + context + "'";
+                //Uncomment if adding more filter categories below
+                //whereStarted = true;
+            }
         }
         return where;
     }
@@ -401,12 +440,12 @@ public class DataController {
      * @param from
      * @param to
      */
-    public List<Pair<String, Number>> getClicks(RANGE range, Timestamp from, Timestamp to) throws SQLException {
+    public List<Pair<String, Number>> getClicks(RANGE range, Timestamp from, Timestamp to, String gender, String age, String income, String context) throws SQLException {
         try (Connection c = database.getConnection()) {
             String queryStart = "SELECT CONCAT(TO_CHAR(date, '" + getRangeString(range) + "'), ':00') AS label, COUNT(*) AS click" +
                     " FROM `Clicks` ";
             PreparedStatement s = c.prepareStatement(
-                    queryStart + filtersToQuery(queryStart, from, to) + " GROUP BY label ORDER BY label ASC");
+                    queryStart + filtersToQuery(queryStart, from, to, null, null, null, null) + " GROUP BY label ORDER BY label ASC");
             try (ResultSet res = s.executeQuery()) {
                 List<Pair<String, Number>> list = new ArrayList<>();
                 while (res.next()) {
