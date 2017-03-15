@@ -406,7 +406,8 @@ public class DataController {
         c.setNumberClicks(getTotalClicks());
         c.setNumberUniques(getTotalUniques());
         c.setNumberConversions(getTotalConversions());
-        c.setNumberBounces(getTotalBounces());
+        c.setNumberBouncesPages(getTotalBouncesPages());
+        c.setNumberBouncesTime(getTotalBouncesTime());
 
         c.setTotalCost(getTotalCost());
         c.setCostPerClick(getCostPerClick());
@@ -464,13 +465,23 @@ public class DataController {
     }
 
     /**
-     * Currently a bounce is decided by only 1 page being viewed.
+     * Defines a bounce as only 1 page being viewed.
      *
      * @return the total number of bounces that occurred during the campaign
      * @throws SQLException if an error occurs during SQL execution
      */
-    public long getTotalBounces() throws SQLException {
-        return this.database.getTotalBounces();
+    public long getTotalBouncesPages() throws SQLException {
+        return this.database.getTotalBouncesPages();
+    }
+
+    /**
+     * Defines a bounce as less than a minute being spent on the site.
+     *
+     * @return the total number of bounces that occurred during the campaign
+     * @throws SQLException if an error occurs during SQL execution
+     */
+    public long getTotalBouncesTime() throws SQLException {
+        return this.database.getTotalBouncesTime();
     }
 
     /**

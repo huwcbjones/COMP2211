@@ -12,7 +12,6 @@ import java.util.HashMap;
  * @author Huw Jones
  * @since 25/02/2017
  * Modified by James Curran 28/2/17
- * TODO Here is a possible format for the Campaign. What do you think? After calculating the axes for seconds, there could be some additional calculation to get the average y values for minutes, hours etc.
  */
 public class Campaign {
     public HashMap<Interval, AxisPair> data;
@@ -22,7 +21,8 @@ public class Campaign {
     private long numberClicks = -1;
     private long numberUniques = -1;
     private long numberConversions = -1;
-    private long numberBounces = -1;
+    private long numberBouncesPages = -1;
+    private long numberBouncesTime = -1;
     private BigDecimal totalCost;
     private BigDecimal costPerClick;
     private BigDecimal costPerAcquisition;
@@ -71,8 +71,12 @@ public class Campaign {
         if(this.numberConversions == -1) this.numberConversions = numberConversions;
     }
 
-    public void setNumberBounces(long numberBounces) {
-        if(this.numberBounces == -1) this.numberBounces = numberBounces;
+    public void setNumberBouncesPages(long numberBounces) {
+        if(this.numberBouncesPages == -1) this.numberBouncesPages = numberBounces;
+    }
+
+    public void setNumberBouncesTime(long numberBounces) {
+        this.numberBouncesTime = numberBounces;
     }
 
     public void setTotalCost(BigDecimal totalCost) {
@@ -115,8 +119,12 @@ public class Campaign {
         return numberConversions;
     }
 
-    public long getNumberBounces() {
-        return numberBounces;
+    public long getNumberBouncesPages() {
+        return numberBouncesPages;
+    }
+
+    public long getNumberBouncesTime() {
+        return numberBouncesTime;
     }
 
     public BigDecimal getTotalCost() {

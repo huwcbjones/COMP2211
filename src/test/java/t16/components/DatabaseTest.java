@@ -47,7 +47,12 @@ public class DatabaseTest {
     }
 
     @Test
-    public void getTotalBounces() throws Exception {
+    public void getTotalBouncesPages() throws Exception {
+
+    }
+
+    @Test
+    public void getTotalBouncesTime() throws Exception {
 
     }
 
