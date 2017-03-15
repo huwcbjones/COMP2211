@@ -84,24 +84,78 @@ public class Dashboard {
         displayStats();
     }
 
+    @FXML
+    private void viewClicks(ActionEvent event) {
+        renderChart(TYPE.CLICKS);
+    }
+
+    @FXML
+    private void viewImpressions(ActionEvent event) {
+        renderChart(TYPE.IMPRESSIONS);
+    }
+
+    @FXML
+    private void viewUnique(ActionEvent event) {
+        renderChart(TYPE.UNIQUES);
+    }
+
+    @FXML
+    private void viewBounces(ActionEvent event) {
+        renderChart(TYPE.BOUNCES);
+    }
+
+    @FXML
+    private void viewConversion(ActionEvent event) {
+        renderChart(TYPE.CONVERSIONS);
+    }
+
+    @FXML
+    private void viewClickThrough(ActionEvent event) {
+        renderChart(TYPE.CLICK_THROUGH_RATE);
+    }
+
+    @FXML
+    private void updateChart(ActionEvent event) {
+        renderChart(currentChart);
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="Helper Methods">
+
+    /**
+     * Displays the loading wheel
+     * @param working True if work is happening, false if work stopped
+     */
     private void displayLoading(boolean working) {
         workingIndicator.setVisible(working);
         statsPanel.setVisible(false);
         mainPane.getChildren().removeIf(node -> !((node instanceof StatsController) || (node instanceof ProgressIndicator)));
     }
 
+    /**
+     * Displays the "Stats" Dashboard
+     */
     private void displayStats() {
         displayLoading(false);
         filterPanel.setVisible(false);
         statsPanel.setVisible(true);
     }
 
-    @FXML
-    private void viewClicks(ActionEvent event) {
-        displayChart(TYPE.CLICKS);
+    /**
+     * Displays a Chart on the View
+     * @param chart
+     */
+    private void displayChart(Chart chart) {
+        displayLoading(false);
+        filterPanel.setVisible(true);
+        mainPane.getChildren().add(0, chart.renderChart());
     }
 
-    private void displayChart(TYPE t) {
+    /**
+     * Renders a Chart, then displays it
+     * @param t Chart Type to render
+     */
+    private void renderChart(TYPE t) {
         if (t == null) return;
         displayLoading(true);
 
@@ -184,19 +238,19 @@ public class Dashboard {
                 Timestamp from = (startDate.getValue() == null) ? null : Timestamp.valueOf(startDate.getValue().atStartOfDay());
                 Timestamp to = (endDate.getValue() == null) ? null : Timestamp.valueOf(endDate.getValue().atStartOfDay());
 
-                GENDER gender = null;
+                GENDER gender = GENDER.ALL;
                 if (genderCombo.getSelectionModel().getSelectedItem() != null) {
                     gender = genderCombo.getSelectionModel().getSelectedItem().getType();
                 }
 
-                INCOME income = null;
+                INCOME income = INCOME.ALL;
                 if (incomeCombo.getSelectionModel().getSelectedItem() != null) {
                     income = incomeCombo.getSelectionModel().getSelectedItem().getType();
                 }
 
                 // TODO: Age
 
-                CONTEXT context = null;
+                CONTEXT context = CONTEXT.ALL;
                 if (contextCombo.getSelectionModel().getSelectedItem() != null) {
                     context = contextCombo.getSelectionModel().getSelectedItem().getType();
                 }
@@ -226,6 +280,10 @@ public class Dashboard {
         AdDashboard.getWorkerPool().queueTask(getClicksTask);
     }
 
+    /**
+     * Gets the range type from the range buttons
+     * @return Range Type (Hour, Day, Month)
+     */
     private RANGE getRange() {
         if (hourlyButton.isSelected()) {
             return RANGE.HOUR;
@@ -239,26 +297,12 @@ public class Dashboard {
 
         throw new IllegalStateException();
     }
-
-    private void displayChart(Chart chart) {
-        displayLoading(false);
-        filterPanel.setVisible(true);
-        mainPane.getChildren().add(0, chart.renderChart());
-    }
-
-    @FXML
-    private void viewImpressions(ActionEvent event) {
-        displayChart(TYPE.IMPRESSIONS);
-    }
-
-    @FXML
-    private void viewUnique(ActionEvent event) {
-        displayChart(TYPE.UNIQUES);
-    }
     //</editor-fold>
 
-
     @FXML
+    /**
+     * Initialises the View
+     */
     public void initialize() {
         if (campaign != null) campaignName.setText(campaign.getName());
         if (scene != null)
@@ -300,6 +344,9 @@ public class Dashboard {
         );
     }
 
+    /**
+     * Sets the stats view
+     */
     public void setStats() {
         if (statsPanel != null) statsPanel.setCampaign(campaign);
     }

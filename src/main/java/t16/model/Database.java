@@ -400,7 +400,11 @@ public class Database {
     }*/
     public void disconnect() throws SQLException {
         if (!isConnected()) return;
-        log.warn("There are {} active connections", connectionPool.getActiveConnections());
+        if(connectionPool.getActiveConnections() != 0) {
+            log.warn("There are {} active connections", connectionPool.getActiveConnections());
+        } else {
+            log.info("All connections are closed!");
+        }
         connectionPool.dispose();
         this.isConnected = false;
     }
