@@ -161,6 +161,7 @@ public class Importer {
 
     private void attachParseHandlers() {
         // Click Parser
+        clickLogTask.setOnRunning(e -> log.trace("Click Parser running"));
         clickLogTask.setOnSucceeded(e -> {
             clickLog = (List<ClickLog>) e.getSource().getValue();
             createClickInsertTask();
@@ -173,6 +174,7 @@ public class Importer {
         });
 
         // Impression Parser
+        impressionLogTask.setOnRunning(e -> log.trace("Impression Parser running"));
         impressionLogTask.setOnSucceeded(e -> {
             impressionLog = (List<ImpressionLog>) e.getSource().getValue();
             createImpressionInsertTask();
@@ -185,6 +187,7 @@ public class Importer {
         });
 
         // Server Parser
+        serverLogTask.setOnRunning(e -> log.trace("Server Parser running"));
         serverLogTask.setOnSucceeded(e -> {
             serverLog = (List<ServerLog>) e.getSource().getValue();
             createServerInsertTask();
