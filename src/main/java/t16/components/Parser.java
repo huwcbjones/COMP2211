@@ -152,6 +152,7 @@ public class Parser {
 
     protected void parseClick() throws ParseException, IOException {
         long startTime = System.currentTimeMillis();
+        log.info("Started parsing Clicks...");
         clickLog = new ArrayList<>();
         String line;
         int lineNumber = 1;
@@ -195,6 +196,7 @@ public class Parser {
             }
 
             clickLog.add(new ClickLog(t, ID, cost));
+            if(clickLog.size() % 1000 == 0) log.debug("Click Parser: {} entries parsed.", clickLog.size());
         }
 
         br.close();
@@ -205,6 +207,7 @@ public class Parser {
 
     protected void parseImpression() throws ParseException, IOException {
         long startTime = System.currentTimeMillis();
+        log.info("Started parsing Impressions...");
         impressionLog = new ArrayList<>();
         String line;
         int lineNumber = 1;
@@ -273,6 +276,7 @@ public class Parser {
             }
 
             impressionLog.add(new ImpressionLog(t, ID, gender, age, income, context, cost));
+            if(impressionLog.size() % 1000 == 0) log.debug("Impression Parser: {} entries parsed.", impressionLog.size());
         }
 
         br.close();
@@ -283,6 +287,7 @@ public class Parser {
 
     protected void parseServer() throws ParseException, IOException {
         long startTime = System.currentTimeMillis();
+        log.info("Started parsing Server...");
         serverLog = new ArrayList<>();
         String line;
         int lineNumber = 1;
@@ -340,6 +345,7 @@ public class Parser {
             conversion = elements[4].equals("yes");
 
             serverLog.add(new ServerLog(entryDate, ID, exitDate, pageViews, conversion));
+            if(serverLog.size() % 1000 == 0) log.debug("Server Parser: {} entries parsed.", serverLog.size());
         }
 
         br.close();
