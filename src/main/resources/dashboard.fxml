@@ -41,7 +41,7 @@
                             </opaqueInsets>
                         </Button>
                         <Button fx:id="uniqueButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false"
-                                onAction="#viewUnique" text="Unique Visitors">
+                                onAction="#viewUnique" text="Unique Clicks">
                             <opaqueInsets>
                                 <Insets/>
                             </opaqueInsets>
@@ -60,6 +60,36 @@
                         </Button>
                         <Button fx:id="clickThroughsButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false"
                                 onAction="#viewClickThrough" text="Click Throughs">
+                            <opaqueInsets>
+                                <Insets/>
+                            </opaqueInsets>
+                        </Button>
+                        <Button fx:id="totalCostButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity"
+                                mnemonicParsing="false" onAction="#viewTotalCost" text="Total Cost">
+                            <opaqueInsets>
+                                <Insets/>
+                            </opaqueInsets>
+                        </Button>
+                        <Button fx:id="costPerAcquisitionButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity"
+                                mnemonicParsing="false" onAction="#viewCostPerAcquisition" text="Cost Per Acquisition">
+                            <opaqueInsets>
+                                <Insets/>
+                            </opaqueInsets>
+                        </Button>
+                        <Button fx:id="costPerClick" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity"
+                                mnemonicParsing="false" onAction="#viewCostPerClick" text="Cost Per Click">
+                            <opaqueInsets>
+                                <Insets/>
+                            </opaqueInsets>
+                        </Button>
+                        <Button fx:id="costPerThousandImpressions" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity"
+                                mnemonicParsing="false" onAction="#viewCostPerThousandImpressions" text="Cost Per Thousand Impressions">
+                            <opaqueInsets>
+                                <Insets/>
+                            </opaqueInsets>
+                        </Button>
+                        <Button fx:id="bounceRate" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity"
+                                mnemonicParsing="false" onAction="#viewBounceRate" text="Bounce Rate">
                             <opaqueInsets>
                                 <Insets/>
                             </opaqueInsets>
