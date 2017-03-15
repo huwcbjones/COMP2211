@@ -119,25 +119,60 @@ public class Dashboard {
             dialog.showAndWait();
         });
         AdDashboard.getWorkerPool().queueTask(getClicksTask);
+        //        displayChart(TYPE.CLICKS);
+
     }
 
     @FXML
     private void viewImpressions(ActionEvent event) {
+//        displayChart(TYPE.IMPRESSIONS);
 
     }
 
     @FXML
     private void viewUnique(ActionEvent event) {
+//        displayChart(TYPE.UNIQUES);
 
     }
 
     @FXML
     private void viewBounces(ActionEvent event) {
+//        displayChart(TYPE.BOUNCES);
 
     }
 
     @FXML
     private void viewConversion(ActionEvent event) {
+//        displayChart(TYPE.CONVERSIONS);
+    }
+
+    @FXML
+    private void viewTotalCost(ActionEvent event) {
+//        displayChart(TYPE.CONVERSIONS);
+
+    }
+
+    @FXML
+    private void viewCostPerAcquisition(ActionEvent event) {
+//        displayChart(TYPE.COST_PER_ACQUISITION);
+
+    }
+
+    @FXML
+    private void viewCostPerClick(ActionEvent event) {
+//        displayChart(TYPE.COST_PER_CLICK);
+
+    }
+
+    @FXML
+    private void viewCostPerThousandImpressions(ActionEvent event) {
+//        displayChart(TYPE.COST_PER_THOUSAND_IMPRESSIONS);
+
+    }
+
+    @FXML
+    private void viewClickCost(ActionEvent event) {
+//        displayChart(TYPE.CLICK_COST);
 
     }
 
@@ -179,6 +214,8 @@ public class Dashboard {
             );
             dialog.showAndWait();
         }
+
+        //displayChart(TYPE.CLICK_THROUGH_RATE);
     }
     //</editor-fold>
 
