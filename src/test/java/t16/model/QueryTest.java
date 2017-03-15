@@ -6,6 +6,7 @@ import org.apache.logging.log4j.Logger;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import t16.AdDashboard;
 import t16.controller.DataController;
 
 import java.io.File;
@@ -23,6 +24,7 @@ public class QueryTest {
 
     @BeforeClass
     public static void setUp() throws Exception {
+        AdDashboard.initialise();
         d = new DataController();
         d.openCampaign(new File(QueryTest.class.getClassLoader().getResource("test_database.h2.db").getFile()));
     }

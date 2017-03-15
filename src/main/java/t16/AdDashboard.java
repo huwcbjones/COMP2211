@@ -50,6 +50,16 @@ public class AdDashboard extends Application {
         }
     }
 
+    public static void initialise() {
+        log.info("Initialising dataController...");
+        dataController = new DataController();
+
+        log.info("Initialising worker pool...");
+        workerPool = new WorkerPool();
+
+        log.info("Initialising complete!");
+    }
+
     /**
      * Gets the Database instance from a static context
      *
@@ -86,14 +96,7 @@ public class AdDashboard extends Application {
     @Override
     public void init() throws Exception {
         log.info("Initialising application");
-
-        log.info("Initialising dataController...");
-        dataController = new DataController();
-
-        log.info("Initialising worker pool...");
-        workerPool = new WorkerPool();
-
-        log.info("Initialising complete!");
+        initialise();
     }
 
     /**
