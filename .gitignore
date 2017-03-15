@@ -77,4 +77,4 @@ buildNumber.properties
 resources/*.csv
 *.csv
 
-!src/*
+!src/**
