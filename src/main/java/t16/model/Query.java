@@ -1,8 +1,5 @@
 package t16.model;
 
-import sun.plugin.dom.exception.InvalidStateException;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 import java.sql.Timestamp;
 
 /**
@@ -44,9 +41,9 @@ public class Query {
             case COST_PER_1KIMPRESSION:
             case CLICK_THROUGH_RATE:
             case BOUNCE_RATE:
-            throw new NotImplementedException();
+            throw new UnsupportedOperationException();
             default:
-                throw new InvalidStateException("Should not happen");
+                throw new IllegalStateException("Should not happen");
         }
     }
 
