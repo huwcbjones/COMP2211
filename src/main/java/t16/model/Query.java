@@ -32,15 +32,18 @@ public class Query {
                 return impressionsQuery();
             case CLICKS:
                 return clicksQuery();
+            case CLICK_THROUGH_RATE:
+                return clickThroughQuery();
             case UNIQUES:
+                return uniquesQuery();
             case BOUNCES:
+                return bouncesQuery();
             case CONVERSIONS:
+                return conversionsQuery();
             case COST:
             case COST_PER_ACQUISITION:
             case COST_PER_CLICK:
             case COST_PER_1KIMPRESSION:
-            case CLICK_THROUGH_RATE:
-                return clickThroughQuery();
             case BOUNCE_RATE:
                 throw new UnsupportedOperationException();
             default:
@@ -51,7 +54,8 @@ public class Query {
     protected String impressionsQuery() {
         return
                 "SELECT " + getDateString() + ", COUNT(*) AS impressions" +
-                        " FROM `Impressions` " + getWhereClause() +
+                        " FROM `Impressions` " +
+                        " WHERE" + getWhereClause() +
                         " GROUP BY " + getRangeString() +
                         " ORDER BY " + getRangeString() + " ASC";
     }
@@ -59,26 +63,58 @@ public class Query {
     protected String clicksQuery() {
         return
                 "SELECT " + getDateString() + ", COUNT(*) AS clicks" +
-                        " FROM `Clicks` " + getWhereClause() +
+                        " FROM `Clicks` " +
+                        " WHERE" + getWhereClause() +
                         " GROUP BY " + getRangeString() +
                         " ORDER BY " + getRangeString() + " ASC";
     }
 
     protected String clickThroughQuery() {
+        String dateStringWhere = getDateString("i_r");
+        String rangeString = getRangeString();
         String q =
-                "SELECT " + getDateString("i_r") + ", CAST(clicks AS FLOAT)/CAST(impressions AS FLOAT) AS clickThrough FROM" +
-                        "  (SELECT " + getRangeString() + ", COUNT(*) AS `impressions` FROM `Impressions` GROUP BY " + getRangeString() + ") i_r" +
+                "SELECT " + dateStringWhere + ", CAST(clicks AS FLOAT)/CAST(impressions AS FLOAT) AS clickThrough FROM" +
+                        "  (SELECT " + rangeString + ", COUNT(*) AS `impressions` FROM `Impressions` GROUP BY " + rangeString + ") i_r" +
                         "  LEFT JOIN" +
-                        "  (SELECT " + getRangeString() + ", COUNT(*) AS `clicks` FROM `Clicks` GROUP BY " + getRangeString() + ") c_r" +
+                        "  (SELECT " + rangeString + ", COUNT(*) AS `clicks` FROM `Clicks` GROUP BY " + rangeString + ") c_r" +
                         " ON i_r.YEAR = c_r.YEAR" +
                         "    AND i_r.MONTH = c_r.MONTH";
-        if (range == RANGE.MONTHLY) return q;
-        q += "    AND i_r.DAY = c_r.DAY";
+        if (range != RANGE.MONTHLY) {
+            q += "    AND i_r.DAY = c_r.DAY";
 
-        if (range == RANGE.DAILY) return q;
-        q += "    AND i_r.HOUR = c_r.HOUR";
-
+            if (range != RANGE.DAILY) {
+                q += "    AND i_r.HOUR = c_r.HOUR";
+            }
+        }
+        q += " WHERE " + getWhereClause("", dateStringWhere);
         return q;
+    }
+
+    protected String uniquesQuery(){
+        return
+                "SELECT " + getDateString() + ", COUNT(*) AS numberOfBounces" +
+                        " FROM `Server` " +
+                        " WHERE " + getWhereClause() +
+                        " GROUP BY " + getRangeString() +
+                        " ORDER BY " + getRangeString() + " ASC";
+    }
+
+    protected String bouncesQuery() {
+        return
+                "SELECT " + getDateString() + ", COUNT(*) AS bounces" +
+                        " FROM `Server` " +
+                        " WHERE `page_viewed`=1 AND " + getWhereClause() +
+                        " GROUP BY " + getRangeString() +
+                        " ORDER BY " + getRangeString() + " ASC";
+    }
+
+    protected String conversionsQuery() {
+        return
+                "SELECT " + getDateString() + ", COUNT(*) AS conversions" +
+                        " FROM `Server` " +
+                        " WHERE `conversion`=1 AND " + getWhereClause() +
+                        " GROUP BY " + getRangeString() +
+                        " ORDER BY " + getRangeString() + " ASC";
     }
 
     protected String getDateString(String table) {
@@ -101,7 +137,7 @@ public class Query {
         }
         c = t + "`YEAR`" + c;
         f = "YYYY" + f;
-        return "TO_TIMESTAMP(CONCAT(" + c + "), '" + f + "') as `date`";
+        return "TO_TIMESTAMP(CONCAT(" + c + "), '" + f + "')";
     }
 
     protected String getDateString() {
@@ -109,14 +145,20 @@ public class Query {
     }
 
     protected String getWhereClause() {
+        return getWhereClause("", "");
+    }
+
+    protected String getWhereClause(String table, String field) {
+        String t = (table.length() == 0) ? "" : "`" + table + "`";
+        String f = (field.length() == 0) ? "`date`" : field;
         if (from != null && to != null) {
-            return "WHERE `date` BETWEEN '" + from.toString() + "' AND '" + to.toString() + "'";
+            return t + f + " BETWEEN '" + from.toString() + "' AND '" + to.toString() + "'";
         } else if (from != null) {
-            return "`date` < " + from.toString();
+            return t + f + " <= '" + from.toString() + "'";
         } else if (to != null) {
-            return "`date` > " + to.toString();
+            return t + f + " >= '" + to.toString() + "'";
         } else {
-            return "";
+            return "1";
         }
     }
 
