@@ -30,6 +30,13 @@ public class DataController {
 
     private Database database;
 
+    public enum RANGE {
+        DAILY,
+        HOURLY,
+        WEEKLY,
+        MONTHLY
+    }
+
     public DataController() {
         this.database = Database.InitialiseDatabase();
     }
@@ -370,27 +377,36 @@ public class DataController {
      */
 
     /**
+     * Take in filters and translate to SQL
+     * @return the part of the SQL query which will apply the filters
+     */
+    private String filtersToQuery (String queryStart, Timestamp from, Timestamp to)
+    {
+        //Check for existing WHERE previously, and adjust accordingly
+        String where = queryStart.contains("WHERE") ? " AND " : " WHERE ";
+        if (from != null && to != null) {
+//                where = "WHERE `date` IN RANGE (" + from.toString() + ", " + to.toString() + ")";
+//                where = "WHERE `date` > '" + from.toString() + "' AND `date` < '" + to.toString() + "'";
+            where += "`date` BETWEEN '" + from.toString() + "' AND '" + to.toString()+"'";
+        } else if (from != null) {
+            where += "`date` > '" + from.toString() + "'";
+        } else if (to != null) {
+            where += "`date` < '" + to.toString() + "'";
+        }
+        return where;
+    }
+
+    /**
      * @param range
      * @param from
      * @param to
      */
     public List<Pair<String, Number>> getClicks(RANGE range, Timestamp from, Timestamp to) throws SQLException {
         try (Connection c = database.getConnection()) {
-            String where;
-            if (from != null && to != null) {
-//                where = "WHERE `date` IN RANGE (" + from.toString() + ", " + to.toString() + ")";
-//                where = "WHERE `date` > '" + from.toString() + "' AND `date` < '" + from.toString() + "'";
-                where = "WHERE `date` BETWEEN '" + from.toString() + "' AND '" + to.toString()+"'";
-            } else if (from != null) {
-                where = "WHERE `date` > '" + from.toString() + "'";
-            } else if (to != null) {
-                where = "WHERE `date` < '" + to.toString()+"'";
-            } else {
-                where = "";
-            }
+            String queryStart = "SELECT CONCAT(TO_CHAR(date, '" + getRangeString(range) + "'), ':00') AS label, COUNT(*) AS click" +
+                    " FROM `Clicks` ";
             PreparedStatement s = c.prepareStatement(
-                    "SELECT CONCAT(TO_CHAR(date, '" + getRangeString(range) + "'), ':00') AS label, COUNT(*) AS click" +
-                            " FROM `Clicks` " + where + " GROUP BY label ORDER BY label ASC");
+                    queryStart + filtersToQuery(queryStart, from, to) + " GROUP BY label ORDER BY label ASC");
             try (ResultSet res = s.executeQuery()) {
                 List<Pair<String, Number>> list = new ArrayList<>();
                 while (res.next()) {
@@ -457,12 +473,5 @@ public class DataController {
      */
     public int getTotalConversions() throws SQLException {
         return this.database.getTotalConversions();
-    }
-
-    public enum RANGE {
-        DAILY,
-        HOURLY,
-        WEEKLY,
-        MONTHLY
     }
 }

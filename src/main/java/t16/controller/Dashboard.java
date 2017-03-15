@@ -18,10 +18,10 @@ import org.apache.logging.log4j.Logger;
 import t16.AdDashboard;
 import t16.components.dialogs.ConfirmationDialog;
 import t16.components.dialogs.ExceptionDialog;
-import t16.controller.DataController.RANGE;
 import t16.model.Campaign;
 import t16.model.Chart;
 import t16.model.Database;
+import t16.controller.DataController;
 
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -97,7 +97,7 @@ public class Dashboard {
                 Timestamp from = (startDate.getValue() == null) ? null : Timestamp.valueOf(startDate.getValue().atStartOfDay());
                 Timestamp to = (endDate.getValue() == null) ? null : Timestamp.valueOf(endDate.getValue().atStartOfDay());
 
-                c.addSeries("Clicks", AdDashboard.getDataController().getClicks(getRange(), from, to));
+                c.addSeries("Clicks", AdDashboard.getDataController().getClicks(Dashboard.this.getRange(), from, to));
                 return c;
             }
         };
@@ -217,18 +217,18 @@ public class Dashboard {
         this.scene = scene;
     }
 
-    private RANGE getRange(){
+    public DataController.RANGE getRange(){
         if(hourlyButton.isSelected()){
-            return RANGE.HOURLY;
+            return DataController.RANGE.HOURLY;
         }
         if(dailyButton.isSelected()){
-            return RANGE.DAILY;
+            return DataController.RANGE.DAILY;
         }
         if(weeklyButton.isSelected()){
-            return RANGE.WEEKLY;
+            return DataController.RANGE.WEEKLY;
         }
         if(monthlyButton.isSelected()){
-            return RANGE.MONTHLY;
+            return DataController.RANGE.MONTHLY;
         }
 
         throw new IllegalStateException();
