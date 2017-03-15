@@ -1,6 +1,10 @@
 package t16.components;
 
+import org.junit.Before;
 import org.junit.Test;
+import t16.controller.DataController;
+
+import java.io.File;
 
 import static org.junit.Assert.*;
 
@@ -11,9 +15,17 @@ import static org.junit.Assert.*;
  * @since 03/01/2017
  */
 public class DatabaseTest {
+
+    private DataController dataController;
+
+    @Before
+    public void setUp() throws Exception {
+        dataController = new DataController();
+    }
+
     @Test
     public void initialiseDatabase() throws Exception {
-
+        dataController.createCampaign(new File("resources/test/test_data.zip"),new File("resources/test/test_database.h2"));
     }
 
     @Test
