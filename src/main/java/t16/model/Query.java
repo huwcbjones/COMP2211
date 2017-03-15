@@ -130,12 +130,23 @@ public class Query {
     }
 
     protected String uniquesQuery() {
+        if (!isComplicated()) {
+            String whereClause = getWhereClause();
+            if (whereClause.length() != 0) whereClause = " WHERE " + whereClause;
+            return
+                    "SELECT " + getDateString("Server") + ", COUNT(*) AS numberOfBounces" +
+                            " FROM `Server` " +
+                            whereClause +
+                            " GROUP BY " + getRangeString() +
+                            " ORDER BY " + getRangeString() + " ASC";
+        }
         return
-                "SELECT " + getDateString() + ", COUNT(*) AS numberOfBounces" +
+                "SELECT " + getDateString("Server") + ", COUNT(*) AS numberOfBounces" +
                         " FROM `Server` " +
-                        " WHERE " + getWhereClause() +
-                        " GROUP BY " + getRangeString() +
-                        " ORDER BY " + getRangeString() + " ASC";
+                        " LEFT JOIN `Impressions` ON `Impressions`.`ID`=`Server`.`ID`" +
+                        " WHERE " + getWhereClause("Server") +
+                        " GROUP BY " + getRangeString("Server") +
+                        " ORDER BY " + getRangeString("Server") + " ASC";
     }
 
     protected String bouncesQuery() {

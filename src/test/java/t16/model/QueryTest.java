@@ -87,7 +87,11 @@ public class QueryTest {
 
     @Test
     public void uniquesQuery() throws Exception {
+        Query q = new Query(Query.TYPE.UNIQUES, Query.RANGE.HOUR);
 
+        genderTestQuery(q);
+        incomeTestQuery(q);
+        contextTestQuery(q);
     }
 
     @Test
