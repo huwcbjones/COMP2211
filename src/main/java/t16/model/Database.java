@@ -17,7 +17,6 @@ import java.sql.Statement;
  * Modified by James Curran 26/2/17
  * Modified by Huw Jones 06/03/2017
  * This increment:
- * TODO Total conversions
  * TODO Uniques over time
  * TODO Bounces over time
  * TODO Conversions over time
@@ -370,13 +369,13 @@ public class Database {
         return s.getResultSet();
     }
 
-    public ResultSet getGender(String gender) throws SQLException {
+    public ResultSet getContext(String gender) throws SQLException {
         Statement s = this.connection.createStatement();
         s.execute("Select Date, ID FROM Impression WHERE Gender='" + gender + "' ;");
         return s.getResultSet();
     }
 
-    public ResultSet getIncome(String income) throws SQLException {
+    public ResultSet getContext(String income) throws SQLException {
         Statement s = this.connection.createStatement();
         s.execute("Select Date, ID FROM Impression WHERE Income='" + income + "' ;");
         return s.getResultSet();
@@ -401,7 +400,11 @@ public class Database {
     }*/
     public void disconnect() throws SQLException {
         if (!isConnected()) return;
-        log.warn("There are {} active connections", connectionPool.getActiveConnections());
+        if(connectionPool.getActiveConnections() != 0) {
+            log.warn("There are {} active connections", connectionPool.getActiveConnections());
+        } else {
+            log.info("All connections are closed!");
+        }
         connectionPool.dispose();
         this.isConnected = false;
     }
