@@ -96,8 +96,13 @@ public class Dashboard {
 
                 Timestamp from = (startDate.getValue() == null) ? null : Timestamp.valueOf(startDate.getValue().atStartOfDay());
                 Timestamp to = (endDate.getValue() == null) ? null : Timestamp.valueOf(endDate.getValue().atStartOfDay());
+                //TODO Change when the appropriate GUI filter options are added
+                String gender = "Male"; //Or "Female" or "n/a"
+                String age = "<25"; //Or "25-34" or "n/a" or whatever
+                String income = "Low"; //Or "Medium" or "High" or "n/a"
+                String context = "Shopping"; //Or "Business" or "n/a" or god knows what
 
-                c.addSeries("Clicks", AdDashboard.getDataController().getClicks(Dashboard.this.getRange(), from, to));
+                c.addSeries("Clicks", AdDashboard.getDataController().getClicks(Dashboard.this.getRange(), from, to, gender, age, income, context));
                 return c;
             }
         };
