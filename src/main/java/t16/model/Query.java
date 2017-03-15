@@ -134,14 +134,14 @@ public class Query {
             String whereClause = getWhereClause();
             if (whereClause.length() != 0) whereClause = " WHERE " + whereClause;
             return
-                    "SELECT " + getDateString("Server") + ", COUNT(*) AS numberOfBounces" +
+                    "SELECT " + getDateString("Server") + ", COUNT(*) AS numberOfUniques" +
                             " FROM `Server` " +
                             whereClause +
                             " GROUP BY " + getRangeString() +
                             " ORDER BY " + getRangeString() + " ASC";
         }
         return
-                "SELECT " + getDateString("Server") + ", COUNT(*) AS numberOfBounces" +
+                "SELECT " + getDateString("Server") + ", COUNT(*) AS numberOfUniques" +
                         " FROM `Server` " +
                         " LEFT JOIN `Impressions` ON `Impressions`.`ID`=`Server`.`ID`" +
                         " WHERE " + getWhereClause("Server") +
@@ -150,21 +150,43 @@ public class Query {
     }
 
     protected String bouncesQuery() {
+        if (!isComplicated()) {
+            String whereClause = getWhereClause();
+            if(whereClause.length() != 0) whereClause = " AND " + whereClause;
+            return
+                    "SELECT " + getDateString() + ", COUNT(*) AS bounces" +
+                            " FROM `Server` " +
+                            " WHERE `page_viewed`=1 " + whereClause +
+                            " GROUP BY " + getRangeString() +
+                            " ORDER BY " + getRangeString() + " ASC";
+        }
         return
-                "SELECT " + getDateString() + ", COUNT(*) AS bounces" +
+                "SELECT " + getDateString("Server") + ", COUNT(*) AS bounces" +
                         " FROM `Server` " +
-                        " WHERE `page_viewed`=1 AND " + getWhereClause() +
-                        " GROUP BY " + getRangeString() +
-                        " ORDER BY " + getRangeString() + " ASC";
+                        " LEFT JOIN `Impressions` ON `Impressions`.`ID`=`Server`.`ID`" +
+                        " WHERE `page_viewed`=1 AND " + getWhereClause("Server") +
+                        " GROUP BY " + getRangeString("Server") +
+                        " ORDER BY " + getRangeString("Server") + " ASC";
     }
 
     protected String conversionsQuery() {
+        if (!isComplicated()) {
+            String whereClause = getWhereClause();
+            if(whereClause.length() != 0) whereClause = " AND " + whereClause;
+            return
+                    "SELECT " + getDateString() + ", COUNT(*) AS conversions" +
+                            " FROM `Server` " +
+                            " WHERE `conversion`=1 " + whereClause +
+                            " GROUP BY " + getRangeString() +
+                            " ORDER BY " + getRangeString() + " ASC";
+        }
         return
-                "SELECT " + getDateString() + ", COUNT(*) AS conversions" +
+                "SELECT " + getDateString("Server") + ", COUNT(*) AS conversions" +
                         " FROM `Server` " +
-                        " WHERE `conversion`=1 AND " + getWhereClause() +
-                        " GROUP BY " + getRangeString() +
-                        " ORDER BY " + getRangeString() + " ASC";
+                        " LEFT JOIN `Impressions` ON `Impressions`.`ID`=`Server`.`ID`" +
+                        " WHERE `conversion`=1 AND " + getWhereClause("Server") +
+                        " GROUP BY " + getRangeString("Server") +
+                        " ORDER BY " + getRangeString("Server") + " ASC";
     }
 
     protected String getDateString(String table) {
