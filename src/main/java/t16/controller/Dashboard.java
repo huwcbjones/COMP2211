@@ -31,6 +31,11 @@ import java.util.Optional;
  */
 public class Dashboard {
     protected static final Logger log = LogManager.getLogger(Dashboard.class);
+    /**
+     * If true, a bounce is defined as 1 page being viewed.
+     * Otherwise, less than 60 seconds being spent on the site
+     */
+    public static boolean BOUNCE_DEFINITION;
 
     private Scene scene = null;
     private Campaign campaign = null;
@@ -120,7 +125,7 @@ public class Dashboard {
 
     @FXML
     private void viewBounces(ActionEvent event) {
-        displayChart(TYPE.BOUNCES_PAGES);
+        displayChart(BOUNCE_DEFINITION ? TYPE.BOUNCES_PAGES : TYPE.BOUNCES_TIME);
     }
 
     @FXML

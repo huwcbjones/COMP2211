@@ -28,7 +28,8 @@ public class Campaign {
     private BigDecimal costPerAcquisition = BigDecimal.ZERO;
     private BigDecimal costPer1kImpressions = BigDecimal.ZERO;
     private double clickThroughRate = -1d;
-    private double bounceRate = -1d;
+    private double bounceRatePages = -1d;
+    private double bounceRateTime = -1d;
 
     public Campaign(String name) {
         this.name = name;
@@ -91,6 +92,14 @@ public class Campaign {
         return numberBouncesTime;
     }
 
+    public void setNumberBouncesPages(long numberBounces) {
+        if (this.numberBouncesPages == -1) this.numberBouncesPages = numberBounces;
+    }
+
+    public void setNumberBouncesTime(long numberBounces) {
+        if (this.numberBouncesTime == -1) this.numberBouncesTime = numberBounces;
+    }
+
     public void setNumberConversions(long numberConversions) {
         if (this.numberConversions == -1) this.numberConversions = numberConversions;
     }
@@ -139,12 +148,20 @@ public class Campaign {
         if (this.clickThroughRate == -1) this.clickThroughRate = clickThroughRate;
     }
 
-    public double getBounceRate() {
-        return bounceRate;
+    public double getBounceRatePages() {
+        return bounceRatePages;
     }
 
-    public void setBounceRate(double bounceRate) {
-        if (this.bounceRate == -1) this.bounceRate = bounceRate;
+    public double getBounceRateTime() {
+        return bounceRateTime;
+    }
+
+    public void setBounceRatePages(double bounceRate) {
+        if (this.bounceRatePages == -1) this.bounceRatePages = bounceRate;
+    }
+
+    public void setBounceRateTime(double bounceRate) {
+        if (this.bounceRateTime == -1) this.bounceRateTime = bounceRate;
     }
 
     public enum Interval {

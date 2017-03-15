@@ -72,7 +72,7 @@ public class StatsController extends GridPane {
         if (numberClicks != null) numberClicks.setText(nf.format(c.getNumberClicks()));
         if (numberUniques != null) numberUniques.setText(nf.format(c.getNumberUniques()));
         if (numberConversions != null) numberConversions.setText(nf.format(c.getNumberConversions()));
-        if (numberBounces != null) numberBounces.setText(nf.format(c.getNumberBounces()));
+        if (numberBounces != null) numberBounces.setText(nf.format(Dashboard.BOUNCE_DEFINITION ? c.getNumberBouncesPages() : c.getNumberBouncesTime()));
 
         if (totalCost != null) totalCost.setText(cf.format(c.getTotalCost()));
         if (costPerClick != null) costPerClick.setText(cf.format(c.getCostPerClick()));
@@ -83,6 +83,6 @@ public class StatsController extends GridPane {
 
 
         if (clickThroughRate != null) clickThroughRate.setText(nf.format(c.getClickThroughRate()) + "%");
-        if (bounceRate != null) bounceRate.setText(nf.format(c.getBounceRate()) + "%");
+        if (bounceRate != null) bounceRate.setText(nf.format(Dashboard.BOUNCE_DEFINITION ? c.getBounceRatePages() : c.getBounceRateTime()) + "%");
     }
 }
