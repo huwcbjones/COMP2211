@@ -3,6 +3,8 @@ package t16.model;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 
+import static t16.model.Query.*;
+
 /**
  * An Impression
  *
@@ -13,13 +15,13 @@ public class ImpressionLog {
 
     private Timestamp date;
     private long id;
-    private Gender gender;
+    private GENDER gender;
     private String age;
-    private Income income;
-    private Context context;
+    private INCOME income;
+    private CONTEXT context;
     private BigDecimal cost;
 
-    public ImpressionLog(Timestamp date, long id, Gender gender, String age, Income income, Context context, BigDecimal cost) {
+    public ImpressionLog(Timestamp date, long id, GENDER gender, String age, INCOME income, CONTEXT context, BigDecimal cost) {
         this.date = date;
         this.id = id;
         this.gender = gender;
@@ -37,7 +39,7 @@ public class ImpressionLog {
         return id;
     }
 
-    public Gender getGender() {
+    public GENDER getGender() {
         return gender;
     }
 
@@ -45,11 +47,11 @@ public class ImpressionLog {
         return age;
     }
 
-    public Income getIncome() {
+    public INCOME getIncome() {
         return income;
     }
 
-    public Context getContext() {
+    public CONTEXT getContext() {
         return context;
     }
 
@@ -57,23 +59,4 @@ public class ImpressionLog {
         return cost;
     }
 
-    public enum Gender {
-        MALE,
-        FEMALE
-    }
-
-    public enum Income {
-        LOW,
-        MEDIUM,
-        HIGH
-    }
-
-    public enum Context {
-        NEWS,
-        SHOPPING,
-        SOCIAL_MEDIA,
-        BLOG,
-        HOBBIES,
-        TRAVEL
-    }
 }

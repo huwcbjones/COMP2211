@@ -1,30 +1,23 @@
 package t16.controller;
 
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
-import javafx.scene.chart.CategoryAxis;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.StackPane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import t16.AdDashboard;
 import t16.components.dialogs.ConfirmationDialog;
 import t16.components.dialogs.ExceptionDialog;
-import t16.model.Campaign;
-import t16.model.Chart;
-import t16.model.Database;
-import t16.controller.DataController;
+import t16.model.*;
+import t16.model.Query.*;
 
-import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.NumberFormat;
 import java.util.Optional;
 
 /**
@@ -38,31 +31,14 @@ public class Dashboard {
 
     private Scene scene = null;
     private Campaign campaign = null;
+    private TYPE currentChart = null;
 
     //<editor-fold desc="View Controls">
     @FXML
     private Label campaignName;
 
     @FXML
-    private Button clicksButton;
-
-    @FXML
-    private Button impressionsButton;
-
-    @FXML
-    private Button uniqueButton;
-
-    @FXML
-    private Button bouncesButton;
-
-    @FXML
-    private Button conversionsButton;
-
-    @FXML
-    private Button clickThroughsButton;
-
-    @FXML
-    private BorderPane chartPane;
+    private StackPane mainPane;
 
     @FXML
     private DatePicker startDate;
@@ -71,78 +47,66 @@ public class Dashboard {
     private DatePicker endDate;
 
     @FXML
+    private BorderPane filterPanel;
+
+    @FXML
     private ToggleButton hourlyButton;
 
     @FXML
     private ToggleButton dailyButton;
 
     @FXML
-    private ToggleButton weeklyButton;
-
-    @FXML
     private ToggleButton monthlyButton;
 
     @FXML
-    private ToggleGroup rangeToggle;
+    private ComboBox<Gender> genderCombo;
+
+    @FXML
+    private ComboBox ageCombo;
+
+    @FXML
+    private ComboBox<Income> incomeCombo;
+
+    @FXML
+    private ComboBox<Context> contextCombo;
+
+    @FXML
+    private StatsController statsPanel;
+
+    @FXML
+    private ProgressIndicator workingIndicator;
     //</editor-fold>
 
     //<editor-fold desc="View Methods">
     @FXML
+    private void viewStats(ActionEvent event) {
+        displayLoading(true);
+        displayStats();
+    }
+
+    @FXML
     private void viewClicks(ActionEvent event) {
-        Task<Chart> getClicksTask = new Task<Chart>() {
-            @Override
-            protected Chart call() throws Exception {
-                Chart c = new Chart("Clicks per Hour", "Time", "Clicks per Hour");
-
-                Timestamp from = (startDate.getValue() == null) ? null : Timestamp.valueOf(startDate.getValue().atStartOfDay());
-                Timestamp to = (endDate.getValue() == null) ? null : Timestamp.valueOf(endDate.getValue().atStartOfDay());
-                //TODO Change when the appropriate GUI filter options are added
-                String gender = "Male"; //Or "Female" or "n/a"
-                String age = "<25"; //Or "25-34" or "n/a" or whatever
-                String income = "Low"; //Or "Medium" or "High" or "n/a"
-                String context = "Shopping"; //Or "Business" or "n/a" or god knows what
-
-                c.addSeries("Clicks", AdDashboard.getDataController().getClicks(Dashboard.this.getRange(), from, to, gender, age, income, context));
-                return c;
-            }
-        };
-
-        getClicksTask.setOnSucceeded(e -> {
-            chartPane.setCenter(((Chart) e.getSource().getValue()).renderChart());
-        });
-        getClicksTask.setOnFailed(e -> {
-            ExceptionDialog dialog = new ExceptionDialog(
-                    "Click Load Error",
-                    "Failed end load clicks.",
-                    e.getSource().getException()
-            );
-            dialog.showAndWait();
-        });
-        AdDashboard.getWorkerPool().queueTask(getClicksTask);
-        //        displayChart(TYPE.CLICKS);
-
+        renderChart(TYPE.CLICKS);
     }
 
     @FXML
     private void viewImpressions(ActionEvent event) {
-//        displayChart(TYPE.IMPRESSIONS);
-
+        renderChart(TYPE.IMPRESSIONS);
     }
 
     @FXML
     private void viewUnique(ActionEvent event) {
-//        displayChart(TYPE.UNIQUES);
-
+        renderChart(TYPE.UNIQUES);
     }
 
     @FXML
     private void viewBounces(ActionEvent event) {
-//        displayChart(TYPE.BOUNCES);
-
+        renderChart(TYPE.BOUNCES);
     }
 
     @FXML
     private void viewConversion(ActionEvent event) {
+        renderChart(TYPE.CONVERSIONS);
 //        displayChart(TYPE.CONVERSIONS);
     }
 
@@ -178,48 +142,198 @@ public class Dashboard {
 
     @FXML
     private void viewClickThrough(ActionEvent event) {
-        try {
-            campaign.setData("clickThrough", Database.database.getClickThrough(), true);
+        renderChart(TYPE.CLICK_THROUGH_RATE);
+    }
 
-            CategoryAxis xAxis = new CategoryAxis();
-            xAxis.setLabel("Time");
-            xAxis.setAutoRanging(true);
+    @FXML
+    private void updateChart(ActionEvent event) {
+        renderChart(currentChart);
+    }
+    //</editor-fold>
 
-            NumberAxis yAxis = new NumberAxis();
-            yAxis.setLabel("Click Through Rate (%age)");
+    //<editor-fold desc="Helper Methods">
 
-            LineChart<String, Number> chart = new LineChart<>(xAxis, yAxis);
-            chart.setTitle("Average Click Through Rate per Hour");
+    /**
+     * Displays the loading wheel
+     * @param working True if work is happening, false if work stopped
+     */
+    private void displayLoading(boolean working) {
+        workingIndicator.setVisible(working);
+        statsPanel.setVisible(false);
+        mainPane.getChildren().removeIf(node -> !((node instanceof StatsController) || (node instanceof ProgressIndicator)));
+    }
 
+    /**
+     * Displays the "Stats" Dashboard
+     */
+    private void displayStats() {
+        displayLoading(false);
+        filterPanel.setVisible(false);
+        statsPanel.setVisible(true);
+    }
 
-            XYChart.Series<String, Number> seriesData = new XYChart.Series<>();
-            seriesData.setName("Click Through");
+    /**
+     * Displays a Chart on the View
+     * @param chart
+     */
+    private void displayChart(Chart chart) {
+        displayLoading(false);
+        filterPanel.setVisible(true);
+        mainPane.getChildren().add(0, chart.renderChart());
+    }
 
-            Campaign.AxisPair axisPair = campaign.data.get(Campaign.Interval.SECONDS);
-            for (int i = 0; i < axisPair.getXAxis().size(); i++) {
-                seriesData.getData().add(new XYChart.Data<>(axisPair.getXAxis().get(i), axisPair.getYAxis().get(i).doubleValue() * 100d));
-            }
+    /**
+     * Renders a Chart, then displays it
+     * @param t Chart Type to render
+     */
+    private void renderChart(TYPE t) {
+        if (t == null) return;
+        displayLoading(true);
 
-            ObservableList<XYChart.Series<String, Number>> data = FXCollections.observableArrayList();
-            data.add(seriesData);
-            chart.setData(data);
-
-            chartPane.setCenter(chart);
-        } catch (SQLException e) {
-            log.catching(e);
-            ExceptionDialog dialog = new ExceptionDialog(
-                    "Click Load Error",
-                    "Failed end load clickthrough.",
-                    e
-            );
-            dialog.showAndWait();
+        String title, xAxis, yAxis, series;
+        RANGE range = getRange();
+        xAxis = "Time";
+        switch (t) {
+            case IMPRESSIONS:
+                title = "Impressions per {}";
+                yAxis = "Impressions per {}";
+                series = "Impressions";
+                break;
+            case CLICKS:
+                title = "Clicks per {}";
+                yAxis = "Clicks per {}";
+                series = "Clicks";
+                break;
+            case UNIQUES:
+                title = "Unique Clicks per {}";
+                yAxis = "Unique Clicks per {}";
+                series = "Unique Clicks";
+                break;
+            case BOUNCES:
+                title = "Bounces per {}";
+                yAxis = "Bounces per {}";
+                series = "Bounces";
+                break;
+            case CONVERSIONS:
+                title = "Conversions per {}";
+                yAxis = "Conversions per {}";
+                series = "Conversions";
+                break;
+            case COST:
+                title = "Cost per {}";
+                yAxis = "Cost per {}";
+                series = "Cost";
+                break;
+            case COST_PER_ACQUISITION:
+                title = "Cost per Acquisition per {}";
+                yAxis = "Cost per Acquisition per {}";
+                series = "Cost per Acquisition";
+                break;
+            case COST_PER_CLICK:
+                title = "Cost per Click per {}";
+                yAxis = "Cost per Click per {}";
+                series = "Cost per Click";
+                break;
+            case COST_PER_1KIMPRESSION:
+                title = "Cost per 1k Impressions per {}";
+                yAxis = "Cost per 1k Impressions per {}";
+                series = "Cost per 1k Impressions";
+                break;
+            case CLICK_THROUGH_RATE:
+                title = "Click Through Rate per {}";
+                yAxis = "Click Through Rate per {}";
+                series = "Click Through Rate";
+                break;
+            case BOUNCE_RATE:
+                title = "Bounce Rate per {}";
+                yAxis = "Bounce Rate per {}";
+                series = "Bounce Rate";
+                break;
+            default:
+                return;
         }
 
-        //displayChart(TYPE.CLICK_THROUGH_RATE);
+        title = title.replace("{}", range.toString().substring(0, 1).toUpperCase() + range.toString().substring(1).toLowerCase());
+        yAxis = yAxis.replace("{}", range.toString().substring(0, 1).toUpperCase() + range.toString().substring(1).toLowerCase());
+
+        final String fTitle = title;
+        final String fyAxis = yAxis;
+        final String fxAxis = xAxis;
+        final String fSeries = series;
+        Task<Chart> getClicksTask = new Task<Chart>() {
+            @Override
+            protected Chart call() throws Exception {
+                long time = System.currentTimeMillis();
+                Chart c = new Chart(fTitle, fxAxis, fyAxis);
+
+                Timestamp from = (startDate.getValue() == null) ? null : Timestamp.valueOf(startDate.getValue().atStartOfDay());
+                Timestamp to = (endDate.getValue() == null) ? null : Timestamp.valueOf(endDate.getValue().atStartOfDay());
+
+                GENDER gender = GENDER.ALL;
+                if (genderCombo.getSelectionModel().getSelectedItem() != null) {
+                    gender = genderCombo.getSelectionModel().getSelectedItem().getType();
+                }
+
+                INCOME income = INCOME.ALL;
+                if (incomeCombo.getSelectionModel().getSelectedItem() != null) {
+                    income = incomeCombo.getSelectionModel().getSelectedItem().getType();
+                }
+
+                // TODO: Age
+
+                CONTEXT context = CONTEXT.ALL;
+                if (contextCombo.getSelectionModel().getSelectedItem() != null) {
+                    context = contextCombo.getSelectionModel().getSelectedItem().getType();
+                }
+
+                Query query = new Query(t, range, from, to, gender, null, income, context);
+
+                c.addSeries(fSeries, AdDashboard.getDataController().getQuery(query));
+                time = System.currentTimeMillis() - time;
+                log.info("Chart processed in {}", NumberFormat.getNumberInstance().format(time / 1000d));
+                return c;
+            }
+        };
+
+        getClicksTask.setOnSucceeded(e -> {
+            currentChart = t;
+            displayChart((Chart) e.getSource().getValue());
+        });
+        getClicksTask.setOnFailed(e -> {
+            displayLoading(false);
+            ExceptionDialog dialog = new ExceptionDialog(
+                    "Click Load Error",
+                    "Failed end load clicks.",
+                    e.getSource().getException()
+            );
+            dialog.showAndWait();
+        });
+        AdDashboard.getWorkerPool().queueTask(getClicksTask);
+    }
+
+    /**
+     * Gets the range type from the range buttons
+     * @return Range Type (Hour, Day, Month)
+     */
+    private RANGE getRange() {
+        if (hourlyButton.isSelected()) {
+            return RANGE.HOUR;
+        }
+        if (dailyButton.isSelected()) {
+            return RANGE.DAY;
+        }
+        if (monthlyButton.isSelected()) {
+            return RANGE.MONTH;
+        }
+
+        throw new IllegalStateException();
     }
     //</editor-fold>
 
     @FXML
+    /**
+     * Initialises the View
+     */
     public void initialize() {
         if (campaign != null) campaignName.setText(campaign.getName());
         if (scene != null)
@@ -232,10 +346,41 @@ public class Dashboard {
                 Optional<ButtonType> result = confirm.showAndWait();
                 if (result.isPresent() && confirm.isAction(result.get())) {
                     Platform.exit();
+                } else {
+                    e.consume();
                 }
             });
+
+        genderCombo.getItems().addAll(
+                new Gender(GENDER.ALL, "All"),
+                new Gender(GENDER.FEMALE, "Female"),
+                new Gender(GENDER.MALE, "Male")
+        );
+
+        incomeCombo.getItems().addAll(
+                new Income(INCOME.ALL, "All"),
+                new Income(INCOME.HIGH, "High"),
+                new Income(INCOME.MEDIUM, "Medium"),
+                new Income(INCOME.LOW, "Low")
+        );
+
+        contextCombo.getItems().addAll(
+                new Context(CONTEXT.ALL, "All"),
+                new Context(CONTEXT.BLOG, "Blog"),
+                new Context(CONTEXT.HOBBIES, "Hobbies"),
+                new Context(CONTEXT.NEWS, "News"),
+                new Context(CONTEXT.SHOPPING, "Shopping"),
+                new Context(CONTEXT.SOCIAL_MEDIA, "Social Media"),
+                new Context(CONTEXT.TRAVEL, "Travel")
+        );
     }
 
+    /**
+     * Sets the stats view
+     */
+    public void setStats() {
+        if (statsPanel != null) statsPanel.setCampaign(campaign);
+    }
 
     /**
      * Returns the Campaign
@@ -257,22 +402,5 @@ public class Dashboard {
 
     public void setScene(Scene scene) {
         this.scene = scene;
-    }
-
-    public DataController.RANGE getRange(){
-        if(hourlyButton.isSelected()){
-            return DataController.RANGE.HOURLY;
-        }
-        if(dailyButton.isSelected()){
-            return DataController.RANGE.DAILY;
-        }
-        if(weeklyButton.isSelected()){
-            return DataController.RANGE.WEEKLY;
-        }
-        if(monthlyButton.isSelected()){
-            return DataController.RANGE.MONTHLY;
-        }
-
-        throw new IllegalStateException();
     }
 }

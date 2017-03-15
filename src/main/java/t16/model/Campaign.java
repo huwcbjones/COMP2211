@@ -1,5 +1,6 @@
 package t16.model;
 
+import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -16,6 +17,18 @@ import java.util.HashMap;
 public class Campaign {
     public HashMap<Interval, AxisPair> data;
     private String name;
+
+    private long numberImpressions = -1;
+    private long numberClicks = -1;
+    private long numberUniques = -1;
+    private long numberConversions = -1;
+    private long numberBounces = -1;
+    private BigDecimal totalCost = BigDecimal.ZERO;
+    private BigDecimal costPerClick = BigDecimal.ZERO;
+    private BigDecimal costPerAcquisition = BigDecimal.ZERO;
+    private BigDecimal costPer1kImpressions = BigDecimal.ZERO;
+    private double clickThroughRate = -1d;
+    private double bounceRate = -1d;
 
     public Campaign(String name) {
         this.name = name;
@@ -40,6 +53,98 @@ public class Campaign {
 
     public String getName() {
         return this.name;
+    }
+
+    public long getNumberImpressions() {
+        return numberImpressions;
+    }
+
+    public void setNumberImpressions(long numberImpressions) {
+        if (this.numberImpressions == -1) this.numberImpressions = numberImpressions;
+    }
+
+    public long getNumberClicks() {
+        return numberClicks;
+    }
+
+    public void setNumberClicks(long numberClicks) {
+        if (this.numberClicks == -1) this.numberClicks = numberClicks;
+    }
+
+    public long getNumberUniques() {
+        return numberUniques;
+    }
+
+    public void setNumberUniques(long numberUniques) {
+        if (this.numberUniques == -1) this.numberUniques = numberUniques;
+    }
+
+    public long getNumberConversions() {
+        return numberConversions;
+    }
+
+    public void setNumberConversions(long numberConversions) {
+        if (this.numberConversions == -1) this.numberConversions = numberConversions;
+    }
+
+    public long getNumberBounces() {
+        return numberBounces;
+    }
+
+    public void setNumberBounces(long numberBounces) {
+        if (this.numberBounces == -1) this.numberBounces = numberBounces;
+    }
+
+    public BigDecimal getTotalCost() {
+        if (totalCost == null) return BigDecimal.ZERO;
+        return totalCost;
+    }
+
+    public void setTotalCost(BigDecimal totalCost) {
+        if (this.totalCost == null) this.totalCost = totalCost;
+    }
+
+    public BigDecimal getCostPerClick() {
+        if (costPerClick == null) return BigDecimal.ZERO;
+        return costPerClick;
+    }
+
+    public void setCostPerClick(BigDecimal costPerClick) {
+        if (this.costPerClick == null) this.costPerClick = costPerClick;
+    }
+
+    public BigDecimal getCostPerAcquisition() {
+        if (costPerAcquisition == null) return BigDecimal.ZERO;
+        return costPerAcquisition;
+    }
+
+    public void setCostPerAcquisition(BigDecimal costPerAcquisition) {
+        if (this.costPerAcquisition == null) this.costPerAcquisition = costPerAcquisition;
+    }
+
+    public BigDecimal getCostPer1kImpressions() {
+        if (costPer1kImpressions == null) return BigDecimal.ZERO;
+        return costPer1kImpressions;
+    }
+
+    public void setCostPer1kImpressions(BigDecimal costPer1kImpressions) {
+        if (this.costPer1kImpressions == null) this.costPer1kImpressions = costPer1kImpressions;
+    }
+
+    public double getClickThroughRate() {
+        return clickThroughRate;
+    }
+
+    public void setClickThroughRate(double clickThroughRate) {
+        if (this.clickThroughRate == -1) this.clickThroughRate = clickThroughRate;
+    }
+
+    public double getBounceRate() {
+        return bounceRate;
+    }
+
+    public void setBounceRate(double bounceRate) {
+        if (this.bounceRate == -1) this.bounceRate = bounceRate;
     }
 
     public enum Interval {

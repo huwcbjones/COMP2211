@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<fx:root type="GridPane" BorderPane.alignment="CENTER" xmlns="http://javafx.com/javafx/8.0.101" xmlns:fx="http://javafx.com/fxml/1">
+    <columnConstraints>
+        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER"/>
+        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER"/>
+        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER"/>
+        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER"/>
+        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER"/>
+        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER"/>
+    </rowConstraints>
+    <children>
+        <Label alignment="CENTER" text="# Impressions" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS"
+               GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS"/>
+        <Label alignment="CENTER" text="# Clicks" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="0"
+               GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS"/>
+        <Label alignment="CENTER" text="# Uniques" GridPane.columnIndex="2" GridPane.rowIndex="0" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS"
+               GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS"/>
+        <Label alignment="CENTER" text="# Conversions" GridPane.columnIndex="3" GridPane.rowIndex="0" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS"
+               GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS"/>
+        <Label alignment="CENTER" text="# Bounces" GridPane.columnIndex="4" GridPane.rowIndex="0" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS"
+               GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS"/>
+        <Label alignment="CENTER" text="Total Cost" GridPane.columnIndex="0" GridPane.rowIndex="2" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS"
+               GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS"/>
+        <Label alignment="CENTER" text="\$/ Click" GridPane.columnIndex="2" GridPane.rowIndex="2" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS"
+               GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS"/>
+        <Label alignment="CENTER" text="\$/ Acquisition" GridPane.columnIndex="3" GridPane.rowIndex="2" GridPane.valignment="CENTER"
+               GridPane.vgrow="ALWAYS" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS"/>
+        <Label alignment="CENTER" text="\$/1k Impressions" GridPane.columnIndex="4" GridPane.rowIndex="2" GridPane.valignment="CENTER"
+               GridPane.vgrow="ALWAYS" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS"/>
+        <Label alignment="CENTER" text="Click Through %" GridPane.columnIndex="0" GridPane.rowIndex="4" GridPane.valignment="CENTER"
+               GridPane.vgrow="ALWAYS" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS"/>
+        <Label alignment="CENTER" text="Bounce %" GridPane.columnIndex="1" GridPane.rowIndex="4" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS"
+               GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS"/>
+
+        <Label alignment="CENTER" GridPane.vgrow="ALWAYS" GridPane.hgrow="ALWAYS" GridPane.columnIndex="0" GridPane.rowIndex="1" fx:id="numberImpressions" text=" " />
+        <Label alignment="CENTER" GridPane.vgrow="ALWAYS" GridPane.hgrow="ALWAYS" GridPane.columnIndex="1" GridPane.rowIndex="1" fx:id="numberClicks"  text=" "/>
+        <Label alignment="CENTER" GridPane.vgrow="ALWAYS" GridPane.hgrow="ALWAYS" GridPane.columnIndex="2" GridPane.rowIndex="1" fx:id="numberUniques"  text=" "/>
+        <Label alignment="CENTER" GridPane.vgrow="ALWAYS" GridPane.hgrow="ALWAYS" GridPane.columnIndex="3" GridPane.rowIndex="1" fx:id="numberConversions"  text=" "/>
+        <Label alignment="CENTER" GridPane.vgrow="ALWAYS" GridPane.hgrow="ALWAYS" GridPane.columnIndex="4" GridPane.rowIndex="1" fx:id="numberBounces"  text=" "/>
+
+        <Label alignment="CENTER" GridPane.vgrow="ALWAYS" GridPane.hgrow="ALWAYS" GridPane.columnIndex="0" GridPane.rowIndex="3" fx:id="totalCost"  text=" "/>
+        <Label alignment="CENTER" GridPane.vgrow="ALWAYS" GridPane.hgrow="ALWAYS" GridPane.columnIndex="2" GridPane.rowIndex="3" fx:id="costPerClick"  text=" "/>
+        <Label alignment="CENTER" GridPane.vgrow="ALWAYS" GridPane.hgrow="ALWAYS" GridPane.columnIndex="3" GridPane.rowIndex="3" fx:id="costPerAcquisition"  text=" "/>
+        <Label alignment="CENTER" GridPane.vgrow="ALWAYS" GridPane.hgrow="ALWAYS" GridPane.columnIndex="4" GridPane.rowIndex="3" fx:id="costPer1kImpressions"  text=" "/>
+
+        <Label alignment="CENTER" GridPane.vgrow="ALWAYS" GridPane.hgrow="ALWAYS" GridPane.columnIndex="0" GridPane.rowIndex="5" fx:id="clickThroughRate"  text=" "/>
+        <Label alignment="CENTER" GridPane.vgrow="ALWAYS" GridPane.hgrow="ALWAYS" GridPane.columnIndex="1" GridPane.rowIndex="5" fx:id="bounceRate"  text=" "/>
+    </children>
+</fx:root>
