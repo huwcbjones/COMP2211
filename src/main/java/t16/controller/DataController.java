@@ -427,7 +427,11 @@ public class DataController {
                 try (ResultSet res = s.executeQuery()) {
                     List<Pair<String, Number>> list = new ArrayList<>();
                     while (res.next()) {
-                        list.add(new Pair<>(res.getString(1), res.getInt(2)));
+                        if(query.isInt()) {
+                            list.add(new Pair<>(res.getString(1), res.getInt(2)));
+                        } else {
+                            list.add(new Pair<>(res.getString(1), res.getFloat(2)));
+                        }
                     }
                     return list;
                 }

@@ -40,52 +40,75 @@ public class Query {
             case COST_PER_CLICK:
             case COST_PER_1KIMPRESSION:
             case CLICK_THROUGH_RATE:
+                return clickThroughQuery();
             case BOUNCE_RATE:
-            throw new UnsupportedOperationException();
+                throw new UnsupportedOperationException();
             default:
                 throw new IllegalStateException("Should not happen");
         }
     }
 
-    private String impressionsQuery() {
+    protected String impressionsQuery() {
         return
                 "SELECT " + getDateString() + ", COUNT(*) AS impressions" +
-                " FROM `Impressions` " + getWhereClause() +
-                " GROUP BY " + getRangeString() +
-                " ORDER BY " + getRangeString() + " ASC";
+                        " FROM `Impressions` " + getWhereClause() +
+                        " GROUP BY " + getRangeString() +
+                        " ORDER BY " + getRangeString() + " ASC";
     }
 
-    private String clicksQuery() {
+    protected String clicksQuery() {
         return
                 "SELECT " + getDateString() + ", COUNT(*) AS clicks" +
-                " FROM `Clicks` " + getWhereClause() +
-                " GROUP BY " + getRangeString() +
-                " ORDER BY " + getRangeString() + " ASC";
+                        " FROM `Clicks` " + getWhereClause() +
+                        " GROUP BY " + getRangeString() +
+                        " ORDER BY " + getRangeString() + " ASC";
     }
 
-    private String getDateString() {
+    protected String clickThroughQuery() {
+        String q =
+                "SELECT " + getDateString("i_r") + ", CAST(clicks AS FLOAT)/CAST(impressions AS FLOAT) AS clickThrough FROM" +
+                        "  (SELECT " + getRangeString() + ", COUNT(*) AS `impressions` FROM `Impressions` GROUP BY " + getRangeString() + ") i_r" +
+                        "  LEFT JOIN" +
+                        "  (SELECT " + getRangeString() + ", COUNT(*) AS `clicks` FROM `Clicks` GROUP BY " + getRangeString() + ") c_r" +
+                        " ON i_r.YEAR = c_r.YEAR" +
+                        "    AND i_r.MONTH = c_r.MONTH";
+        if (range == RANGE.MONTHLY) return q;
+        q += "    AND i_r.DAY = c_r.DAY";
+
+        if (range == RANGE.DAILY) return q;
+        q += "    AND i_r.HOUR = c_r.HOUR";
+
+        return q;
+    }
+
+    protected String getDateString(String table) {
+        String t = (table.length() == 0) ? "" : "`" + table + "`.";
         String c = "";
         String f = "";
         switch (range) {
             case HOURLY:
-                c = ", ' ', `HOUR`" + c;
+                c = ", ' ', " + t + "`HOUR`" + c;
                 f = " HH24" + f;
             case DAILY:
-                c = ", '-', `DAY`" + c;
+                c = ", '-', " + t + "`DAY`" + c;
                 f = "-DD" + f;
             case MONTHLY:
-                c = ", '-', `MONTH`" + c;
+                c = ", '-', " + t + "`MONTH`" + c;
                 f = "-MM" + f;
                 break;
             default:
                 throw new IllegalArgumentException();
         }
-        c = "`YEAR`" + c;
+        c = t + "`YEAR`" + c;
         f = "YYYY" + f;
         return "TO_TIMESTAMP(CONCAT(" + c + "), '" + f + "') as `date`";
     }
 
-    private String getWhereClause() {
+    protected String getDateString() {
+        return getDateString("");
+    }
+
+    protected String getWhereClause() {
         if (from != null && to != null) {
             return "WHERE `date` BETWEEN '" + from.toString() + "' AND '" + to.toString() + "'";
         } else if (from != null) {
@@ -133,5 +156,8 @@ public class Query {
         BOUNCE_RATE
     }
 
-
+    public boolean isInt(){
+        if(type == TYPE.CLICK_THROUGH_RATE) return false;
+        return true;
+    }
 }
