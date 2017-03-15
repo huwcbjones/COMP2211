@@ -76,7 +76,9 @@ public class StatsController extends GridPane {
 
         if (totalCost != null) totalCost.setText(cf.format(c.getTotalCost()));
         if (costPerClick != null) costPerClick.setText(cf.format(c.getCostPerClick()));
-        if (costPerAcquisition != null) costPerAcquisition.setText(cf.format(c.getCostPerAcquisition()));
+        if (costPerAcquisition != null) {
+            if(c.getCostPerAcquisition() != null) costPerAcquisition.setText(cf.format(c.getCostPerAcquisition()));
+        }
         if (costPer1kImpressions != null) costPer1kImpressions.setText(cf.format(c.getCostPer1kImpressions()));
 
 

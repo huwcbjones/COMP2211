@@ -234,7 +234,7 @@ public class Database {
                                 "       (SELECT SUM(`clicks`.`click_cost`) FROM `clicks`)" +
                                 "      + (SELECT SUM(`impressions`.`cost`) FROM `impressions`)" +
                                 "     ) / 100" +
-                                "  ) / COUNT(*) AS costPerClick FROM `clicks`"
+                                "  ) / NULLIF(COUNT(*), 0) AS costPerClick FROM `clicks`"
                 );
                 while (set.next()) {
                     return set.getBigDecimal("costPerClick");
@@ -254,7 +254,7 @@ public class Database {
                                 "       (SELECT SUM(`clicks`.`click_cost`) FROM `clicks`)" +
                                 "      + (SELECT SUM(`impressions`.`cost`) FROM `impressions`)" +
                                 "     ) / 100" +
-                                "  ) / COUNT(*) AS costPerAcquisition FROM `Impressions`" +
+                                "  ) / NULLIF(COUNT(*), 0) AS costPerAcquisition FROM `Impressions`" +
                                 "LEFT JOIN `Server`" +
                                 "ON `Server`.`ID` = `Impressions`.`ID` AND" +
                                 "    `Server`.`Date` = `Impressions`.`Date`" +
@@ -278,7 +278,7 @@ public class Database {
                                 "       (SELECT SUM(`clicks`.`click_cost`) FROM `clicks`)" +
                                 "      + (SELECT SUM(`impressions`.`cost`) FROM `impressions`)" +
                                 "     ) / 100" +
-                                "  ) / COUNT(*) / 1000 AS costPer1kImpressions FROM `impressions`"
+                                "  ) / NULLIF(COUNT(*), 0) / 1000 AS costPer1kImpressions FROM `impressions`"
                 );
                 while (set.next()) {
                     return set.getBigDecimal("costPer1kImpressions");
