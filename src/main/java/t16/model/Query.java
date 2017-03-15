@@ -45,22 +45,22 @@ public class Query {
 
     public String getQuery() {
         switch (type) {
-            case IMPRESSIONS:
-                return impressionsQuery();
             case CLICKS:
                 return clicksQuery();
-            case CLICK_THROUGH_RATE:
-                return clickThroughQuery();
+            case IMPRESSIONS:
+                return impressionsQuery();
             case UNIQUES:
                 return uniquesQuery();
             case BOUNCES:
                 return bouncesQuery();
             case CONVERSIONS:
                 return conversionsQuery();
-            case COST:
+            case CLICK_THROUGH_RATE:
+                return clickThroughQuery();
+            case TOTAL_COST:
             case COST_PER_ACQUISITION:
+            case COST_PER_THOUSAND_IMPRESSIONS:
             case COST_PER_CLICK:
-            case COST_PER_1KIMPRESSION:
             case BOUNCE_RATE:
                 throw new UnsupportedOperationException();
             default:
@@ -338,16 +338,16 @@ public class Query {
     }
 
     public enum TYPE {
-        IMPRESSIONS,
         CLICKS,
+        IMPRESSIONS,
         UNIQUES,
         BOUNCES,
         CONVERSIONS,
-        COST,
+        CLICK_THROUGH_RATE,
+        TOTAL_COST,
         COST_PER_ACQUISITION,
         COST_PER_CLICK,
-        COST_PER_1KIMPRESSION,
-        CLICK_THROUGH_RATE,
+        COST_PER_THOUSAND_IMPRESSIONS,
         BOUNCE_RATE
     }
 

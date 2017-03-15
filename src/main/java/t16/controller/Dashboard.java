@@ -110,8 +110,33 @@ public class Dashboard {
     }
 
     @FXML
+    private void viewTotalCost(ActionEvent event) {
+        renderChart(TYPE.TOTAL_COST);
+    }
+
+    @FXML
+    private void viewCostPerAcquisition(ActionEvent event) {
+        renderChart(TYPE.COST_PER_ACQUISITION);
+    }
+
+    @FXML
+    private void viewCostPerClick(ActionEvent event) {
+        renderChart(TYPE.COST_PER_CLICK);
+    }
+
+    @FXML
+    private void viewCostPerThousandImpressions(ActionEvent event) {
+        renderChart(TYPE.COST_PER_THOUSAND_IMPRESSIONS);
+    }
+
+    @FXML
     private void viewClickThrough(ActionEvent event) {
         renderChart(TYPE.CLICK_THROUGH_RATE);
+    }
+
+    @FXML
+    private void viewBounceRate(ActionEvent event) {
+        renderChart(TYPE.BOUNCE_RATE);
     }
 
     @FXML
@@ -124,6 +149,7 @@ public class Dashboard {
 
     /**
      * Displays the loading wheel
+     *
      * @param working True if work is happening, false if work stopped
      */
     private void displayLoading(boolean working) {
@@ -143,6 +169,7 @@ public class Dashboard {
 
     /**
      * Displays a Chart on the View
+     *
      * @param chart
      */
     private void displayChart(Chart chart) {
@@ -153,6 +180,7 @@ public class Dashboard {
 
     /**
      * Renders a Chart, then displays it
+     *
      * @param t Chart Type to render
      */
     private void renderChart(TYPE t) {
@@ -188,9 +216,9 @@ public class Dashboard {
                 yAxis = "Conversions per {}";
                 series = "Conversions";
                 break;
-            case COST:
-                title = "Cost per {}";
-                yAxis = "Cost per {}";
+            case TOTAL_COST:
+                title = "Total Cost per {}";
+                yAxis = "Total Cost per {}";
                 series = "Cost";
                 break;
             case COST_PER_ACQUISITION:
@@ -203,7 +231,7 @@ public class Dashboard {
                 yAxis = "Cost per Click per {}";
                 series = "Cost per Click";
                 break;
-            case COST_PER_1KIMPRESSION:
+            case COST_PER_THOUSAND_IMPRESSIONS:
                 title = "Cost per 1k Impressions per {}";
                 yAxis = "Cost per 1k Impressions per {}";
                 series = "Cost per 1k Impressions";
@@ -282,6 +310,7 @@ public class Dashboard {
 
     /**
      * Gets the range type from the range buttons
+     *
      * @return Range Type (Hour, Day, Month)
      */
     private RANGE getRange() {
