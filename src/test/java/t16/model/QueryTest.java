@@ -98,13 +98,23 @@ public class QueryTest {
         log.info("** Test finished! **");
     }
 
+    @Test
+    public void totalCostQuery() throws Exception {
+        log.info("** Testing Total Cost **");
+        Query q = new Query(Query.TYPE.TOTAL_COST, Query.RANGE.HOUR);
+
+        genderTestQuery(q);
+
+        log.info("** Test finished! **");
+    }
+
     public void timePeriodTestQuery(Query q) throws Exception {
         for (Query.RANGE r : Query.RANGE.values()) {
             try {
                 q.setRange(r);
                 testFromToQuery(q);
             } catch (Exception e) {
-                log.error("*  Failed GROUPING {}", r.toString());
+                log.error("Failed Grouping: {}", r.toString());
                 throw e;
             }
         }
@@ -152,7 +162,7 @@ public class QueryTest {
             d.getQuery(q);
             count.incrementAndGet();
         } catch (Exception e) {
-            log.info("Query: {}", q.getQuery());
+            log.info("Query: \n{}\n", q.getQuery());
             throw e;
         }
     }
