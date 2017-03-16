@@ -200,11 +200,10 @@ public class Query {
     /**
      * Here a bounce is when less than 60 seconds are spent on the site
      */
-    protected String bouncesQueryTime()
-    {
+    protected String bouncesQueryTime() {
         if (!isComplicated()) {
             String whereClause = getWhereClause();
-            if(whereClause.length() != 0) whereClause = " AND " + whereClause;
+            if (whereClause.length() != 0) whereClause = " AND " + whereClause;
             return
                     "SELECT " + getDateString() + ", COUNT(*) AS bounces" +
                             " FROM `Server` " +
@@ -528,12 +527,12 @@ public class Query {
     }
 
     public boolean isInt() {
-        return type == TYPE.CLICK_THROUGH_RATE
-                || type == TYPE.COST_PER_ACQUISITION
-                || type == TYPE.COST_PER_CLICK
-                || type == TYPE.TOTAL_COST
-                || type == TYPE.COST_PER_THOUSAND_IMPRESSIONS
-                || type == TYPE.BOUNCE_RATE;
+        return type == TYPE.CLICKS
+                || type == TYPE.IMPRESSIONS
+                || type == TYPE.UNIQUES
+                || type == TYPE.BOUNCES_PAGES
+                || type == TYPE.BOUNCES_TIME
+                || type == TYPE.CONVERSIONS;
     }
 
     public boolean isComplicated() {
