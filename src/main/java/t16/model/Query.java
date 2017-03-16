@@ -215,7 +215,7 @@ public class Query {
                 "SELECT " + getDateString("Server") + ", COUNT(*) AS bounces" +
                         " FROM `Server` " +
                         " LEFT JOIN `Impressions` ON `Impressions`.`ID`=`Server`.`ID`" +
-                        " WHERE TIMESTAMPDIFF(SECOND,`Server.date`,`exit_date`) < 60 AND " + getWhereClause("Server") +
+                        " WHERE TIMESTAMPDIFF(SECOND,`Server`.`date`,`exit_date`) < 60 AND " + getWhereClause("Server") +
                         " GROUP BY " + getRangeString("Server") +
                         " ORDER BY " + getRangeString("Server") + " ASC";
     }
