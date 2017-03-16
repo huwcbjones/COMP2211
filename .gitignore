@@ -75,3 +75,6 @@ buildNumber.properties
 ### H2 DB
 *.db
 resources/*.csv
+*.csv
+
+!src/**

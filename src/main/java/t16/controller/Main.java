@@ -164,7 +164,7 @@ public class Main {
             stage.setTitle(campaign.getName() + " - Ad Dashboard");
             stage.setScene(scene);
 
-            controller.initialize();
+            controller.setStats();
             stage.show();
         } catch (Exception e) {
             log.catching(e);

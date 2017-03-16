@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 import t16.exceptions.ParseException;
 import t16.model.ClickLog;
 import t16.model.ImpressionLog;
+import t16.model.Query;
 import t16.model.ServerLog;
 
 import java.io.BufferedReader;
@@ -19,6 +20,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import static t16.model.Query.*;
+
 /**
  * Parses CSV Files into the relevant Log format
  *
@@ -27,21 +30,21 @@ import java.util.List;
  */
 public class Parser {
     protected static final Logger log = LogManager.getLogger(Parser.class);
-    protected static final HashMap<String, ImpressionLog.Gender> genderMap = new HashMap<>(2);
-    protected static final HashMap<String, ImpressionLog.Income> incomeMap = new HashMap<>(3);
-    protected static final HashMap<String, ImpressionLog.Context> contextMap = new HashMap<>(6);
+    protected static final HashMap<String, Query.GENDER> genderMap = new HashMap<>(2);
+    protected static final HashMap<String, Query.INCOME> incomeMap = new HashMap<>(3);
+    protected static final HashMap<String, Query.CONTEXT> contextMap = new HashMap<>(6);
     protected static final List<String> ages = Arrays.asList("<25", "25-34", "35-44", "45-54", ">54");
 
     static {
-        for (ImpressionLog.Gender t : ImpressionLog.Gender.values()) {
+        for (Query.GENDER t : Query.GENDER.values()) {
             genderMap.put(t.toString().toLowerCase(), t);
         }
 
-        for (ImpressionLog.Income t : ImpressionLog.Income.values()) {
+        for (Query.INCOME t : Query.INCOME.values()) {
             incomeMap.put(t.toString().toLowerCase(), t);
         }
 
-        for (ImpressionLog.Context t : ImpressionLog.Context.values()) {
+        for (Query.CONTEXT t : Query.CONTEXT.values()) {
             contextMap.put(t.toString().toLowerCase().replace("_", " "), t);
         }
     }
@@ -152,6 +155,7 @@ public class Parser {
 
     protected void parseClick() throws ParseException, IOException {
         long startTime = System.currentTimeMillis();
+        log.info("Started parsing Clicks...");
         clickLog = new ArrayList<>();
         String line;
         int lineNumber = 1;
@@ -195,6 +199,7 @@ public class Parser {
             }
 
             clickLog.add(new ClickLog(t, ID, cost));
+            if(clickLog.size() % 1000 == 0) log.debug("Click Parser: {} entries parsed.", clickLog.size());
         }
 
         br.close();
@@ -205,6 +210,7 @@ public class Parser {
 
     protected void parseImpression() throws ParseException, IOException {
         long startTime = System.currentTimeMillis();
+        log.info("Started parsing Impressions...");
         impressionLog = new ArrayList<>();
         String line;
         int lineNumber = 1;
@@ -214,10 +220,10 @@ public class Parser {
         // Properties
         Timestamp t;
         long ID;
-        ImpressionLog.Gender gender;
+        GENDER gender;
         String age;
-        ImpressionLog.Context context;
-        ImpressionLog.Income income;
+        CONTEXT context;
+        INCOME income;
         BigDecimal cost;
 
         while ((line = br.readLine()) != null) {
@@ -273,6 +279,7 @@ public class Parser {
             }
 
             impressionLog.add(new ImpressionLog(t, ID, gender, age, income, context, cost));
+            if(impressionLog.size() % 1000 == 0) log.debug("Impression Parser: {} entries parsed.", impressionLog.size());
         }
 
         br.close();
@@ -283,6 +290,7 @@ public class Parser {
 
     protected void parseServer() throws ParseException, IOException {
         long startTime = System.currentTimeMillis();
+        log.info("Started parsing Server...");
         serverLog = new ArrayList<>();
         String line;
         int lineNumber = 1;
@@ -340,6 +348,7 @@ public class Parser {
             conversion = elements[4].equals("yes");
 
             serverLog.add(new ServerLog(entryDate, ID, exitDate, pageViews, conversion));
+            if(serverLog.size() % 1000 == 0) log.debug("Server Parser: {} entries parsed.", serverLog.size());
         }
 
         br.close();
