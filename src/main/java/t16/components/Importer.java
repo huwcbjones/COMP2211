@@ -51,6 +51,11 @@ public class Importer {
     }
 
     public void parseAndImport() throws ImportException {
+        log.debug("Checking environment...");
+        if(AdDashboard.getWorkerPool() == null){
+            throw new ImportException("Application not initialised, have you called AdDashboard::initialise()?");
+        }
+
         log.debug("Identifying files...");
         for (File f : files) {
             Parser p = new Parser(f);
@@ -161,6 +166,7 @@ public class Importer {
 
     private void attachParseHandlers() {
         // Click Parser
+        clickLogTask.setOnRunning(e -> log.trace("Click Parser running"));
         clickLogTask.setOnSucceeded(e -> {
             clickLog = (List<ClickLog>) e.getSource().getValue();
             createClickInsertTask();
@@ -173,6 +179,7 @@ public class Importer {
         });
 
         // Impression Parser
+        impressionLogTask.setOnRunning(e -> log.trace("Impression Parser running"));
         impressionLogTask.setOnSucceeded(e -> {
             impressionLog = (List<ImpressionLog>) e.getSource().getValue();
             createImpressionInsertTask();
@@ -185,6 +192,7 @@ public class Importer {
         });
 
         // Server Parser
+        serverLogTask.setOnRunning(e -> log.trace("Server Parser running"));
         serverLogTask.setOnSucceeded(e -> {
             serverLog = (List<ServerLog>) e.getSource().getValue();
             createServerInsertTask();
