@@ -421,7 +421,8 @@ public class DataController {
         c.setCostPerAcquisition(getCostPerAcquisition());
         c.setCostPer1kImpressions(getCostPer1kImpressions());
 
-        c.setBounceRate(getBounceRate());
+        c.setBounceRatePages(getTotalBouncesPages());
+        c.setBounceRateTime(getTotalBouncesTime());
         c.setClickThroughRate(getClickThroughRate());
         return c;
     }
@@ -516,10 +517,6 @@ public class DataController {
 
     public BigDecimal getCostPer1kImpressions() throws SQLException {
         return this.database.getCostPer1kImpressions();
-    }
-
-    public double getBounceRate() throws SQLException {
-        return this.database.getBounceRate();
     }
 
     public double getClickThroughRate() throws SQLException {

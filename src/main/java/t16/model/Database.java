@@ -298,23 +298,6 @@ public class Database {
         }
     }
 
-    public double getBounceRate() throws SQLException {
-        try (Connection c = this.connectionPool.getConnection()) {
-            try (Statement s = c.createStatement()) {
-                ResultSet set = s.executeQuery(
-                        "SELECT CAST(bounces AS DOUBLE)/CAST(clicks AS DOUBLE) * 100 AS bounceRate FROM" +
-                                "  (SELECT COUNT(*) AS `bounces` FROM `Server` WHERE `page_viewed`=1) s_r" +
-                                "  LEFT JOIN" +
-                                "  (SELECT  COUNT(*) AS `clicks` FROM `Clicks`) c_r"
-                );
-                while (set.next()) {
-                    return set.getDouble("bounceRate");
-                }
-                return 0d;
-            }
-        }
-    }
-
     public double getClickThroughRate() throws SQLException {
         try (Connection c = this.connectionPool.getConnection()) {
             try (Statement s = c.createStatement()) {
