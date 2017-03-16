@@ -60,6 +60,7 @@ public class Query {
             case TOTAL_COST:
                 return totalCostQuery();
             case COST_PER_ACQUISITION:
+                return costPerAcquisitionQuery();
             case COST_PER_THOUSAND_IMPRESSIONS:
             case COST_PER_CLICK:
             case BOUNCE_RATE:
@@ -247,6 +248,36 @@ public class Query {
         }
 
         return q;
+    }
+
+    protected String costPerAcquisitionQuery(){
+        if (!isComplicated()) {
+            String whereClause = getWhereClause();
+            if (whereClause.length() != 0) whereClause = " AND " + whereClause;
+            return
+                    "SELECT " + getDateString() + ", " +
+                            "  (SELECT" +
+                            "     (" +
+                            "       (SELECT SUM(`clicks`.`click_cost`) FROM `clicks`)" +
+                            "      + (SELECT SUM(`impressions`.`cost`) FROM `impressions`)" +
+                            "     ) / 100" +
+                            "  ) / NULLIF(COUNT(*), 0) AS costPerAcquisition FROM `Server`" +
+                            " WHERE `Server`.`Conversion` = 1" +
+                            " GROUP BY " + getRangeString() +
+                            " ORDER BY " + getRangeString() + " ASC";
+        }
+        return
+                "SELECT " + getDateString("Server") + ", " +
+                        "  (SELECT" +
+                        "     (" +
+                        "       (SELECT SUM(`clicks`.`click_cost`) FROM `clicks`)" +
+                        "      + (SELECT SUM(`impressions`.`cost`) FROM `impressions`)" +
+                        "     ) / 100" +
+                        "  ) / NULLIF(COUNT(*), 0) AS costPerAcquisition FROM `Server`" +
+                        " LEFT JOIN `Impressions` ON `Impressions`.`ID`=`Server`.`ID`" +
+                        " WHERE `Server`.`Conversion` = 1 AND " + getWhereClause("Impressions") +
+                        " GROUP BY " + getRangeString("Server") +
+                        " ORDER BY " + getRangeString("Server") + " ASC";
     }
 
     protected String getDateString(String table) {

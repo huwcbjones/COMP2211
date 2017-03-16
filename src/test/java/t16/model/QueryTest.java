@@ -108,6 +108,16 @@ public class QueryTest {
         log.info("** Test finished! **");
     }
 
+    @Test
+    public void costPerAcquisitionQuery() throws Exception {
+        log.info("** Testing Cost per Acquisition **");
+        Query q = new Query(Query.TYPE.COST_PER_ACQUISITION, Query.RANGE.HOUR);
+
+        genderTestQuery(q);
+
+        log.info("** Test finished! **");
+    }
+
     public void timePeriodTestQuery(Query q) throws Exception {
         for (Query.RANGE r : Query.RANGE.values()) {
             try {
