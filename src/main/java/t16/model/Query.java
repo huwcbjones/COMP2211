@@ -63,7 +63,9 @@ public class Query {
             case COST_PER_ACQUISITION:
             case COST_PER_THOUSAND_IMPRESSIONS:
             case COST_PER_CLICK:
-            case BOUNCE_RATE:
+            case BOUNCE_RATE_PAGES:
+                throw new UnsupportedOperationException();
+            case BOUNCE_RATE_TIME:
                 throw new UnsupportedOperationException();
             default:
                 throw new IllegalStateException("Should not happen");
@@ -378,7 +380,8 @@ public class Query {
         COST_PER_ACQUISITION,
         COST_PER_CLICK,
         COST_PER_THOUSAND_IMPRESSIONS,
-        BOUNCE_RATE
+        BOUNCE_RATE_PAGES,
+        BOUNCE_RATE_TIME
     }
 
     public enum GENDER {

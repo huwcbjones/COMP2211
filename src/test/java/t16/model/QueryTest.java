@@ -67,8 +67,17 @@ public class QueryTest {
     }
 
     @Test
-    public void bouncesQuery() throws Exception {
-        Query q = new Query(Query.TYPE.BOUNCES, Query.RANGE.HOUR);
+    public void bouncesQueryPages() throws Exception {
+        Query q = new Query(Query.TYPE.BOUNCES_PAGES, Query.RANGE.HOUR);
+
+        genderTestQuery(q);
+        incomeTestQuery(q);
+        contextTestQuery(q);
+    }
+
+    @Test
+    public void bouncesQueryTime() throws Exception {
+        Query q = new Query(Query.TYPE.BOUNCES_TIME, Query.RANGE.HOUR);
 
         genderTestQuery(q);
         incomeTestQuery(q);

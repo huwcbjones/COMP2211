@@ -76,6 +76,9 @@ public class Dashboard {
     private ComboBox<Context> contextCombo;
 
     @FXML
+    private Button bounceToggle;
+
+    @FXML
     private StatsController statsPanel;
 
     @FXML
@@ -141,13 +144,20 @@ public class Dashboard {
 
     @FXML
     private void viewBounceRate(ActionEvent event) {
-        renderChart(TYPE.BOUNCE_RATE);
+        renderChart(BOUNCE_DEFINITION ? TYPE.BOUNCE_RATE_PAGES : TYPE.BOUNCE_RATE_TIME);
     }
 
     @FXML
     private void updateChart(ActionEvent event) {
         renderChart(currentChart);
     }
+
+    @FXML
+    private void bounceToggleAction(ActionEvent event)
+    {
+        BOUNCE_DEFINITION = !BOUNCE_DEFINITION;
+    }
+
     //</editor-fold>
 
     //<editor-fold desc="Helper Methods">
@@ -251,7 +261,12 @@ public class Dashboard {
                 yAxis = "Click Through Rate per {}";
                 series = "Click Through Rate";
                 break;
-            case BOUNCE_RATE:
+            case BOUNCE_RATE_PAGES:
+                title = "Bounce Rate per {}";
+                yAxis = "Bounce Rate per {}";
+                series = "Bounce Rate";
+                break;
+            case BOUNCE_RATE_TIME:
                 title = "Bounce Rate per {}";
                 yAxis = "Bounce Rate per {}";
                 series = "Bounce Rate";
