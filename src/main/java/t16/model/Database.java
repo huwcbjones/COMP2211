@@ -269,7 +269,7 @@ public class Database {
                                 "       + (SELECT SUM(`impressions`.`cost`) FROM `impressions`)\n" +
                                 "     ) / 100\n" +
                                 "  ) /\n" +
-                                "  (NULLIF(COUNT(*), 0) / 1000) AS costPer1kImpressions FROM `impressions`"
+                                "  (NULLIF(COUNT(*)/ 1000, 0)) AS costPer1kImpressions FROM `impressions`"
                 )) {
                     while (set.next()) {
                         return set.getBigDecimal("costPer1kImpressions");
