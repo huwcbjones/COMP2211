@@ -16,13 +16,6 @@ import java.sql.Statement;
  * Created by Charles Gandon on 25/02/2017.
  * Modified by James Curran 26/2/17
  * Modified by Huw Jones 06/03/2017
- * This increment:
- * TODO Uniques over time
- * TODO Bounces over time
- * TODO Conversions over time
- * TODO Click-through rate
- * Future increments:
- * TODO Total bounces when bounces are measured by time spent as opposed to pages viewed
  */
 public class Database {
     protected static final Logger log = LogManager.getLogger(Database.class);
@@ -254,10 +247,7 @@ public class Database {
                                 "       (SELECT SUM(`clicks`.`click_cost`) FROM `clicks`)" +
                                 "      + (SELECT SUM(`impressions`.`cost`) FROM `impressions`)" +
                                 "     ) / 100" +
-                                "  ) / NULLIF(COUNT(*), 0) AS costPerAcquisition FROM `Impressions`" +
-                                "LEFT JOIN `Server`" +
-                                "ON `Server`.`ID` = `Impressions`.`ID` AND" +
-                                "    `Server`.`Date` = `Impressions`.`Date`" +
+                                "  ) / NULLIF(COUNT(*), 0) AS costPerAcquisition FROM `Server`" +
                                 "WHERE `Server`.`Conversion` = 1"
                 );
                 while (set.next()) {
@@ -271,136 +261,62 @@ public class Database {
     public BigDecimal getCostPer1kImpressions() throws SQLException {
         try (Connection c = this.connectionPool.getConnection()) {
             try (Statement s = c.createStatement()) {
-                ResultSet set = s.executeQuery(
-                        "SELECT" +
-                                "  (SELECT " +
-                                "     (" +
-                                "       (SELECT SUM(`clicks`.`click_cost`) FROM `clicks`)" +
-                                "      + (SELECT SUM(`impressions`.`cost`) FROM `impressions`)" +
-                                "     ) / 100" +
-                                "  ) / NULLIF(COUNT(*), 0) / 1000 AS costPer1kImpressions FROM `impressions`"
-                );
-                while (set.next()) {
-                    return set.getBigDecimal("costPer1kImpressions");
+                try(ResultSet set = s.executeQuery(
+                        "SELECT\n" +
+                                "  (SELECT\n" +
+                                "     (\n" +
+                                "       (SELECT SUM(`clicks`.`click_cost`) FROM `clicks`)\n" +
+                                "       + (SELECT SUM(`impressions`.`cost`) FROM `impressions`)\n" +
+                                "     ) / 100\n" +
+                                "  ) /\n" +
+                                "  (NULLIF(COUNT(*)/ 1000, 0)) AS costPer1kImpressions FROM `impressions`"
+                )) {
+                    while (set.next()) {
+                        return set.getBigDecimal("costPer1kImpressions");
+                    }
+                    return BigDecimal.ZERO;
                 }
-                return BigDecimal.ZERO;
             }
         }
     }
 
-
-/*    *//**
-     * @return a set of dates and times, and the number of impressions on each date and time
-     * @throws SQLException if an error occurs during SQL execution
-     *//*
-    public ResultSet getImpressions() throws SQLException {
-        Statement s = this.connection.createStatement();
-        s.execute("SELECT CONCAT(TO_CHAR(Date, 'YYYY-MM-DD HH24'), ':00') AS dates, " +
-                "COUNT(*) AS impressions " +
-                "FROM Impression GROUP BY dates ORDER BY dates ASC;");
-        return s.getResultSet();
-    }*/
-
-    /**
-     * @return a set of dates and times, and the number of clicks on each date and time
-     * @throws SQLException if an error occurs during SQL execution
-     */
-    public ResultSet getClicks() throws SQLException {
-        Statement s = this.connectionPool.getConnection().createStatement();
-        s.execute("SELECT CONCAT(TO_CHAR(date, 'YYYY-MM-DD HH24'), ':00') AS label, COUNT(*) AS click FROM `Clicks` GROUP BY label ORDER BY label ASC;");
-        return s.getResultSet();
+    public double getBounceRate() throws SQLException {
+        try (Connection c = this.connectionPool.getConnection()) {
+            try (Statement s = c.createStatement()) {
+                ResultSet set = s.executeQuery(
+                        "SELECT CAST(bounces AS DOUBLE)/CAST(clicks AS DOUBLE) * 100 AS bounceRate FROM" +
+                                "  (SELECT COUNT(*) AS `bounces` FROM `Server` WHERE `page_viewed`=1) s_r" +
+                                "  LEFT JOIN" +
+                                "  (SELECT  COUNT(*) AS `clicks` FROM `Clicks`) c_r"
+                );
+                while (set.next()) {
+                    return set.getDouble("bounceRate");
+                }
+                return 0d;
+            }
+        }
     }
 
-    public ResultSet getClickThrough() throws SQLException {
-        Statement s = this.connectionPool.getConnection().createStatement();
-        s.execute("SELECT CONCAT(impression_rate.id, ':00') AS label, CAST(clicks AS FLOAT) / CAST(impressions AS FLOAT) AS clickThrough FROM" +
-                "  (SELECT TO_CHAR(`Impressions`.`date`, 'YYYY-MM-DD HH24') AS id, COUNT(`Impressions`.`date`) AS impressions FROM `Impressions` GROUP BY id) impression_rate" +
-                "  LEFT JOIN" +
-                "  (SELECT TO_CHAR(`Clicks`.`date`, 'YYYY-MM-DD HH24') AS id, COUNT(`Clicks`.`date`) AS clicks FROM `Clicks` GROUP BY id) click_rate" +
-                "  ON impression_rate.id = click_rate.id");
-        return s.getResultSet();
+    public double getClickThroughRate() throws SQLException {
+        try (Connection c = this.connectionPool.getConnection()) {
+            try (Statement s = c.createStatement()) {
+                ResultSet set = s.executeQuery(
+                        "SELECT CAST(clicks AS DOUBLE)/CAST(impressions AS DOUBLE) * 100 AS clickThrough FROM" +
+                                "  (SELECT COUNT(*) AS `impressions` FROM `Impressions`) i_r" +
+                                "  LEFT JOIN" +
+                                "  (SELECT  COUNT(*) AS `clicks` FROM `Clicks`) c_r"
+                );
+                while (set.next()) {
+                    return set.getDouble("clickThrough");
+                }
+                return 0d;
+            }
+        }
     }
 
-    /**
-     * Currently a bounce is defined as only 1 page being viewed.
-     *
-     * @return a set of dates and times, and the number of bounces that occurred on each date and time
-     * @throws SQLException if an error occurs during SQL execution
-     */
-  /*  public ResultSet getUniques() throws SQLException {
-        Statement s = this.connection.createStatement();
-        s.execute("SELECT CONCAT(TO_CHAR(Date, 'YYYY-MM-DD HH24'), ':00') AS dates, " +
-                "COUNT(*) AS bounces " +
-                "FROM Server WHERE Page_viewed = 1 " +
-                "GROUP BY dates ORDER BY dates ASC;");
-        return s.getResultSet();
-    }
-
-    */
-
-    /**
-     * Unfinished.
-     *//*
-    public ResultSet getBounces() throws SQLException {
-        Statement s = this.connection.createStatement();
-        s.execute("SELECT CONCAT(TO_CHAR(Date, 'YYYY-MM-DD HH24'), ':00') AS dates, " +
-                "COUNT(*) AS conversions " +
-                "FROM Server WHERE Conversion = 'Yes' " +
-                "GROUP BY dates ORDER BY dates ASC;");
-        return s.getResultSet();
-    }
-
-    public ResultSet getConversions() throws SQLException {
-        Statement s = this.connection.createStatement();
-        s.execute("SELECT CONCAT(impression_rate.id, ':00') AS label, CAST(clicks AS FLOAT) / CAST(impressions AS FLOAT) AS clickThrough FROM" +
-                "  (SELECT TO_CHAR(`Impression`.`date`, 'YYYY-MM-DD HH24') AS id, COUNT(`Impression`.`date`) AS impressions FROM `Impression` GROUP BY id) impression_rate" +
-                "  LEFT JOIN" +
-                "  (SELECT TO_CHAR(`Click`.`date`, 'YYYY-MM-DD HH24') AS id, COUNT(`Click`.`date`) AS clicks FROM `Click` GROUP BY id) click_rate" +
-                "  ON impression_rate.id = click_rate.id");
-        return s.getResultSet();
-    }*/
-
-    /*
-    PROPOSED SQL "HEAVY" ACCESS METHODS FOR VIEW
-     */
-  /*  public ResultSet getClickCost(String n, String m) throws SQLException {
-        Statement s = this.connection.createStatement();
-        s.execute("Select Date, ID FROM Click WHERE click_cost>=" + n + " AND click_cost<=" + m + " ;");
-        return s.getResultSet();
-    }
-
-    public ResultSet getContext(String gender) throws SQLException {
-        Statement s = this.connection.createStatement();
-        s.execute("Select Date, ID FROM Impression WHERE Gender='" + gender + "' ;");
-        return s.getResultSet();
-    }
-
-    public ResultSet getContext(String income) throws SQLException {
-        Statement s = this.connection.createStatement();
-        s.execute("Select Date, ID FROM Impression WHERE Income='" + income + "' ;");
-        return s.getResultSet();
-    }
-
-    public ResultSet geContext(String context) throws SQLException {
-        Statement s = this.connection.createStatement();
-        s.execute("Select Date, ID FROM Impression WHERE Context='" + context + "' ;");
-        return s.getResultSet();
-    }
-
-    public ResultSet getImpressionCost(String n, String m) throws SQLException {
-        Statement s = this.connection.createStatement();
-        s.execute("Select Date, ID FROM Impression WHERE Impression_cost>=" + n + " AND Impression_cost<=" + m + " ;");
-        return s.getResultSet();
-    }
-
-    public ResultSet getServer(String id) throws SQLException {
-        Statement s = this.connection.createStatement();
-        s.execute("Select * FROM Server WHERE ID='" + id + "' ;");
-        return s.getResultSet();
-    }*/
     public void disconnect() throws SQLException {
         if (!isConnected()) return;
-        if(connectionPool.getActiveConnections() != 0) {
+        if (connectionPool.getActiveConnections() != 0) {
             log.warn("There are {} active connections", connectionPool.getActiveConnections());
         } else {
             log.info("All connections are closed!");
