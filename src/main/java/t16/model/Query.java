@@ -16,7 +16,7 @@ public class Query {
     private Timestamp from = null;
     private Timestamp to = null;
     private GENDER gender = GENDER.ALL;
-    private String age = null;
+    private AGE age = AGE.ALL;
     private INCOME income = INCOME.ALL;
     private CONTEXT context = CONTEXT.ALL;
 
@@ -32,7 +32,7 @@ public class Query {
         this.to = to;
     }
 
-    public Query(TYPE type, RANGE range, Timestamp from, Timestamp to, GENDER gender, String age, INCOME income, CONTEXT context) {
+    public Query(TYPE type, RANGE range, Timestamp from, Timestamp to, GENDER gender, AGE age, INCOME income, CONTEXT context) {
         this.type = type;
         this.range = range;
         this.from = from;
@@ -303,13 +303,16 @@ public class Query {
         if (gender != null && gender != GENDER.ALL) {
             clauses.add("`gender` = '" + gender.toString() + "'");
         }
+        if (age != null && age != AGE.ALL) {
+            clauses.add("`age` = '" + getAgeString(age) + "'");
+        }
         if (income != null && income != INCOME.ALL) {
             clauses.add("`income` = '" + income.toString() + "'");
         }
         if (context != null && context != CONTEXT.ALL) {
             clauses.add("`context` = '" + context.toString() + "'");
         }
-        if(!clause.equals("")){
+        if (!clause.equals("")) {
             return clause + " AND " + String.join(" AND ", clauses);
         }
         return String.join(" AND ", clauses);
@@ -352,6 +355,25 @@ public class Query {
         return t + "`YEAR`" + r;
     }
 
+    private String getAgeString(AGE age) {
+        switch (age) {
+            case ALL:
+                return "";
+            case LT_25:
+                return "<25";
+            case _25_TO_34:
+                return "25-34";
+            case _35_TO_44:
+                return "35-44";
+            case _45_TO_54:
+                return "45-54";
+            case GT_54:
+                return ">54";
+            default:
+                throw new IllegalStateException();
+        }
+    }
+
     public void setType(TYPE type) {
         this.type = type;
     }
@@ -365,19 +387,19 @@ public class Query {
     }
 
     public void setTo(Timestamp to) {
-         this.to = to;
+        this.to = to;
     }
 
     public void setGender(GENDER gender) {
         this.gender = gender;
     }
 
-    public void setAge(String age) {
-         this.age = age;
+    public void setAge(AGE age) {
+        this.age = age;
     }
 
     public void setIncome(INCOME income) {
-         this.income = income;
+        this.income = income;
     }
 
     public void setContext(CONTEXT context) {
@@ -390,7 +412,7 @@ public class Query {
     }
 
     public boolean isComplicated() {
-        return gender != GENDER.ALL || income != INCOME.ALL || context != CONTEXT.ALL;
+        return gender != GENDER.ALL || income != INCOME.ALL || context != CONTEXT.ALL || age != AGE.ALL;
     }
 
     public enum RANGE {
@@ -434,5 +456,14 @@ public class Query {
         BLOG,
         HOBBIES,
         TRAVEL
+    }
+
+    public enum AGE {
+        ALL,
+        LT_25,
+        _25_TO_34,
+        _35_TO_44,
+        _45_TO_54,
+        GT_54
     }
 }

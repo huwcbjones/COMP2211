@@ -62,7 +62,7 @@ public class Dashboard {
     private ComboBox<Gender> genderCombo;
 
     @FXML
-    private ComboBox ageCombo;
+    private ComboBox<Age> ageCombo;
 
     @FXML
     private ComboBox<Income> incomeCombo;
@@ -276,15 +276,18 @@ public class Dashboard {
                     income = incomeCombo.getSelectionModel().getSelectedItem().getType();
                 }
 
-                // TODO: Age
+                AGE age = AGE.ALL;
+                if (ageCombo.getSelectionModel().getSelectedItem() != null) {
+                    age = ageCombo.getSelectionModel().getSelectedItem().getType();
+                }
 
                 CONTEXT context = CONTEXT.ALL;
                 if (contextCombo.getSelectionModel().getSelectedItem() != null) {
                     context = contextCombo.getSelectionModel().getSelectedItem().getType();
                 }
 
-                Query query = new Query(t, range, from, to, gender, null, income, context);
-
+                Query query = new Query(t, range, from, to, gender, age, income, context);
+                log.debug("Query: {}", query.getQuery());
                 c.addSeries(fSeries, AdDashboard.getDataController().getQuery(query));
                 time = System.currentTimeMillis() - time;
                 log.info("Chart processed in {}", NumberFormat.getNumberInstance().format(time / 1000d));
@@ -353,6 +356,15 @@ public class Dashboard {
                 new Gender(GENDER.ALL, "All"),
                 new Gender(GENDER.FEMALE, "Female"),
                 new Gender(GENDER.MALE, "Male")
+        );
+
+        ageCombo.getItems().addAll(
+                new Age(AGE.ALL, "All"),
+                new Age(AGE.LT_25, "< 25"),
+                new Age(AGE._25_TO_34, "25 to 34"),
+                new Age(AGE._35_TO_44, "35 to 44"),
+                new Age(AGE._45_TO_54, "45 to 54"),
+                new Age(AGE.GT_54, "> 54")
         );
 
         incomeCombo.getItems().addAll(
