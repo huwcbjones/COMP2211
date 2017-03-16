@@ -200,7 +200,7 @@ public class Database {
     public long getTotalBouncesTime() throws SQLException {
         try (Connection c = this.connectionPool.getConnection()) {
             try (Statement s = c.createStatement()) {
-                ResultSet set = s.executeQuery("SELECT COUNT(*) AS numberOfBounces FROM `Server` WHERE TIMESTAMPDIFF(2,`exit_date`-`date`) < 60");
+                ResultSet set = s.executeQuery("SELECT COUNT(*) AS numberOfBounces FROM `Server` WHERE TIMESTAMPDIFF(SECOND,`date`,`exit_date`) < 60");
                 while (set.next()) {
                     return set.getLong("numberOfBounces");
                 }

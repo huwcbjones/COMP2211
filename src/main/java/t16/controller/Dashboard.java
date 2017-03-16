@@ -156,6 +156,7 @@ public class Dashboard {
     private void bounceToggleAction(ActionEvent event)
     {
         BOUNCE_DEFINITION = !BOUNCE_DEFINITION;
+        bounceToggle.setText(BOUNCE_DEFINITION ? "Bounce: 1 page viewed" : "Bounce: viewed < 60s");
     }
 
     //</editor-fold>
