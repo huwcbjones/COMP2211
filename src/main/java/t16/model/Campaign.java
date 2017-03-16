@@ -110,7 +110,7 @@ public class Campaign {
     }
 
     public void setTotalCost(BigDecimal totalCost) {
-        if (this.totalCost == null) this.totalCost = totalCost;
+        if (this.totalCost.equals(BigDecimal.ZERO)) this.totalCost = totalCost;
     }
 
     public BigDecimal getCostPerClick() {
@@ -119,7 +119,7 @@ public class Campaign {
     }
 
     public void setCostPerClick(BigDecimal costPerClick) {
-        if (this.costPerClick == null) this.costPerClick = costPerClick;
+        if (this.costPerClick.equals(BigDecimal.ZERO)) this.costPerClick = costPerClick;
     }
 
     public BigDecimal getCostPerAcquisition() {
@@ -128,7 +128,7 @@ public class Campaign {
     }
 
     public void setCostPerAcquisition(BigDecimal costPerAcquisition) {
-        if (this.costPerAcquisition == null) this.costPerAcquisition = costPerAcquisition;
+        if (this.costPerAcquisition.equals(BigDecimal.ZERO)) this.costPerAcquisition = costPerAcquisition;
     }
 
     public BigDecimal getCostPer1kImpressions() {
@@ -137,7 +137,7 @@ public class Campaign {
     }
 
     public void setCostPer1kImpressions(BigDecimal costPer1kImpressions) {
-        if (this.costPer1kImpressions == null) this.costPer1kImpressions = costPer1kImpressions;
+        if (this.costPer1kImpressions.equals(BigDecimal.ZERO)) this.costPer1kImpressions = costPer1kImpressions;
     }
 
     public double getClickThroughRate() {

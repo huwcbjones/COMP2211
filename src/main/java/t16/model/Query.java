@@ -16,7 +16,7 @@ public class Query {
     private Timestamp from = null;
     private Timestamp to = null;
     private GENDER gender = GENDER.ALL;
-    private String age = null;
+    private AGE age = AGE.ALL;
     private INCOME income = INCOME.ALL;
     private CONTEXT context = CONTEXT.ALL;
 
@@ -32,7 +32,7 @@ public class Query {
         this.to = to;
     }
 
-    public Query(TYPE type, RANGE range, Timestamp from, Timestamp to, GENDER gender, String age, INCOME income, CONTEXT context) {
+    public Query(TYPE type, RANGE range, Timestamp from, Timestamp to, GENDER gender, AGE age, INCOME income, CONTEXT context) {
         this.type = type;
         this.range = range;
         this.from = from;
@@ -60,6 +60,7 @@ public class Query {
             case CLICK_THROUGH_RATE:
                 return clickThroughQuery();
             case TOTAL_COST:
+                return totalCostQuery();
             case COST_PER_ACQUISITION:
             case COST_PER_THOUSAND_IMPRESSIONS:
             case COST_PER_CLICK:
@@ -73,9 +74,9 @@ public class Query {
     }
 
     protected String impressionsQuery() {
-        if(!isComplicated()) {
+        if (!isComplicated()) {
             String whereClause = getWhereClause();
-            if(whereClause.length() != 0) whereClause = " WHERE " + whereClause;
+            if (whereClause.length() != 0) whereClause = " WHERE " + whereClause;
 
             return
                     "SELECT " + getDateString("Impressions") + ", COUNT(*) AS impressions" +
@@ -95,7 +96,7 @@ public class Query {
     protected String clicksQuery() {
         if (!isComplicated()) {
             String whereClause = getWhereClause();
-            if(whereClause.length() != 0) whereClause = " WHERE " + whereClause;
+            if (whereClause.length() != 0) whereClause = " WHERE " + whereClause;
             return
                     "SELECT " + getDateString("Clicks") + ", COUNT(*) AS clicks" +
                             " FROM `Clicks` " +
@@ -107,29 +108,48 @@ public class Query {
                 "SELECT " + getDateString("Clicks") + ", COUNT(*) AS clicks" +
                         " FROM `Clicks` " +
                         " LEFT JOIN `Impressions` ON `Impressions`.`ID`=`Clicks`.`ID`" +
-                        " WHERE " + getWhereClause("Clicks") +
+                        " WHERE " + getWhereClause("Impressions") +
                         " GROUP BY " + getRangeString("Clicks") +
                         " ORDER BY " + getRangeString("Clicks") + " ASC";
     }
 
     protected String clickThroughQuery() {
-        String dateStringWhere = getDateString("i_r");
+        if (!isComplicated()) {
+            String rangeString = getRangeString();
+            String whereClause = getWhereClause();
+            if (whereClause.length() != 0) whereClause = " WHERE " + whereClause;
+            String q =
+                    "SELECT " + getDateString("i_r") + ", CAST(clicks AS FLOAT)/CAST(impressions AS FLOAT) AS clickThrough FROM" +
+                            "  (SELECT " + rangeString + ", COUNT(*) AS `impressions` FROM `Impressions`" + whereClause + " GROUP BY " + rangeString + ") i_r" +
+                            "  LEFT JOIN" +
+                            "  (SELECT " + rangeString + ", COUNT(*) AS `clicks` FROM `Clicks` GROUP BY " + rangeString + ") c_r" +
+                            " ON i_r.YEAR = c_r.YEAR" +
+                            "    AND i_r.MONTH = c_r.MONTH";
+            if (range != RANGE.MONTH) {
+                q += " AND i_r.DAY = c_r.DAY";
+                if (range != RANGE.DAY) {
+                    q += " AND i_r.HOUR = c_r.HOUR";
+                }
+            }
+            return q;
+        }
+
         String rangeString = getRangeString();
+        String whereClause = getWhereClause();
         String q =
-                "SELECT " + dateStringWhere + ", CAST(clicks AS FLOAT)/CAST(impressions AS FLOAT) AS clickThrough FROM" +
-                        "  (SELECT " + rangeString + ", COUNT(*) AS `impressions` FROM `Impressions` GROUP BY " + rangeString + ") i_r" +
+                "SELECT " + getDateString("i_r") + ", CAST(clicks AS FLOAT)/CAST(impressions AS FLOAT) AS clickThrough FROM" +
+                        "  (SELECT " + rangeString + ", COUNT(*) AS `impressions` FROM `Impressions` WHERE " + whereClause + " GROUP BY " + rangeString + ") i_r" +
                         "  LEFT JOIN" +
                         "  (SELECT " + rangeString + ", COUNT(*) AS `clicks` FROM `Clicks` GROUP BY " + rangeString + ") c_r" +
                         " ON i_r.YEAR = c_r.YEAR" +
-                        "    AND i_r.MONTH = c_r.MONTH";
+                        " AND i_r.MONTH = c_r.MONTH";
         if (range != RANGE.MONTH) {
-            q += "    AND i_r.DAY = c_r.DAY";
-
+            q += " AND i_r.DAY = c_r.DAY";
             if (range != RANGE.DAY) {
-                q += "    AND i_r.HOUR = c_r.HOUR";
+                q += " AND i_r.HOUR = c_r.HOUR";
             }
         }
-        q += " WHERE " + getWhereClause("", dateStringWhere);
+
         return q;
     }
 
@@ -148,7 +168,7 @@ public class Query {
                 "SELECT " + getDateString("Server") + ", COUNT(*) AS numberOfUniques" +
                         " FROM `Server` " +
                         " LEFT JOIN `Impressions` ON `Impressions`.`ID`=`Server`.`ID`" +
-                        " WHERE " + getWhereClause("Server") +
+                        " WHERE " + getWhereClause("Impressions") +
                         " GROUP BY " + getRangeString("Server") +
                         " ORDER BY " + getRangeString("Server") + " ASC";
     }
@@ -159,7 +179,7 @@ public class Query {
     protected String bouncesQueryPages() {
         if (!isComplicated()) {
             String whereClause = getWhereClause();
-            if(whereClause.length() != 0) whereClause = " AND " + whereClause;
+            if (whereClause.length() != 0) whereClause = " AND " + whereClause;
             return
                     "SELECT " + getDateString() + ", COUNT(*) AS bounces" +
                             " FROM `Server` " +
@@ -171,7 +191,7 @@ public class Query {
                 "SELECT " + getDateString("Server") + ", COUNT(*) AS bounces" +
                         " FROM `Server` " +
                         " LEFT JOIN `Impressions` ON `Impressions`.`ID`=`Server`.`ID`" +
-                        " WHERE `page_viewed`=1 AND " + getWhereClause("Server") +
+                        " WHERE `page_viewed`=1 AND " + getWhereClause("Impressions") +
                         " GROUP BY " + getRangeString("Server") +
                         " ORDER BY " + getRangeString("Server") + " ASC";
     }
@@ -203,7 +223,7 @@ public class Query {
     protected String conversionsQuery() {
         if (!isComplicated()) {
             String whereClause = getWhereClause();
-            if(whereClause.length() != 0) whereClause = " AND " + whereClause;
+            if (whereClause.length() != 0) whereClause = " AND " + whereClause;
             return
                     "SELECT " + getDateString() + ", COUNT(*) AS conversions" +
                             " FROM `Server` " +
@@ -215,9 +235,49 @@ public class Query {
                 "SELECT " + getDateString("Server") + ", COUNT(*) AS conversions" +
                         " FROM `Server` " +
                         " LEFT JOIN `Impressions` ON `Impressions`.`ID`=`Server`.`ID`" +
-                        " WHERE `conversion`=1 AND " + getWhereClause("Server") +
+                        " WHERE `conversion`=1 AND " + getWhereClause("Impressions") +
                         " GROUP BY " + getRangeString("Server") +
                         " ORDER BY " + getRangeString("Server") + " ASC";
+    }
+
+    protected String totalCostQuery(){
+        if (!isComplicated()) {
+            String rangeString = getRangeString();
+            String whereClause = getWhereClause();
+            if (whereClause.length() != 0) whereClause = " WHERE " + whereClause;
+            String q =
+                    "SELECT " + getDateString("i_r") + ", (clicks + impressions)/100 AS cost FROM" +
+                            "  (SELECT " + rangeString + ", SUM(cost) AS `impressions` FROM `Impressions` " + whereClause + " GROUP BY " + rangeString + ") i_r" +
+                            "  JOIN" +
+                            "  (SELECT " + rangeString + ", SUM(click_cost) AS `clicks` FROM `Clicks`  GROUP BY " + rangeString + ") c_r" +
+                            " ON i_r.YEAR = c_r.YEAR" +
+                            "    AND i_r.MONTH = c_r.MONTH";
+            if (range != RANGE.MONTH) {
+                q += " AND i_r.DAY = c_r.DAY";
+                if (range != RANGE.DAY) {
+                    q += " AND i_r.HOUR = c_r.HOUR";
+                }
+            }
+            return q;
+        }
+
+        String rangeString = getRangeString();
+        String whereClause = getWhereClause();
+        String q =
+                "SELECT " + getDateString("i_r") + ", (clicks + impressions)/100 AS cost FROM" +
+                        "  (SELECT " + rangeString + ", SUM(cost) AS `impressions` FROM `Impressions` WHERE " + whereClause + " GROUP BY " + rangeString + ") i_r" +
+                        "  JOIN" +
+                        "  (SELECT " + rangeString + ", SUM(click_cost) AS `clicks` FROM `Clicks` GROUP BY " + rangeString + ") c_r" +
+                        " ON i_r.YEAR = c_r.YEAR" +
+                        " AND i_r.MONTH = c_r.MONTH";
+        if (range != RANGE.MONTH) {
+            q += " AND i_r.DAY = c_r.DAY";
+            if (range != RANGE.DAY) {
+                q += " AND i_r.HOUR = c_r.HOUR";
+            }
+        }
+
+        return q;
     }
 
     protected String getDateString(String table) {
@@ -257,40 +317,45 @@ public class Query {
 
     protected String getWhereClause(String table, String field) {
         // Set default and escape
-        String t = (table.length() == 0) ? "" :  table;
-        if(table.length() != 0){
-            t = (t.contains("`")) ? t :  "`" + table + "`.";
+        String t = (table.length() == 0) ? "" : table;
+        if (table.length() != 0) {
+            t = (t.contains("`")) ? t : "`" + table + "`.";
         }
 
-        String f = (field.length() == 0) ? "`date`" : field;
+        String f = (field.length() == 0) ? "date" : field;
         f = (!f.contains("`")) ? f : "`" + f + "`";
 
-        if(!isComplicated()) {
+        if (!isComplicated()) {
             return getDateWhere(t, f);
         }
 
         String clause = getDateWhere(t, f);
         ArrayList<String> clauses = new ArrayList<>();
-        if(gender != null && gender != GENDER.ALL){
-            clauses.add("`gender` = '"+ gender.toString() +"'");
+        if (gender != null && gender != GENDER.ALL) {
+            clauses.add(t + "`gender` = '" + gender.toString() + "'");
         }
-        if(income != null && income != INCOME.ALL){
-            clauses.add("`income` = '"+ income.toString() +"'");
+        if (age != null && age != AGE.ALL) {
+            clauses.add(t + "`age` = '" + getAgeString(age) + "'");
         }
-        if(context != null && context != CONTEXT.ALL){
-            clauses.add("`context` = '"+ context.toString() +"'");
+        if (income != null && income != INCOME.ALL) {
+            clauses.add(t + "`income` = '" + income.toString() + "'");
         }
-
-        return clause + String.join(" AND ", clauses);
+        if (context != null && context != CONTEXT.ALL) {
+            clauses.add(t + "`context` = '" + context.toString() + "'");
+        }
+        if (!clause.equals("")) {
+            return clause + " AND " + String.join(" AND ", clauses);
+        }
+        return String.join(" AND ", clauses);
     }
 
-    protected String getDateWhere(String t, String f){
+    protected String getDateWhere(String t, String f) {
         if (from != null && to != null) {
             return t + f + " BETWEEN '" + from.toString() + "' AND '" + to.toString() + "'";
         } else if (from != null) {
-            return t + f + " <= '" + from.toString() + "'";
+            return t + f + " >= '" + from.toString() + "'";
         } else if (to != null) {
-            return t + f + " >= '" + to.toString() + "'";
+            return t + f + " <= '" + to.toString() + "'";
         } else {
             return "";
         }
@@ -301,9 +366,9 @@ public class Query {
     }
 
     private String getRangeString(String table) {
-        String t = (table.length() == 0) ? "" :  table;
-        if(table.length() != 0){
-            t = (t.contains("`")) ? t :  "`" + table + "`.";
+        String t = (table.length() == 0) ? "" : table;
+        if (table.length() != 0) {
+            t = (t.contains("`")) ? t : "`" + table + "`.";
         }
 
         String r = "";
@@ -321,32 +386,51 @@ public class Query {
         return t + "`YEAR`" + r;
     }
 
+    private String getAgeString(AGE age) {
+        switch (age) {
+            case ALL:
+                return "";
+            case LT_25:
+                return "<25";
+            case _25_TO_34:
+                return "25-34";
+            case _35_TO_44:
+                return "35-44";
+            case _45_TO_54:
+                return "45-54";
+            case GT_54:
+                return ">54";
+            default:
+                throw new IllegalStateException();
+        }
+    }
+
     public void setType(TYPE type) {
-        if (this.type == null) this.type = type;
+        this.type = type;
     }
 
     public void setRange(RANGE range) {
-        if (this.range == null) this.range = range;
+        this.range = range;
     }
 
     public void setFrom(Timestamp from) {
-        if (this.from == null) this.from = from;
+        this.from = from;
     }
 
     public void setTo(Timestamp to) {
-        if (this.to == null) this.to = to;
+        this.to = to;
     }
 
     public void setGender(GENDER gender) {
-        if (this.gender == null) this.gender = gender;
+        this.gender = gender;
     }
 
-    public void setAge(String age) {
-        if (this.age == null) this.age = age;
+    public void setAge(AGE age) {
+        this.age = age;
     }
 
     public void setIncome(INCOME income) {
-        if (this.income == null) this.income = income;
+        this.income = income;
     }
 
     public void setContext(CONTEXT context) {
@@ -359,7 +443,7 @@ public class Query {
     }
 
     public boolean isComplicated() {
-        return gender != GENDER.ALL || income != INCOME.ALL || context != CONTEXT.ALL;
+        return gender != GENDER.ALL || income != INCOME.ALL || context != CONTEXT.ALL || age != AGE.ALL;
     }
 
     public enum RANGE {
@@ -405,5 +489,14 @@ public class Query {
         BLOG,
         HOBBIES,
         TRAVEL
+    }
+
+    public enum AGE {
+        ALL,
+        LT_25,
+        _25_TO_34,
+        _35_TO_44,
+        _45_TO_54,
+        GT_54
     }
 }

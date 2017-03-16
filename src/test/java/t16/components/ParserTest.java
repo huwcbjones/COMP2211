@@ -13,6 +13,7 @@ import static org.junit.Assert.assertEquals;
  * @since 06/03/2017
  */
 public class ParserTest {
+
     @Test
     public void parseHeader_Click() throws Exception {
         File f = new File(getClass().getClassLoader().getResource("test_click.csv").getFile());
@@ -36,6 +37,7 @@ public class ParserTest {
         p.parseHeader();
         assertEquals(p.getType(), Parser.Type.IMPRESSION);
     }
+
     @Test
     public void parse_Click() throws Exception {
         File f = new File(getClass().getClassLoader().getResource("test_click.csv").getFile());

@@ -51,6 +51,11 @@ public class Importer {
     }
 
     public void parseAndImport() throws ImportException {
+        log.debug("Checking environment...");
+        if(AdDashboard.getWorkerPool() == null){
+            throw new ImportException("Application not initialised, have you called AdDashboard::initialise()?");
+        }
+
         log.debug("Identifying files...");
         for (File f : files) {
             Parser p = new Parser(f);

@@ -1,0 +1,134 @@
+Date,ID,Gender,Age,Income,Context,Impression Cost
+2015/01/01 12:01,8.90E+18,Female,25-34,High,Shopping,0
+2015/01/01 12:01,6.49E+18,Female,45-54,Medium,News,0
+2015/01/01 12:02,1.28E+18,Female,25-34,Medium,Blog,0.002804
+2015/01/01 12:02,3.78E+18,Female,25-34,Low,Social Media,0.002057
+2015/01/01 12:03,6.20E+18,Female,<25,Medium,Social Media,0
+2015/01/01 12:03,7.38E+18,Female,25-34,Low,Social Media,0
+2015/01/01 12:04,1.16E+18,Male,35-44,High,Blog,0.001569
+2015/01/01 12:04,8.37E+18,Male,25-34,Medium,News,0.001296
+2015/01/01 12:04,5.22E+18,Female,45-54,Medium,Blog,0.001928
+2015/01/01 12:04,9.21E+18,Female,35-44,Medium,News,0.002569
+2015/01/01 12:05,4.03E+18,Female,45-54,Medium,Shopping,0
+2015/01/01 12:06,5.02E+18,Female,>54,Medium,Social Media,0.002092
+2015/01/01 12:06,4.18E+18,Female,35-44,Low,News,0
+2015/01/01 12:07,6.19E+18,Female,45-54,Low,Shopping,0.00158
+2015/01/01 12:09,5.90E+18,Female,45-54,Medium,Social Media,0
+2015/01/01 12:10,3.33E+18,Female,35-44,Low,Blog,0.001595
+2015/01/01 12:11,1.20E+18,Male,45-54,Low,Social Media,0
+2015/01/01 12:12,7.93E+18,Male,25-34,Medium,Social Media,0
+2015/01/01 12:14,2.37E+18,Female,<25,Medium,News,0.002258
+2015/01/01 12:15,5.87E+18,Female,25-34,Medium,Social Media,0
+2015/01/01 12:15,8.92E+18,Male,35-44,High,Social Media,0
+2015/01/01 12:16,3.90E+18,Male,25-34,Medium,Social Media,0
+2015/01/01 12:16,1.09E+18,Female,45-54,Medium,News,0
+2015/01/01 12:16,1.74E+18,Female,35-44,Medium,News,0.00264
+2015/01/01 12:16,7.12E+18,Male,25-34,Medium,Social Media,0
+2015/01/01 12:18,3.28E+18,Female,35-44,Medium,Social Media,0.002719
+2015/01/01 12:18,4.57E+18,Female,35-44,Medium,Shopping,0.001875
+2015/01/01 12:19,7.21E+16,Female,35-44,High,Social Media,0
+2015/01/01 12:19,6.90E+18,Male,35-44,Medium,Shopping,0.002257
+2015/01/01 12:19,6.05E+18,Female,25-34,Medium,Social Media,0.002789
+2015/01/01 12:20,6.76E+18,Male,25-34,Low,Social Media,0.001686
+2015/01/01 12:21,5.87E+16,Female,25-34,High,Social Media,0
+2015/01/01 12:22,1.47E+18,Female,25-34,Low,Social Media,0.001251
+2015/01/01 12:22,2.30E+18,Female,25-34,Low,Social Media,0
+2015/01/01 12:23,5.00E+18,Female,45-54,High,Shopping,0.0025
+2015/01/01 12:25,6.32E+18,Female,25-34,Medium,Shopping,0
+2015/01/01 12:25,2.59E+18,Female,35-44,Low,Shopping,0.002908
+2015/01/01 12:25,2.25E+18,Female,>54,Medium,News,0
+2015/01/01 12:26,1.87E+18,Female,35-44,Medium,Social Media,0
+2015/01/01 12:26,3.04E+18,Female,45-54,High,Social Media,0.001048
+2015/01/01 12:27,1.34E+18,Female,25-34,Medium,News,0
+2015/01/01 12:28,1.39E+18,Female,35-44,Medium,News,0.001627
+2015/01/01 12:29,5.00E+18,Female,35-44,Low,Shopping,0
+2015/01/01 12:29,8.04E+18,Male,25-34,Low,Shopping,0.002168
+2015/01/01 12:31,4.62E+18,Female,45-54,Medium,News,0
+2015/01/01 12:31,2.79E+17,Female,45-54,Medium,News,0
+2015/01/01 12:31,4.54E+18,Female,<25,Medium,Shopping,0.002597
+2015/01/01 12:31,5.27E+18,Female,35-44,Medium,Shopping,0
+2015/01/01 12:32,2.15E+18,Male,25-34,High,Shopping,0.001883
+2015/01/01 12:33,3.73E+18,Female,35-44,Medium,Social Media,0.002747
+2015/01/01 12:33,1.27E+18,Male,25-34,Medium,Social Media,0.0018
+2015/01/01 12:34,4.12E+18,Female,25-34,Medium,News,0.002211
+2015/01/01 12:34,5.65E+18,Female,>54,Low,News,0.002495
+2015/01/01 12:35,7.28E+18,Female,25-34,High,Shopping,0.002412
+2015/01/01 12:35,6.22E+18,Female,35-44,Medium,Social Media,0
+2015/01/01 12:36,8.83E+18,Female,45-54,Medium,Blog,0.001483
+2015/01/01 12:36,5.74E+18,Male,>54,Medium,Social Media,0
+2015/01/01 12:36,7.74E+18,Male,25-34,Low,Shopping,0
+2015/01/01 12:36,6.86E+18,Female,25-34,Medium,Shopping,0
+2015/01/01 12:36,8.81E+17,Female,35-44,Medium,Shopping,0.002961
+2015/01/01 12:36,9.64E+17,Female,45-54,Medium,Blog,0.002819
+2015/01/01 12:36,3.78E+18,Female,25-34,High,Blog,0
+2015/01/01 12:37,4.41E+18,Female,45-54,Medium,News,0.001537
+2015/01/01 12:37,5.51E+18,Male,35-44,High,News,0
+2015/01/01 12:38,8.21E+16,Female,>54,Low,News,0
+2015/01/01 12:39,7.67E+18,Female,25-34,Low,News,0
+2015/01/01 12:40,5.02E+18,Female,25-34,Medium,News,0.002488
+2015/01/01 12:40,3.24E+18,Female,<25,Medium,Blog,0.002907
+2015/01/01 12:40,1.26E+18,Male,25-34,Medium,Shopping,0
+2015/01/01 12:40,3.91E+18,Female,35-44,Low,Social Media,0
+2015/01/01 12:40,1.12E+18,Male,25-34,Medium,Shopping,0.001867
+2015/01/01 12:41,1.71E+18,Male,35-44,Low,Social Media,0.002969
+2015/01/01 12:43,6.56E+18,Male,35-44,High,Social Media,0.002392
+2015/01/01 12:43,5.98E+18,Female,25-34,High,Social Media,0.002386
+2015/01/01 12:43,8.63E+18,Female,25-34,Low,Shopping,0.002981
+2015/01/01 12:43,3.23E+18,Female,35-44,Medium,Shopping,0.00213
+2015/01/01 12:44,5.76E+18,Female,25-34,Medium,News,0.001525
+2015/01/01 12:44,3.45E+18,Male,>54,Medium,Shopping,0
+2015/01/01 12:46,1.07E+18,Male,45-54,Medium,Shopping,0.002213
+2015/01/01 12:46,3.38E+18,Female,25-34,High,Shopping,0
+2015/01/01 12:47,8.49E+18,Female,35-44,Medium,News,0
+2015/01/01 12:49,2.10E+18,Male,>54,Medium,Shopping,0.002311
+2015/01/01 12:50,6.33E+18,Male,35-44,High,News,0
+2015/01/01 12:51,5.59E+18,Female,45-54,Medium,Social Media,0
+2015/01/01 12:51,9.09E+18,Female,45-54,High,News,0
+2015/01/01 12:54,4.19E+18,Female,25-34,High,Blog,0.002233
+2015/01/01 12:54,8.01E+18,Male,25-34,Medium,Shopping,0
+2015/01/01 12:54,7.87E+18,Female,25-34,Medium,News,0
+2015/01/01 12:56,9.39E+17,Female,45-54,Low,News,0.002913
+2015/01/01 12:56,8.76E+18,Female,<25,Medium,News,0
+2015/01/01 12:57,4.43E+18,Female,25-34,Low,News,0.001096
+2015/01/01 12:58,1.93E+18,Female,45-54,Medium,Shopping,0.002343
+2015/01/01 12:58,5.13E+17,Female,45-54,Medium,News,0
+2015/01/01 12:59,5.42E+17,Female,45-54,High,Shopping,0
+2015/01/01 13:00,2.10E+16,Female,>54,Medium,Blog,0.001549
+2015/01/01 13:00,7.66E+18,Female,45-54,Medium,Social Media,0
+2015/01/01 13:02,1.40E+18,Female,25-34,Medium,Social Media,0
+2015/01/01 13:03,5.78E+18,Male,35-44,Medium,News,0
+2015/01/01 13:05,2.19E+18,Male,45-54,Medium,News,0.00241
+2015/01/01 13:05,7.26E+17,Female,<25,Medium,Social Media,0.002686
+2015/01/02 03:48,7.12E+18,Male,25-34,Medium,Social Media,0.001171
+2015/01/02 06:52,5.02E+18,Female,25-34,Medium,News,0.002056
+2015/01/02 09:14,1.71E+18,Male,35-44,Low,Social Media,0
+2015/01/02 10:06,8.63E+18,Female,25-34,Low,Shopping,0.001277
+2015/01/02 11:43,5.27E+18,Female,35-44,Medium,Shopping,0
+2015/01/02 12:23,3.90E+18,Male,25-34,Medium,Social Media,0.001916
+2015/01/02 13:59,7.66E+18,Female,45-54,Kinda small,Social Media,0
+2015/01/02 14:19,8.81E+17,Female,35-44,Medium,Shopping,0.001698
+2015/01/02 15:43,7.67E+18,Female,25-34,Low,News,0.002848
+2015/01/02 20:21,8.49E+18,Female,35-44,Medium,News,0
+2015/01/02 22:31,6.90E+18,Male,35-44,Medium,Shopping,0
+2015/01/03 00:20,2.37E+18,Female,<25,Medium,News,0
+2015/01/03 08:00,2.59E+18,Female,35-44,Low,Shopping,0
+2015/01/03 10:34,8.04E+18,Male,25-34,Low,Shopping,0.002361
+2015/01/03 12:40,1.87E+18,Female,35-44,Medium,Social Media,0
+2015/01/03 13:31,9.64E+17,Female,45-54,Medium,Blog,0
+2015/01/03 13:49,9.09E+18,Female,45-54,High,News,0
+2015/01/04 02:44,5.59E+18,Female,45-54,Medium,Social Media,0
+2015/01/04 14:45,5.59E+18,Female,45-54,Medium,Social Media,0.001215
+2015/01/04 15:44,3.28E+18,Female,35-44,Medium,Social Media,0
+2015/01/04 18:17,3.24E+18,Female,<25,Medium,Blog,0
+2015/01/04 19:05,6.49E+18,Female,45-54,Medium,News,0
+2015/01/04 20:54,8.92E+18,Male,35-44,High,Social Media,0
+2015/01/05 05:28,7.38E+18,Female,25-34,Low,Social Media,0
+2015/01/05 17:33,6.19E+18,Female,45-54,Low,Shopping,0.00268
+2015/01/05 18:36,1.16E+18,Male,35-44,High,Blog,0.002437
+2015/01/07 05:49,2.25E+18,Female,>54,Medium,News,0.001117
+2015/01/07 14:26,6.05E+18,Female,25-34,Medium,Social Media,0.001403
+2015/01/09 06:56,6.05E+18,Female,25-34,Medium,Social Media,0
+2015/01/10 19:31,5.90E+18,Female,45-54,Medium,Social Media,0.001716
+2015/01/11 09:47,2.15E+18,Male,25-34,High,Shopping,0
+2015/01/12 13:37,2.59E+18,Female,35-44,Low,Shopping,0.001043
+2015/01/13 06:25,1.12E+18,Male,25-34,Medium,Shopping,0.001071
