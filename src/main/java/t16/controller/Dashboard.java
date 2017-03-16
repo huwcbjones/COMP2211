@@ -28,6 +28,11 @@ import java.util.Optional;
  */
 public class Dashboard {
     protected static final Logger log = LogManager.getLogger(Dashboard.class);
+    /**
+     * If true, a bounce is defined as 1 page being viewed.
+     * Otherwise, less than 60 seconds being spent on the site
+     */
+    public static boolean BOUNCE_DEFINITION;
 
     private Scene scene = null;
     private Campaign campaign = null;
@@ -71,6 +76,9 @@ public class Dashboard {
     private ComboBox<Context> contextCombo;
 
     @FXML
+    private Button bounceToggle;
+
+    @FXML
     private StatsController statsPanel;
 
     @FXML
@@ -101,7 +109,7 @@ public class Dashboard {
 
     @FXML
     private void viewBounces(ActionEvent event) {
-        renderChart(TYPE.BOUNCES);
+        renderChart(BOUNCE_DEFINITION ? TYPE.BOUNCES_PAGES : TYPE.BOUNCES_TIME);
     }
 
     @FXML
@@ -136,13 +144,21 @@ public class Dashboard {
 
     @FXML
     private void viewBounceRate(ActionEvent event) {
-        renderChart(TYPE.BOUNCE_RATE);
+        renderChart(BOUNCE_DEFINITION ? TYPE.BOUNCE_RATE_PAGES : TYPE.BOUNCE_RATE_TIME);
     }
 
     @FXML
     private void updateChart(ActionEvent event) {
         renderChart(currentChart);
     }
+
+    @FXML
+    private void bounceToggleAction(ActionEvent event)
+    {
+        BOUNCE_DEFINITION = !BOUNCE_DEFINITION;
+        bounceToggle.setText(BOUNCE_DEFINITION ? "Bounce: 1 page viewed" : "Bounce: viewed < 60s");
+    }
+
     //</editor-fold>
 
     //<editor-fold desc="Helper Methods">
@@ -206,7 +222,12 @@ public class Dashboard {
                 yAxis = "Unique Clicks per {}";
                 series = "Unique Clicks";
                 break;
-            case BOUNCES:
+            case BOUNCES_PAGES:
+                title = "Bounces per {}";
+                yAxis = "Bounces per {}";
+                series = "Bounces";
+                break;
+            case BOUNCES_TIME:
                 title = "Bounces per {}";
                 yAxis = "Bounces per {}";
                 series = "Bounces";
@@ -241,7 +262,12 @@ public class Dashboard {
                 yAxis = "Click Through Rate per {}";
                 series = "Click Through Rate";
                 break;
-            case BOUNCE_RATE:
+            case BOUNCE_RATE_PAGES:
+                title = "Bounce Rate per {}";
+                yAxis = "Bounce Rate per {}";
+                series = "Bounce Rate";
+                break;
+            case BOUNCE_RATE_TIME:
                 title = "Bounce Rate per {}";
                 yAxis = "Bounce Rate per {}";
                 series = "Bounce Rate";

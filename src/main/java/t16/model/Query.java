@@ -51,8 +51,10 @@ public class Query {
                 return impressionsQuery();
             case UNIQUES:
                 return uniquesQuery();
-            case BOUNCES:
-                return bouncesQuery();
+            case BOUNCES_PAGES:
+                return bouncesQueryPages();
+            case BOUNCES_TIME:
+                return bouncesQueryTime();
             case CONVERSIONS:
                 return conversionsQuery();
             case CLICK_THROUGH_RATE:
@@ -63,7 +65,9 @@ public class Query {
                 return costPerAcquisitionQuery();
             case COST_PER_THOUSAND_IMPRESSIONS:
             case COST_PER_CLICK:
-            case BOUNCE_RATE:
+            case BOUNCE_RATE_PAGES:
+                throw new UnsupportedOperationException();
+            case BOUNCE_RATE_TIME:
                 throw new UnsupportedOperationException();
             default:
                 throw new IllegalStateException("Should not happen");
@@ -170,7 +174,10 @@ public class Query {
                         " ORDER BY " + getRangeString("Server") + " ASC";
     }
 
-    protected String bouncesQuery() {
+    /**
+     * Here a bounce is when one page is viewed
+     */
+    protected String bouncesQueryPages() {
         if (!isComplicated()) {
             String whereClause = getWhereClause();
             if (whereClause.length() != 0) whereClause = " AND " + whereClause;
@@ -186,6 +193,30 @@ public class Query {
                         " FROM `Server` " +
                         " LEFT JOIN `Impressions` ON `Impressions`.`ID`=`Server`.`ID`" +
                         " WHERE `page_viewed`=1 AND " + getWhereClause("Impressions") +
+                        " GROUP BY " + getRangeString("Server") +
+                        " ORDER BY " + getRangeString("Server") + " ASC";
+    }
+
+    /**
+     * Here a bounce is when less than 60 seconds are spent on the site
+     */
+    protected String bouncesQueryTime()
+    {
+        if (!isComplicated()) {
+            String whereClause = getWhereClause();
+            if(whereClause.length() != 0) whereClause = " AND " + whereClause;
+            return
+                    "SELECT " + getDateString() + ", COUNT(*) AS bounces" +
+                            " FROM `Server` " +
+                            " WHERE TIMESTAMPDIFF(SECOND,`date`,`exit_date`) < 60 " + whereClause +
+                            " GROUP BY " + getRangeString() +
+                            " ORDER BY " + getRangeString() + " ASC";
+        }
+        return
+                "SELECT " + getDateString("Server") + ", COUNT(*) AS bounces" +
+                        " FROM `Server` " +
+                        " LEFT JOIN `Impressions` ON `Impressions`.`ID`=`Server`.`ID`" +
+                        " WHERE TIMESTAMPDIFF(SECOND,`Server`.`date`,`exit_date`) < 60 AND " + getWhereClause("Server") +
                         " GROUP BY " + getRangeString("Server") +
                         " ORDER BY " + getRangeString("Server") + " ASC";
     }
@@ -519,14 +550,16 @@ public class Query {
         CLICKS,
         IMPRESSIONS,
         UNIQUES,
-        BOUNCES,
+        BOUNCES_PAGES,
+        BOUNCES_TIME,
         CONVERSIONS,
         CLICK_THROUGH_RATE,
         TOTAL_COST,
         COST_PER_ACQUISITION,
         COST_PER_CLICK,
         COST_PER_THOUSAND_IMPRESSIONS,
-        BOUNCE_RATE
+        BOUNCE_RATE_PAGES,
+        BOUNCE_RATE_TIME
     }
 
     public enum GENDER {

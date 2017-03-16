@@ -79,9 +79,19 @@ public class QueryTest {
     }
 
     @Test
-    public void bouncesQuery() throws Exception {
-        log.info("** Testing Bounces **");
-        Query q = new Query(Query.TYPE.BOUNCES, Query.RANGE.HOUR);
+    public void bouncesQueryPages() throws Exception {
+        log.info("** Testing Bounces - Pages Viewed **");
+        Query q = new Query(Query.TYPE.BOUNCES_PAGES, Query.RANGE.HOUR);
+
+        genderTestQuery(q);
+
+        log.info("** Test finished! **");
+    }
+
+    @Test
+    public void bouncesQueryTime() throws Exception {
+        log.info("** Testing Bounces - Time Spent **");
+        Query q = new Query(Query.TYPE.BOUNCES_TIME, Query.RANGE.HOUR);
 
         genderTestQuery(q);
 
