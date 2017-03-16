@@ -287,7 +287,7 @@ public class Dashboard {
                 }
 
                 Query query = new Query(t, range, from, to, gender, age, income, context);
-
+                log.debug("Query: {}", query.getQuery());
                 c.addSeries(fSeries, AdDashboard.getDataController().getQuery(query));
                 time = System.currentTimeMillis() - time;
                 log.info("Chart processed in {}", NumberFormat.getNumberInstance().format(time / 1000d));

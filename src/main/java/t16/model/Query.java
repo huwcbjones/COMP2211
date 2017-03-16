@@ -371,7 +371,7 @@ public class Query {
     }
 
     public boolean isComplicated() {
-        return gender != GENDER.ALL || income != INCOME.ALL || context != CONTEXT.ALL;
+        return gender != GENDER.ALL || income != INCOME.ALL || context != CONTEXT.ALL || age != AGE.ALL;
     }
 
     public enum RANGE {
