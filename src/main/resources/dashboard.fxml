@@ -5,60 +5,98 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 <?import t16.controller.StatsController?>
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="700" minWidth="1200" prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/8.0.101" xmlns:fx="http://javafx.com/fxml/1" fx:controller="t16.controller.Dashboard">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="700" minWidth="1200" prefHeight="720.0" prefWidth="1280.0"
+            xmlns="http://javafx.com/javafx/8.0.101" xmlns:fx="http://javafx.com/fxml/1" fx:controller="t16.controller.Dashboard">
     <left>
         <BorderPane prefHeight="375.0" prefWidth="160.0" BorderPane.alignment="CENTER">
             <top>
                 <Label fx:id="campaignName" text="Title" BorderPane.alignment="CENTER">
                     <font>
-                        <Font size="18.0" />
+                        <Font size="18.0"/>
                     </font>
-               <BorderPane.margin>
-                  <Insets bottom="25.0" top="15.0" />
-               </BorderPane.margin>
+                    <BorderPane.margin>
+                        <Insets bottom="25.0" top="15.0"/>
+                    </BorderPane.margin>
                 </Label>
             </top>
             <center>
                 <VBox prefHeight="200.0" prefWidth="100.0" spacing="5.0" BorderPane.alignment="CENTER">
                     <children>
-                        <Button fx:id="dashboardButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false" onAction="#viewStats" text="Dashboard">
+                        <Button fx:id="dashboardButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false"
+                                onAction="#viewStats" text="Dashboard">
                             <opaqueInsets>
-                                <Insets />
+                                <Insets/>
                             </opaqueInsets>
                         </Button>
-                        <Button fx:id="clicksButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false" onAction="#viewClicks" text="Clicks">
+                        <Button fx:id="clicksButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false"
+                                onAction="#viewClicks" text="Clicks">
                             <opaqueInsets>
-                                <Insets />
+                                <Insets/>
                             </opaqueInsets>
                         </Button>
-                        <Button fx:id="impressionsButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false" onAction="#viewImpressions" text="Impresssions">
+                        <Button fx:id="impressionsButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false"
+                                onAction="#viewImpressions" text="Impresssions">
                             <opaqueInsets>
-                                <Insets />
+                                <Insets/>
                             </opaqueInsets>
                         </Button>
-                        <Button fx:id="uniqueButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false" onAction="#viewUnique" text="Unique Visitors">
+                        <Button fx:id="uniqueButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false"
+                                onAction="#viewUnique" text="Unique Clicks">
                             <opaqueInsets>
-                                <Insets />
+                                <Insets/>
                             </opaqueInsets>
                         </Button>
-                        <Button fx:id="bouncesButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false" onAction="#viewBounces" text="Bounces">
+                        <Button fx:id="bouncesButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false"
+                                onAction="#viewBounces" text="Bounces">
                             <opaqueInsets>
-                                <Insets />
+                                <Insets/>
                             </opaqueInsets>
                         </Button>
-                        <Button fx:id="conversionsButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false" onAction="#viewConversion" text="Conversions">
+                        <Button fx:id="conversionsButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false"
+                                onAction="#viewConversion" text="Conversions">
                             <opaqueInsets>
-                                <Insets />
+                                <Insets/>
                             </opaqueInsets>
                         </Button>
-                        <Button fx:id="clickThroughsButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false" onAction="#viewClickThrough" text="Click Throughs">
+                        <Button fx:id="clickThroughsButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false"
+                                onAction="#viewClickThrough" text="Click Throughs">
                             <opaqueInsets>
-                                <Insets />
+                                <Insets/>
+                            </opaqueInsets>
+                        </Button>
+                        <Button fx:id="totalCostButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity"
+                                mnemonicParsing="false" onAction="#viewTotalCost" text="Total Cost">
+                            <opaqueInsets>
+                                <Insets/>
+                            </opaqueInsets>
+                        </Button>
+                        <Button fx:id="costPerAcquisitionButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity"
+                                mnemonicParsing="false" onAction="#viewCostPerAcquisition" text="Cost Per Acquisition">
+                            <opaqueInsets>
+                                <Insets/>
+                            </opaqueInsets>
+                        </Button>
+                        <Button fx:id="costPerClick" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity"
+                                mnemonicParsing="false" onAction="#viewCostPerClick" text="Cost Per Click">
+                            <opaqueInsets>
+                                <Insets/>
+                            </opaqueInsets>
+                        </Button>
+                        <Button fx:id="costPerThousandImpressions" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity"
+                                mnemonicParsing="false" onAction="#viewCostPerThousandImpressions" text="Cost Per Thousand Impressions">
+                            <opaqueInsets>
+                                <Insets/>
+                            </opaqueInsets>
+                        </Button>
+                        <Button fx:id="bounceRate" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity"
+                                mnemonicParsing="false" onAction="#viewBounceRate" text="Bounce Rate">
+                            <opaqueInsets>
+                                <Insets/>
                             </opaqueInsets>
                         </Button>
                     </children>
                     <padding>
-                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
                     </padding>
                 </VBox>
             </center>
@@ -66,71 +104,128 @@
     </left>
     <center>
         <StackPane fx:id="mainPane" BorderPane.alignment="CENTER">
-            <StatsController fx:id="statsPanel" hgap="10.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" StackPane.alignment="CENTER">
-            <StackPane.margin>
-               <Insets bottom="150.0" left="150.0" right="150.0" top="150.0" />
-            </StackPane.margin></StatsController>
-            <ProgressIndicator fx:id="workingIndicator" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mouseTransparent="true" prefHeight="175.0" prefWidth="175.0" visible="false" StackPane.alignment="CENTER">
+            <StatsController fx:id="statsPanel" hgap="10.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+                             StackPane.alignment="CENTER">
                 <StackPane.margin>
-                    <Insets />
+                    <Insets bottom="150.0" left="150.0" right="150.0" top="150.0"/>
+                </StackPane.margin>
+            </StatsController>
+            <ProgressIndicator fx:id="workingIndicator" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+                               mouseTransparent="true" prefHeight="175.0" prefWidth="175.0" visible="false" StackPane.alignment="CENTER">
+                <StackPane.margin>
+                    <Insets/>
                 </StackPane.margin>
             </ProgressIndicator>
         </StackPane>
     </center>
     <right>
-        <BorderPane fx:id="filterPanel" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+        <BorderPane fx:id="filterPanel" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" visible="false">
             <center>
                 <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
                     <children>
-                  <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="Group by">
-                     <VBox.margin>
-                        <Insets bottom="5.0" top="10.0" />
-                     </VBox.margin>
-                  </Label>
-                          <ToggleButton fx:id="hourlyButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" selected="true" text="Hours">
-                              <toggleGroup>
-                                  <ToggleGroup fx:id="timeControls" />
-                              </toggleGroup>
-                     <VBox.margin>
-                        <Insets top="3.0" />
-                     </VBox.margin>
-                          </ToggleButton>
-                          <ToggleButton fx:id="dailyButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Days" toggleGroup="$timeControls">
-                     <VBox.margin>
-                        <Insets top="3.0" />
-                     </VBox.margin>
-                  </ToggleButton>
-                          <ToggleButton fx:id="monthlyButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Months" toggleGroup="$timeControls">
-                     <VBox.margin>
-                        <Insets top="3.0" />
-                     </VBox.margin>
-                  </ToggleButton>
+                        <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="Group by">
+                            <VBox.margin>
+                                <Insets bottom="5.0" top="10.0"/>
+                            </VBox.margin>
+                        </Label>
+                        <ToggleButton fx:id="hourlyButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" selected="true" text="Hours">
+                            <toggleGroup>
+                                <ToggleGroup fx:id="timeControls"/>
+                            </toggleGroup>
+                            <VBox.margin>
+                                <Insets top="3.0"/>
+                            </VBox.margin>
+                        </ToggleButton>
+                        <ToggleButton fx:id="dailyButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Days" toggleGroup="$timeControls">
+                            <VBox.margin>
+                                <Insets top="3.0"/>
+                            </VBox.margin>
+                        </ToggleButton>
+                        <ToggleButton fx:id="monthlyButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Months" toggleGroup="$timeControls">
+                            <VBox.margin>
+                                <Insets top="3.0"/>
+                            </VBox.margin>
+                        </ToggleButton>
                         <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="Display From">
-                     <VBox.margin>
-                        <Insets bottom="5.0" top="10.0" />
-                     </VBox.margin></Label>
-                        <DatePicker fx:id="startDate" promptText="Start Date" />
-                        <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="Display To" />
-                        <DatePicker fx:id="endDate" promptText="End Date" />
-                  <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#updateChart" text="Update">
-                     <VBox.margin>
-                        <Insets top="50.0" />
-                     </VBox.margin>
-                  </Button>
+                            <VBox.margin>
+                                <Insets bottom="5.0" top="10.0"/>
+                            </VBox.margin>
+                        </Label>
+                        <DatePicker fx:id="startDate" maxWidth="1.7976931348623157E308" promptText="Start Date">
+                            <VBox.margin>
+                                <Insets bottom="5.0"/>
+                            </VBox.margin>
+                        </DatePicker>
+                        <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="Display To">
+                            <VBox.margin>
+                                <Insets bottom="5.0" top="10.0"/>
+                            </VBox.margin>
+                        </Label>
+                        <DatePicker fx:id="endDate" maxWidth="1.7976931348623157E308" promptText="End Date">
+                            <VBox.margin>
+                                <Insets bottom="5.0"/>
+                            </VBox.margin>
+                        </DatePicker>
+                        <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="Gender">
+                            <VBox.margin>
+                                <Insets bottom="5.0" top="10.0"/>
+                            </VBox.margin>
+                        </Label>
+                        <ComboBox fx:id="genderCombo" maxWidth="1.7976931348623157E308" prefWidth="150.0" promptText="Gender" visibleRowCount="3">
+                            <VBox.margin>
+                                <Insets bottom="5.0"/>
+                            </VBox.margin>
+                        </ComboBox>
+                        <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="Age">
+                            <VBox.margin>
+                                <Insets bottom="5.0" top="10.0"/>
+                            </VBox.margin>
+                        </Label>
+                        <ComboBox fx:id="ageCombo" maxWidth="1.7976931348623157E308" prefWidth="150.0" promptText="Age">
+                            <VBox.margin>
+                                <Insets bottom="5.0" />
+                            </VBox.margin>
+                        </ComboBox>
+                        <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="Income">
+                            <VBox.margin>
+                                <Insets bottom="5.0" top="10.0"/>
+                            </VBox.margin>
+                        </Label>
+                        <ComboBox fx:id="incomeCombo" maxWidth="1.7976931348623157E308" prefWidth="150.0" promptText="Income">
+                            <VBox.margin>
+                                <Insets bottom="5.0"/>
+                            </VBox.margin>
+                        </ComboBox>
+                        <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="Context">
+                            <VBox.margin>
+                                <Insets bottom="5.0" top="10.0"/>
+                            </VBox.margin>
+                        </Label>
+                        <ComboBox fx:id="contextCombo" maxWidth="1.7976931348623157E308" prefWidth="150.0" promptText="Context">
+                            <VBox.margin>
+                                <Insets bottom="5.0" />
+                            </VBox.margin>
+                        </ComboBox>
+                        <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#updateChart" text="Update" defaultButton="true">
+                            <VBox.margin>
+                                <Insets top="40.0"/>
+                            </VBox.margin>
+                        </Button>
                     </children>
-               <padding>
-                  <Insets left="5.0" right="5.0" />
-               </padding>
+                    <padding>
+                        <Insets left="5.0" right="5.0"/>
+                    </padding>
                 </VBox>
             </center>
             <top>
                 <Label text="Filters" BorderPane.alignment="CENTER">
-               <BorderPane.margin>
-                  <Insets bottom="25.0" top="15.0" />
-               </BorderPane.margin>
-               <font>
-                  <Font size="18.0" />
-               </font></Label>
+                    <BorderPane.margin>
+                        <Insets bottom="25.0" top="15.0"/>
+                    </BorderPane.margin>
+                    <font>
+                        <Font size="18.0"/>
+                    </font>
+                </Label>
             </top>
         </BorderPane>
     </right>

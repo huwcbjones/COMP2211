@@ -39,6 +39,13 @@ public class DataController {
 
     private Database database;
 
+    public enum RANGE {
+        DAILY,
+        HOURLY,
+        WEEKLY,
+        MONTHLY
+    }
+
     public DataController() {
         this.database = Database.InitialiseDatabase();
     }
