@@ -278,9 +278,9 @@ public class Query {
         if (from != null && to != null) {
             return t + f + " BETWEEN '" + from.toString() + "' AND '" + to.toString() + "'";
         } else if (from != null) {
-            return t + f + " <= '" + from.toString() + "'";
+            return t + f + " >= '" + from.toString() + "'";
         } else if (to != null) {
-            return t + f + " >= '" + to.toString() + "'";
+            return t + f + " <= '" + to.toString() + "'";
         } else {
             return "";
         }
@@ -312,31 +312,31 @@ public class Query {
     }
 
     public void setType(TYPE type) {
-        if (this.type == null) this.type = type;
+        this.type = type;
     }
 
     public void setRange(RANGE range) {
-        if (this.range == null) this.range = range;
+        this.range = range;
     }
 
     public void setFrom(Timestamp from) {
-        if (this.from == null) this.from = from;
+        this.from = from;
     }
 
     public void setTo(Timestamp to) {
-        if (this.to == null) this.to = to;
+         this.to = to;
     }
 
     public void setGender(GENDER gender) {
-        if (this.gender == null) this.gender = gender;
+        this.gender = gender;
     }
 
     public void setAge(String age) {
-        if (this.age == null) this.age = age;
+         this.age = age;
     }
 
     public void setIncome(INCOME income) {
-        if (this.income == null) this.income = income;
+         this.income = income;
     }
 
     public void setContext(CONTEXT context) {
