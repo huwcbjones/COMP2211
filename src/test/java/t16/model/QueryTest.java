@@ -104,8 +104,6 @@ public class QueryTest {
         Query q = new Query(Query.TYPE.TOTAL_COST, Query.RANGE.HOUR);
 
         genderTestQuery(q);
-        incomeTestQuery(q);
-        contextTestQuery(q);
 
         log.info("** Test finished! **");
     }
@@ -116,7 +114,7 @@ public class QueryTest {
                 q.setRange(r);
                 testFromToQuery(q);
             } catch (Exception e) {
-                log.error("*  Failed GROUPING {}", r.toString());
+                log.error("Failed Grouping: {}", r.toString());
                 throw e;
             }
         }
@@ -164,7 +162,7 @@ public class QueryTest {
             d.getQuery(q);
             count.incrementAndGet();
         } catch (Exception e) {
-            log.info("Query: {}", q.getQuery());
+            log.info("Query: \n{}\n", q.getQuery());
             throw e;
         }
     }
