@@ -58,6 +58,7 @@ public class Query {
             case CLICK_THROUGH_RATE:
                 return clickThroughQuery();
             case TOTAL_COST:
+                return totalCostQuery();
             case COST_PER_ACQUISITION:
             case COST_PER_THOUSAND_IMPRESSIONS:
             case COST_PER_CLICK:
@@ -103,7 +104,7 @@ public class Query {
                 "SELECT " + getDateString("Clicks") + ", COUNT(*) AS clicks" +
                         " FROM `Clicks` " +
                         " LEFT JOIN `Impressions` ON `Impressions`.`ID`=`Clicks`.`ID`" +
-                        " WHERE " + getWhereClause("Clicks") +
+                        " WHERE " + getWhereClause("Impressions") +
                         " GROUP BY " + getRangeString("Clicks") +
                         " ORDER BY " + getRangeString("Clicks") + " ASC";
     }
@@ -163,7 +164,7 @@ public class Query {
                 "SELECT " + getDateString("Server") + ", COUNT(*) AS numberOfUniques" +
                         " FROM `Server` " +
                         " LEFT JOIN `Impressions` ON `Impressions`.`ID`=`Server`.`ID`" +
-                        " WHERE " + getWhereClause("Server") +
+                        " WHERE " + getWhereClause("Impressions") +
                         " GROUP BY " + getRangeString("Server") +
                         " ORDER BY " + getRangeString("Server") + " ASC";
     }
@@ -183,7 +184,7 @@ public class Query {
                 "SELECT " + getDateString("Server") + ", COUNT(*) AS bounces" +
                         " FROM `Server` " +
                         " LEFT JOIN `Impressions` ON `Impressions`.`ID`=`Server`.`ID`" +
-                        " WHERE `page_viewed`=1 AND " + getWhereClause("Server") +
+                        " WHERE `page_viewed`=1 AND " + getWhereClause("Impressions") +
                         " GROUP BY " + getRangeString("Server") +
                         " ORDER BY " + getRangeString("Server") + " ASC";
     }
@@ -203,9 +204,49 @@ public class Query {
                 "SELECT " + getDateString("Server") + ", COUNT(*) AS conversions" +
                         " FROM `Server` " +
                         " LEFT JOIN `Impressions` ON `Impressions`.`ID`=`Server`.`ID`" +
-                        " WHERE `conversion`=1 AND " + getWhereClause("Server") +
+                        " WHERE `conversion`=1 AND " + getWhereClause("Impressions") +
                         " GROUP BY " + getRangeString("Server") +
                         " ORDER BY " + getRangeString("Server") + " ASC";
+    }
+
+    protected String totalCostQuery(){
+        if (!isComplicated()) {
+            String rangeString = getRangeString();
+            String whereClause = getWhereClause();
+            if (whereClause.length() != 0) whereClause = " WHERE " + whereClause;
+            String q =
+                    "SELECT " + getDateString("i_r") + ", (clicks + impressions)/100 AS cost FROM" +
+                            "  (SELECT " + rangeString + ", SUM(cost) AS `impressions` FROM `Impressions` " + whereClause + " GROUP BY " + rangeString + ") i_r" +
+                            "  JOIN" +
+                            "  (SELECT " + rangeString + ", SUM(click_cost) AS `clicks` FROM `Clicks`  GROUP BY " + rangeString + ") c_r" +
+                            " ON i_r.YEAR = c_r.YEAR" +
+                            "    AND i_r.MONTH = c_r.MONTH";
+            if (range != RANGE.MONTH) {
+                q += " AND i_r.DAY = c_r.DAY";
+                if (range != RANGE.DAY) {
+                    q += " AND i_r.HOUR = c_r.HOUR";
+                }
+            }
+            return q;
+        }
+
+        String rangeString = getRangeString();
+        String whereClause = getWhereClause();
+        String q =
+                "SELECT " + getDateString("i_r") + ", (clicks + impressions)/100 AS cost FROM" +
+                        "  (SELECT " + rangeString + ", SUM(cost) AS `impressions` FROM `Impressions` WHERE " + whereClause + " GROUP BY " + rangeString + ") i_r" +
+                        "  JOIN" +
+                        "  (SELECT " + rangeString + ", SUM(click_cost) AS `clicks` FROM `Clicks` GROUP BY " + rangeString + ") c_r" +
+                        " ON i_r.YEAR = c_r.YEAR" +
+                        " AND i_r.MONTH = c_r.MONTH";
+        if (range != RANGE.MONTH) {
+            q += " AND i_r.DAY = c_r.DAY";
+            if (range != RANGE.DAY) {
+                q += " AND i_r.HOUR = c_r.HOUR";
+            }
+        }
+
+        return q;
     }
 
     protected String getDateString(String table) {
@@ -260,16 +301,16 @@ public class Query {
         String clause = getDateWhere(t, f);
         ArrayList<String> clauses = new ArrayList<>();
         if (gender != null && gender != GENDER.ALL) {
-            clauses.add("`gender` = '" + gender.toString() + "'");
+            clauses.add(t + "`gender` = '" + gender.toString() + "'");
         }
         if (age != null && age != AGE.ALL) {
-            clauses.add("`age` = '" + getAgeString(age) + "'");
+            clauses.add(t + "`age` = '" + getAgeString(age) + "'");
         }
         if (income != null && income != INCOME.ALL) {
-            clauses.add("`income` = '" + income.toString() + "'");
+            clauses.add(t + "`income` = '" + income.toString() + "'");
         }
         if (context != null && context != CONTEXT.ALL) {
-            clauses.add("`context` = '" + context.toString() + "'");
+            clauses.add(t + "`context` = '" + context.toString() + "'");
         }
         if (!clause.equals("")) {
             return clause + " AND " + String.join(" AND ", clauses);
