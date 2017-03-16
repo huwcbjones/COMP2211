@@ -1,13 +1,13 @@
 package t16.components;
 
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import t16.AdDashboard;
 import t16.controller.DataController;
 
 import java.io.File;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Database Test
@@ -21,18 +21,14 @@ public class DataControllerTest {
 
     @BeforeClass
     public static void setUp() throws Exception {
+        AdDashboard.initialise();
         dataController = new DataController();
-        dataController.createCampaign(new File("resources/test/test_data.zip"),new File("resources/test/test_data.h2"));
+        dataController.openCampaign(new File(DataControllerTest.class.getClassLoader().getResource("test_database.h2.db").getFile()));
     }
-
-//    @Test
-//    public void initialiseDatabase() throws Exception {
-//        dataController.createCampaign(new File("resources/test/test_data.zip"),new File("resources/test/test_data.h2"));
-//    }
 
     @Test
     public void getTotalImpressions() throws Exception {
-        assertEquals(0,dataController.getTotalImpressions());
+        assertEquals(133,dataController.getTotalImpressions());
     }
 
 }
