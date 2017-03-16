@@ -58,6 +58,7 @@ public class Query {
             case CLICK_THROUGH_RATE:
                 return clickThroughQuery();
             case TOTAL_COST:
+                return totalCostQuery();
             case COST_PER_ACQUISITION:
             case COST_PER_THOUSAND_IMPRESSIONS:
             case COST_PER_CLICK:
@@ -206,6 +207,46 @@ public class Query {
                         " WHERE `conversion`=1 AND " + getWhereClause("Server") +
                         " GROUP BY " + getRangeString("Server") +
                         " ORDER BY " + getRangeString("Server") + " ASC";
+    }
+
+    protected String totalCostQuery(){
+        if (!isComplicated()) {
+            String rangeString = getRangeString();
+            String whereClause = getWhereClause();
+            if (whereClause.length() != 0) whereClause = " WHERE " + whereClause;
+            String q =
+                    "SELECT " + getDateString("i_r") + ", (clicks + impressions)/100 AS cost FROM" +
+                            "  (SELECT " + rangeString + ", SUM(cost) AS `impressions` FROM `Impressions`" + whereClause + " GROUP BY " + rangeString + ") i_r" +
+                            "  OUTER JOIN" +
+                            "  (SELECT " + rangeString + ", SUM(click_cost) AS `clicks` FROM `Clicks`" + whereClause + "  GROUP BY " + rangeString + ") c_r" +
+                            " ON i_r.YEAR = c_r.YEAR" +
+                            "    AND i_r.MONTH = c_r.MONTH";
+            if (range != RANGE.MONTH) {
+                q += " AND i_r.DAY = c_r.DAY";
+                if (range != RANGE.DAY) {
+                    q += " AND i_r.HOUR = c_r.HOUR";
+                }
+            }
+            return q;
+        }
+
+        String rangeString = getRangeString();
+        String whereClause = getWhereClause();
+        String q =
+                "SELECT " + getDateString("i_r") + ", (clicks + impressions)/100 AS cost FROM" +
+                        "  (SELECT " + rangeString + ", SUM(cost) AS `impressions` FROM `Impressions`" + whereClause + " GROUP BY " + rangeString + ") i_r" +
+                        "  OUTER JOIN" +
+                        "  (SELECT " + rangeString + ", SUM(click_cost) AS `clicks` FROM `Clicks`" + whereClause + "  GROUP BY " + rangeString + ") c_r" +
+                        " ON i_r.YEAR = c_r.YEAR" +
+                        " AND i_r.MONTH = c_r.MONTH";
+        if (range != RANGE.MONTH) {
+            q += " AND i_r.DAY = c_r.DAY";
+            if (range != RANGE.DAY) {
+                q += " AND i_r.HOUR = c_r.HOUR";
+            }
+        }
+
+        return q;
     }
 
     protected String getDateString(String table) {

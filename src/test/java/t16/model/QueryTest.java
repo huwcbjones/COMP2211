@@ -110,6 +110,18 @@ public class QueryTest {
         log.info("** Test finished! **");
     }
 
+    @Test
+    public void totalCostQuery() throws Exception {
+        log.info("** Testing Total Cost **");
+        Query q = new Query(Query.TYPE.TOTAL_COST, Query.RANGE.HOUR);
+
+        genderTestQuery(q);
+        incomeTestQuery(q);
+        contextTestQuery(q);
+
+        log.info("** Test finished! **");
+    }
+
     public void timePeriodTestQuery(Query q) throws Exception {
         for(Query.RANGE r: Query.RANGE.values()){
             log.info("*  Testing time range {}", r.toString());
