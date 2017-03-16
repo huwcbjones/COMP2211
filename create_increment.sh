@@ -51,7 +51,7 @@ echo -e \\n\# Copying files
 cp README.md ${source_dir}/
 cp -r src ${source_dir}/code/
 cp pom.xml ${source_dir}/code/
-cp target/AdDashboard-0.1.0-jar-with-dependencies.jar ${source_dir}/code/increment${increment}.jar
+cp target/AdDashboard-0.${increment}.0-jar-with-dependencies.jar ${source_dir}/code/increment${increment}.jar
 cp docs/*.pdf ${source_dir}/documentation
 if [ ${increment} -eq 2 ]
 then
