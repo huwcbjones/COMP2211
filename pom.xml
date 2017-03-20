@@ -6,7 +6,7 @@
 
     <groupId>t16</groupId>
     <artifactId>AdDashboard</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
     <dependencies>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
@@ -41,6 +41,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.5</version>
                 <configuration>
+                    <maxmem>1024m</maxmem>
                     <useIncrementalCompilation>false</useIncrementalCompilation>
                     <source>1.8</source>
                     <target>1.8</target>

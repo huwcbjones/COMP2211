@@ -12,7 +12,6 @@ import java.util.HashMap;
  * @author Huw Jones
  * @since 25/02/2017
  * Modified by James Curran 28/2/17
- * TODO Here is a possible format for the Campaign. What do you think? After calculating the axes for seconds, there could be some additional calculation to get the average y values for minutes, hours etc.
  */
 public class Campaign {
     public HashMap<Interval, AxisPair> data;
@@ -22,13 +21,15 @@ public class Campaign {
     private long numberClicks = -1;
     private long numberUniques = -1;
     private long numberConversions = -1;
-    private long numberBounces = -1;
+    private long numberBouncesPages = -1;
+    private long numberBouncesTime = -1;
     private BigDecimal totalCost = BigDecimal.ZERO;
     private BigDecimal costPerClick = BigDecimal.ZERO;
     private BigDecimal costPerAcquisition = BigDecimal.ZERO;
     private BigDecimal costPer1kImpressions = BigDecimal.ZERO;
     private double clickThroughRate = -1d;
-    private double bounceRate = -1d;
+    private double bounceRatePages = -1d;
+    private double bounceRateTime = -1d;
 
     public Campaign(String name) {
         this.name = name;
@@ -83,16 +84,24 @@ public class Campaign {
         return numberConversions;
     }
 
+    public long getNumberBouncesPages() {
+        return numberBouncesPages;
+    }
+
+    public long getNumberBouncesTime() {
+        return numberBouncesTime;
+    }
+
+    public void setNumberBouncesPages(long numberBounces) {
+        if (this.numberBouncesPages == -1) this.numberBouncesPages = numberBounces;
+    }
+
+    public void setNumberBouncesTime(long numberBounces) {
+        if (this.numberBouncesTime == -1) this.numberBouncesTime = numberBounces;
+    }
+
     public void setNumberConversions(long numberConversions) {
         if (this.numberConversions == -1) this.numberConversions = numberConversions;
-    }
-
-    public long getNumberBounces() {
-        return numberBounces;
-    }
-
-    public void setNumberBounces(long numberBounces) {
-        if (this.numberBounces == -1) this.numberBounces = numberBounces;
     }
 
     public BigDecimal getTotalCost() {
@@ -139,12 +148,20 @@ public class Campaign {
         if (this.clickThroughRate == -1) this.clickThroughRate = clickThroughRate;
     }
 
-    public double getBounceRate() {
-        return bounceRate;
+    public double getBounceRatePages() {
+        return bounceRatePages;
     }
 
-    public void setBounceRate(double bounceRate) {
-        if (this.bounceRate == -1) this.bounceRate = bounceRate;
+    public double getBounceRateTime() {
+        return bounceRateTime;
+    }
+
+    public void setBounceRatePages(double bounceRate) {
+        if (this.bounceRatePages == -1) this.bounceRatePages = bounceRate;
+    }
+
+    public void setBounceRateTime(double bounceRate) {
+        if (this.bounceRateTime == -1) this.bounceRateTime = bounceRate;
     }
 
     public enum Interval {
