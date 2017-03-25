@@ -39,13 +39,6 @@ public class DataController {
 
     private Database database;
 
-    public enum RANGE {
-        DAILY,
-        HOURLY,
-        WEEKLY,
-        MONTHLY
-    }
-
     public DataController() {
         this.database = Database.InitialiseDatabase();
     }
@@ -61,6 +54,7 @@ public class DataController {
             log.catching(e);
         }
     }
+
     //<editor-fold desc="Create/Open Campaign">
     /**
      * Creates a campaign and returns the created campaign
@@ -224,7 +218,7 @@ public class DataController {
             throw new CampaignCreationException(e.getMessage(), e);
         }
 
-        // TODO: Fix this mess!
+        // TODO: Neaten up?
         Campaign c = new Campaign(databaseFile.getName());
         try {
             return setStats(c);
@@ -246,13 +240,7 @@ public class DataController {
         } catch (DatabaseConnectionException e) {
             log.catching(e);
         }
-        Campaign c = new Campaign(databaseFile.getName());
-        try {
-            return setStats(c);
-        } catch (SQLException e) {
-            log.catching(e);
-            throw new CampaignLoadException("Could not load stats.", e);
-        }
+        return new Campaign(databaseFile.getName());
     }
     //</editor-fold>
 
