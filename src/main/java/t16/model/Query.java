@@ -549,6 +549,7 @@ public class Query {
         CLICKS,
         IMPRESSIONS,
         UNIQUES,
+        BOUNCES,
         BOUNCES_PAGES,
         BOUNCES_TIME,
         CONVERSIONS,
@@ -557,6 +558,7 @@ public class Query {
         COST_PER_ACQUISITION,
         COST_PER_CLICK,
         COST_PER_THOUSAND_IMPRESSIONS,
+        BOUNCE_RATE,
         BOUNCE_RATE_PAGES,
         BOUNCE_RATE_TIME
     }
