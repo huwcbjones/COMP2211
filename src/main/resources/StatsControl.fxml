@@ -11,7 +11,7 @@
                 <Insets bottom="5.0" left="10.0" top="10.0"/>
             </VBox.margin>
         </Label>
-        <Label fx:id="numberImpressions" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="..."
+        <Label fx:id="numberImpressions" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="."
                VBox.vgrow="ALWAYS">
             <VBox.margin>
                 <Insets right="15.0"/>
@@ -23,7 +23,7 @@
                 <Insets bottom="5.0" left="10.0" top="10.0"/>
             </VBox.margin>
         </Label>
-        <Label fx:id="numberClicks" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="..."
+        <Label fx:id="numberClicks" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="."
                VBox.vgrow="ALWAYS">
             <VBox.margin>
                 <Insets right="15.0"/>
@@ -35,7 +35,7 @@
                 <Insets bottom="5.0" left="10.0" top="10.0"/>
             </VBox.margin>
         </Label>
-        <Label fx:id="numberUniques" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="..."
+        <Label fx:id="numberUniques" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="."
                VBox.vgrow="ALWAYS">
             <VBox.margin>
                 <Insets right="15.0"/>
@@ -47,7 +47,7 @@
                 <Insets bottom="5.0" left="10.0" top="10.0"/>
             </VBox.margin>
         </Label>
-        <Label fx:id="numberConversions" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="..."
+        <Label fx:id="numberConversions" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="."
                VBox.vgrow="ALWAYS">
             <VBox.margin>
                 <Insets right="15.0"/>
@@ -59,7 +59,7 @@
                 <Insets bottom="5.0" left="10.0" top="10.0"/>
             </VBox.margin>
         </Label>
-        <Label fx:id="numberBounces" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="..."
+        <Label fx:id="numberBounces" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="."
                VBox.vgrow="ALWAYS">
             <VBox.margin>
                 <Insets right="15.0"/>
@@ -71,7 +71,7 @@
                 <Insets bottom="5.0" left="10.0" top="10.0"/>
             </VBox.margin>
         </Label>
-        <Label fx:id="totalCost" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="..."
+        <Label fx:id="totalCost" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="."
                VBox.vgrow="ALWAYS">
             <VBox.margin>
                 <Insets right="15.0"/>
@@ -83,7 +83,7 @@
                 <Insets bottom="5.0" left="10.0" top="10.0"/>
             </VBox.margin>
         </Label>
-        <Label fx:id="costPerClick" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="..."
+        <Label fx:id="costPerClick" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="."
                VBox.vgrow="ALWAYS">
             <VBox.margin>
                 <Insets right="15.0"/>
@@ -95,7 +95,7 @@
                 <Insets bottom="5.0" left="10.0" top="10.0"/>
             </VBox.margin>
         </Label>
-        <Label fx:id="costPerAcquisition" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="..."
+        <Label fx:id="costPerAcquisition" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="."
                VBox.vgrow="ALWAYS">
             <VBox.margin>
                 <Insets right="15.0"/>
@@ -108,31 +108,31 @@
                 <Insets bottom="5.0" left="10.0" top="10.0"/>
             </VBox.margin>
         </Label>
-        <Label fx:id="costPer1kImpressions" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="..."
+        <Label fx:id="costPer1kImpressions" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="."
                VBox.vgrow="ALWAYS">
             <VBox.margin>
                 <Insets right="15.0"/>
             </VBox.margin>
         </Label>
 
-        <Label fx:id="clickThruLabel" maxWidth="1.7976931348623157E308" text="Click Through %age" VBox.vgrow="ALWAYS">
+        <Label fx:id="clickThruLabel" maxWidth="1.7976931348623157E308" text="Click Through %" VBox.vgrow="ALWAYS">
             <VBox.margin>
                 <Insets bottom="5.0" left="10.0" top="10.0"/>
             </VBox.margin>
         </Label>
-        <Label fx:id="clickThroughRate" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="..."
+        <Label fx:id="clickThroughRate" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="."
                VBox.vgrow="ALWAYS">
             <VBox.margin>
                 <Insets right="15.0"/>
             </VBox.margin>
         </Label>
 
-        <Label fx:id="bounceRateLabel" maxWidth="1.7976931348623157E308" text="Bounce %age" VBox.vgrow="ALWAYS">
+        <Label fx:id="bounceRateLabel" maxWidth="1.7976931348623157E308" text="Bounce %" VBox.vgrow="ALWAYS">
             <VBox.margin>
                 <Insets bottom="5.0" left="10.0" top="10.0"/>
             </VBox.margin>
         </Label>
-        <Label fx:id="bounceRate" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="..."
+        <Label fx:id="bounceRate" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="."
                VBox.vgrow="ALWAYS">
             <VBox.margin>
                 <Insets right="15.0"/>
