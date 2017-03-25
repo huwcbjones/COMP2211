@@ -156,7 +156,6 @@ public class Main {
             controller.setCampaign(campaign);
 
             Scene scene = new Scene(parent, 1280, 720);
-            controller.setScene(scene);
 
             Stage stage = new Stage();
             stage.setMinHeight(720);
@@ -165,6 +164,8 @@ public class Main {
             stage.setScene(scene);
 
             stage.show();
+
+            controller.setScene(scene);
         } catch (Exception e) {
             log.catching(e);
             ExceptionDialog dialog = new ExceptionDialog("Load error!", "Failed to load campaign.", e);

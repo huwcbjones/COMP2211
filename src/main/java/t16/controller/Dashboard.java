@@ -25,6 +25,7 @@ import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Dashboard Controller
@@ -258,133 +259,163 @@ public class Dashboard {
      * Initialises the View
      */
     public void initialize() {
-        if (campaign != null) campaignName.setText(campaign.getName());
-        if (scene != null)
-            scene.getWindow().setOnCloseRequest(e -> {
-                ConfirmationDialog confirm = new ConfirmationDialog(
-                        Alert.AlertType.CONFIRMATION,
-                        "Exit Ad Dashboard?",
-                        "Are you sure you want end exit " + campaign.getName() + " Dashboard?",
-                        "Exit " + campaign.getName());
-                Optional<ButtonType> result = confirm.showAndWait();
-                if (result.isPresent() && confirm.isAction(result.get())) {
-                    Platform.exit();
-                } else {
-                    e.consume();
-                }
-            });
         filterController.addUpdateListener(e -> renderChart(currentChart));
 
         log.info("Dashboard initialised!");
         loadStats();
     }
 
-    public void loadStats(){
+    public void loadStats() {
         log.info("Loading statistics...");
-        ArrayList<Task> taskList = new ArrayList<>();
-
-        Task<Long> impressionsTask = new Task<Long>() {
+        Task<Long> statsTask = new Task<Long>() {
             @Override
             protected Long call() throws Exception {
-                return AdDashboard.getDataController().getTotalImpressions();
+                long startTime = System.currentTimeMillis();
+
+                ArrayList<Task> taskList = new ArrayList<>();
+                CountDownLatch latch = new CountDownLatch(11);
+
+                Task<Long> impressionsTask = new Task<Long>() {
+                    @Override
+                    protected Long call() throws Exception {
+                        return AdDashboard.getDataController().getTotalImpressions();
+                    }
+                };
+                impressionsTask.setOnSucceeded(event -> {
+                    statsPanel.setNumberImpressions((long) event.getSource().getValue());
+                    latch.countDown();
+                });
+                taskList.add(impressionsTask);
+
+                Task<Long> clicksTask = new Task<Long>() {
+                    @Override
+                    protected Long call() throws Exception {
+                        return AdDashboard.getDataController().getTotalClicks();
+                    }
+                };
+                clicksTask.setOnSucceeded(event -> {
+                    statsPanel.setNumberClicks((long) event.getSource().getValue());
+                    latch.countDown();
+                });
+                taskList.add(clicksTask);
+
+                Task<Long> uniquesTask = new Task<Long>() {
+                    @Override
+                    protected Long call() throws Exception {
+                        return AdDashboard.getDataController().getTotalUniques();
+                    }
+                };
+                uniquesTask.setOnSucceeded(event -> {
+                    statsPanel.setNumberUniques((long) event.getSource().getValue());
+                    latch.countDown();
+                });
+                taskList.add(uniquesTask);
+
+                Task<Long> conversionsTask = new Task<Long>() {
+                    @Override
+                    protected Long call() throws Exception {
+                        return AdDashboard.getDataController().getTotalConversions();
+                    }
+                };
+                conversionsTask.setOnSucceeded(event -> {
+                    statsPanel.setNumberConversions((long) event.getSource().getValue());
+                    latch.countDown();
+                });
+                taskList.add(conversionsTask);
+
+                Task<Long> bouncesTask = new Task<Long>() {
+                    @Override
+                    protected Long call() throws Exception {
+                        return AdDashboard.getDataController().getTotalBouncesPages();
+                    }
+                };
+                bouncesTask.setOnSucceeded(event -> {
+                    statsPanel.setNumberBounces((long) event.getSource().getValue());
+                    latch.countDown();
+                });
+                taskList.add(bouncesTask);
+
+                Task<BigDecimal> totalCostTask = new Task<BigDecimal>() {
+                    @Override
+                    protected BigDecimal call() throws Exception {
+                        return AdDashboard.getDataController().getTotalCost();
+                    }
+                };
+                totalCostTask.setOnSucceeded(event -> {
+                    statsPanel.setTotalCost((BigDecimal) event.getSource().getValue());
+                    latch.countDown();
+                });
+                taskList.add(totalCostTask);
+
+                Task<BigDecimal> costPerClickTask = new Task<BigDecimal>() {
+                    @Override
+                    protected BigDecimal call() throws Exception {
+                        return AdDashboard.getDataController().getCostPerClick();
+                    }
+                };
+                costPerClickTask.setOnSucceeded(event -> {
+                    statsPanel.setCostPerClick((BigDecimal) event.getSource().getValue());
+                    latch.countDown();
+                });
+                taskList.add(costPerClickTask);
+
+                Task<BigDecimal> costPerAcquisitionTask = new Task<BigDecimal>() {
+                    @Override
+                    protected BigDecimal call() throws Exception {
+                        return AdDashboard.getDataController().getCostPerAcquisition();
+                    }
+                };
+                costPerAcquisitionTask.setOnSucceeded(event -> {
+                    statsPanel.setCostPerAcquisition((BigDecimal) event.getSource().getValue());
+                    latch.countDown();
+                });
+                taskList.add(costPerAcquisitionTask);
+
+                Task<BigDecimal> costPer1kTask = new Task<BigDecimal>() {
+                    @Override
+                    protected BigDecimal call() throws Exception {
+                        return AdDashboard.getDataController().getCostPer1kImpressions();
+                    }
+                };
+                costPer1kTask.setOnSucceeded(event -> {
+                    statsPanel.setCostPer1kImpressions((BigDecimal) event.getSource().getValue());
+                    latch.countDown();
+                });
+                taskList.add(costPer1kTask);
+
+                Task<Double> clickThruTask = new Task<Double>() {
+                    @Override
+                    protected Double call() throws Exception {
+                        return AdDashboard.getDataController().getClickThroughRate();
+                    }
+                };
+                clickThruTask.setOnSucceeded(event -> {
+                    statsPanel.setClickThroughRate((double) event.getSource().getValue());
+                    latch.countDown();
+                });
+                taskList.add(clickThruTask);
+
+                Task<Double> bounceRateTask = new Task<Double>() {
+                    @Override
+                    protected Double call() throws Exception {
+                        //return AdDashboard.getDataController().getBounceRate();
+                        return 0d;
+                    }
+                };
+                bounceRateTask.setOnSucceeded(event -> {
+                    statsPanel.setBounceRate((double) event.getSource().getValue());
+                    latch.countDown();
+                });
+                taskList.add(bounceRateTask);
+
+                taskList.forEach(e -> AdDashboard.getWorkerPool().queueTask(e));
+                latch.await();
+                return (System.currentTimeMillis() - startTime);
             }
         };
-        impressionsTask.setOnSucceeded(event -> statsPanel.setNumberImpressions((long)event.getSource().getValue()));
-        taskList.add(impressionsTask);
 
-        Task<Long> clicksTask = new Task<Long>() {
-            @Override
-            protected Long call() throws Exception {
-                return AdDashboard.getDataController().getTotalClicks();
-            }
-        };
-        clicksTask.setOnSucceeded(event -> statsPanel.setNumberClicks((long)event.getSource().getValue()));
-        taskList.add(clicksTask);
-
-        Task<Long> uniquesTask = new Task<Long>() {
-            @Override
-            protected Long call() throws Exception {
-                return AdDashboard.getDataController().getTotalUniques();
-            }
-        };
-        uniquesTask.setOnSucceeded(event -> statsPanel.setNumberUniques((long)event.getSource().getValue()));
-        taskList.add(uniquesTask);
-
-        Task<Long> conversionsTask = new Task<Long>() {
-            @Override
-            protected Long call() throws Exception {
-                return AdDashboard.getDataController().getTotalConversions();
-            }
-        };
-        conversionsTask.setOnSucceeded(event -> statsPanel.setNumberConversions((long)event.getSource().getValue()));
-        taskList.add(conversionsTask);
-
-        Task<Long> bouncesTask = new Task<Long>() {
-            @Override
-            protected Long call() throws Exception {
-                return AdDashboard.getDataController().getTotalBouncesPages();
-            }
-        };
-        bouncesTask.setOnSucceeded(event -> statsPanel.setNumberBounces((long)event.getSource().getValue()));
-        taskList.add(bouncesTask);
-
-        Task<BigDecimal> totalCostTask = new Task<BigDecimal>() {
-            @Override
-            protected BigDecimal call() throws Exception {
-                return AdDashboard.getDataController().getTotalCost();
-            }
-        };
-        totalCostTask.setOnSucceeded(event -> statsPanel.setTotalCost((BigDecimal) event.getSource().getValue()));
-        taskList.add(totalCostTask);
-
-        Task<BigDecimal> costPerClickTask = new Task<BigDecimal>() {
-            @Override
-            protected BigDecimal call() throws Exception {
-                return AdDashboard.getDataController().getCostPerClick();
-            }
-        };
-        costPerClickTask.setOnSucceeded(event -> statsPanel.setCostPerClick((BigDecimal) event.getSource().getValue()));
-        taskList.add(costPerClickTask);
-
-        Task<BigDecimal> costPerAcquisitionTask = new Task<BigDecimal>() {
-            @Override
-            protected BigDecimal call() throws Exception {
-                return AdDashboard.getDataController().getCostPerAcquisition();
-            }
-        };
-        costPerAcquisitionTask.setOnSucceeded(event -> statsPanel.setCostPerAcquisition((BigDecimal) event.getSource().getValue()));
-        taskList.add(costPerAcquisitionTask);
-
-        Task<BigDecimal> costPer1kTask = new Task<BigDecimal>() {
-            @Override
-            protected BigDecimal call() throws Exception {
-                return AdDashboard.getDataController().getCostPer1kImpressions();
-            }
-        };
-        costPer1kTask.setOnSucceeded(event -> statsPanel.setCostPer1kImpressions((BigDecimal) event.getSource().getValue()));
-        taskList.add(costPer1kTask);
-
-        Task<Double> clickThruTask = new Task<Double>() {
-            @Override
-            protected Double call() throws Exception {
-                return AdDashboard.getDataController().getClickThroughRate();
-            }
-        };
-        clickThruTask.setOnSucceeded(event -> statsPanel.setClickThroughRate((double) event.getSource().getValue()));
-        taskList.add(clickThruTask);
-
-        Task<Double> bounceRateTask = new Task<Double>() {
-            @Override
-            protected Double call() throws Exception {
-                //return AdDashboard.getDataController().getBounceRate();
-                return 0d;
-            }
-        };
-        bounceRateTask.setOnSucceeded(event -> statsPanel.setBounceRate((double) event.getSource().getValue()));
-        taskList.add(bounceRateTask);
-
-        taskList.forEach(e -> AdDashboard.getWorkerPool().queueTask(e));
-        log.info("Statistics loaded!");
+        statsTask.setOnSucceeded(e -> log.info("Statistics loaded in {}ms", e.getSource().getValue()));
+        AdDashboard.getWorkerPool().queueTask(statsTask);
     }
 
     /**
@@ -407,5 +438,22 @@ public class Dashboard {
 
     public void setScene(Scene scene) {
         this.scene = scene;
+        addExitHandler();
+    }
+
+    protected void addExitHandler() {
+        this.scene.getWindow().setOnCloseRequest(e -> {
+            ConfirmationDialog confirm = new ConfirmationDialog(
+                    Alert.AlertType.CONFIRMATION,
+                    "Exit Ad Dashboard?",
+                    "Are you sure you want end exit " + campaign.getName() + " Dashboard?",
+                    "Exit " + campaign.getName());
+            Optional<ButtonType> result = confirm.showAndWait();
+            if (result.isPresent() && confirm.isAction(result.get())) {
+                Platform.exit();
+            } else {
+                e.consume();
+            }
+        });
     }
 }
