@@ -16,7 +16,7 @@ import java.util.Locale;
  * @author Huw Jones
  * @since 14/03/2017
  */
-public class StatsController extends GridPane {
+public class StatsControl extends GridPane {
 
     @FXML
     private Label numberImpressions;
@@ -54,8 +54,8 @@ public class StatsController extends GridPane {
     private NumberFormat nf = NumberFormat.getNumberInstance(Locale.getDefault());
     private NumberFormat cf = NumberFormat.getCurrencyInstance(Locale.UK);
 
-    public StatsController() {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/stats.fxml"));
+    public StatsControl() {
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/StatsControl.fxml"));
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
 
