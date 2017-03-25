@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.Ignore;
 import t16.AdDashboard;
 import t16.controller.DataController;
 
@@ -18,6 +19,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author Huw Jones
  * @since 15/03/2017
  */
+@Ignore
 public class QueryTest {
 
     protected static final AtomicLong count = new AtomicLong();
