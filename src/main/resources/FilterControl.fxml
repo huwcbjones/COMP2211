@@ -83,7 +83,7 @@
                 <Insets bottom="5.0"/>
             </VBox.margin>
         </ComboBox>
-        <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="Context">
+        <Label alignment="CENTER" text="Context">
             <VBox.margin>
                 <Insets bottom="5.0" top="10.0"/>
             </VBox.margin>
@@ -93,7 +93,12 @@
                 <Insets bottom="5.0"/>
             </VBox.margin>
         </ComboBox>
-        <Button fx:id="bounceToggle" mnemonicParsing="false" text="Bounce: 1 page viewed"/>
+        <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="Bounce Definition">
+            <VBox.margin>
+                <Insets bottom="5.0" top="10.0"/>
+            </VBox.margin>
+        </Label>
+        <Button fx:id="bounceToggle" mnemonicParsing="false" maxWidth="1.7976931348623157E308" text="1 Page Viewed"/>
     </children>
     <padding>
         <Insets left="5.0" right="5.0"/>

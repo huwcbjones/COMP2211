@@ -5,7 +5,10 @@ import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import org.apache.logging.log4j.LogManager;
@@ -29,11 +32,6 @@ import java.util.Optional;
  */
 public class Dashboard {
     protected static final Logger log = LogManager.getLogger(Dashboard.class);
-    /**
-     * If true, a bounce is defined as 1 page being viewed.
-     * Otherwise, less than 60 seconds being spent on the site
-     */
-    public static boolean BOUNCE_DEFINITION;
 
     private Scene scene = null;
     private Campaign campaign = null;
@@ -48,9 +46,6 @@ public class Dashboard {
 
     @FXML
     private BorderPane filterPanel;
-
-    @FXML
-    private Button bounceToggle;
 
     @FXML
     private StatsControl statsPanel;
@@ -81,7 +76,7 @@ public class Dashboard {
 
     @FXML
     private void viewBounces(ActionEvent event) {
-        renderChart(BOUNCE_DEFINITION ? TYPE.BOUNCES_PAGES : TYPE.BOUNCES_TIME);
+        renderChart(TYPE.BOUNCES);
     }
 
     @FXML
@@ -116,20 +111,8 @@ public class Dashboard {
 
     @FXML
     private void viewBounceRate(ActionEvent event) {
-        renderChart(BOUNCE_DEFINITION ? TYPE.BOUNCE_RATE_PAGES : TYPE.BOUNCE_RATE_TIME);
+        renderChart(TYPE.BOUNCE_RATE);
     }
-
-    @FXML
-    private void updateChart(ActionEvent event) {
-        renderChart(currentChart);
-    }
-
-    @FXML
-    private void bounceToggleAction(ActionEvent event) {
-        BOUNCE_DEFINITION = !BOUNCE_DEFINITION;
-        bounceToggle.setText(BOUNCE_DEFINITION ? "Bounce: 1 page viewed" : "Bounce: viewed < 60s");
-    }
-
     //</editor-fold>
 
     //<editor-fold desc="Helper Methods">
@@ -181,12 +164,7 @@ public class Dashboard {
                 yAxis = "Unique Clicks per {}";
                 series = "Unique Clicks";
                 break;
-            case BOUNCES_PAGES:
-                title = "Bounces per {}";
-                yAxis = "Bounces per {}";
-                series = "Bounces";
-                break;
-            case BOUNCES_TIME:
+            case BOUNCES:
                 title = "Bounces per {}";
                 yAxis = "Bounces per {}";
                 series = "Bounces";
@@ -221,17 +199,14 @@ public class Dashboard {
                 yAxis = "Click Through Rate per {}";
                 series = "Click Through Rate";
                 break;
-            case BOUNCE_RATE_PAGES:
-                title = "Bounce Rate per {}";
-                yAxis = "Bounce Rate per {}";
-                series = "Bounce Rate";
-                break;
-            case BOUNCE_RATE_TIME:
+            case BOUNCE_RATE:
                 title = "Bounce Rate per {}";
                 yAxis = "Bounce Rate per {}";
                 series = "Bounce Rate";
                 break;
             default:
+                log.warn("No handler for chart type {}", t.toString());
+                displayLoading(false);
                 return;
         }
 
@@ -266,8 +241,8 @@ public class Dashboard {
         processChartTask.setOnFailed(e -> {
             displayLoading(false);
             ExceptionDialog dialog = new ExceptionDialog(
-                    "Click Load Error",
-                    "Failed end load clicks.",
+                    "Chart Load Error",
+                    "Failed to load chart. " + e.getSource().getMessage(),
                     e.getSource().getException()
             );
             dialog.showAndWait();

@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 
+
 /**
  * {DESCRIPTION}
  *
@@ -54,6 +55,10 @@ public class FilterControl extends VBox {
     @FXML
     protected Button bounceToggle;
     //</editor-fold>
+
+    private boolean isBounceTime = false;
+
+    private Query.TYPE lastQuery = null;
 
     private ArrayList<FilterUpdateListener> listenerList = new ArrayList<>();
 
@@ -107,7 +112,7 @@ public class FilterControl extends VBox {
         initialiseEventListeners();
     }
 
-    protected void initialiseEventListeners(){
+    protected void initialiseEventListeners() {
         hourlyButton.setOnAction(this::triggerUpdateEvent);
         dailyButton.setOnAction(this::triggerUpdateEvent);
         monthlyButton.setOnAction(this::triggerUpdateEvent);
@@ -118,9 +123,27 @@ public class FilterControl extends VBox {
         ageCombo.setOnAction(this::triggerUpdateEvent);
         incomeCombo.setOnAction(this::triggerUpdateEvent);
         contextCombo.setOnAction(this::triggerUpdateEvent);
+
+        bounceToggle.setOnAction(this::bounceToggle);
     }
 
     public Query getQuery(Query.TYPE type) {
+        lastQuery = type;
+
+        if (type == Query.TYPE.BOUNCES) {
+            if(isBounceTime){
+                type = Query.TYPE.BOUNCES_TIME;
+            } else {
+                type = Query.TYPE.BOUNCES_PAGES;
+            }
+        } else if (type == Query.TYPE.BOUNCE_RATE) {
+            if(isBounceTime){
+                type = Query.TYPE.BOUNCE_RATE_TIME;
+            } else {
+                type = Query.TYPE.BOUNCE_RATE_PAGES;
+            }
+        }
+
         Timestamp from = getFromDate();
         Timestamp to = getToDate();
 
@@ -133,15 +156,15 @@ public class FilterControl extends VBox {
         return new Query(type, range, from, to, gender, age, income, context);
     }
 
-    public void addUpdateListener(FilterUpdateListener listener){
+    public void addUpdateListener(FilterUpdateListener listener) {
         listenerList.add(listener);
     }
 
-    public void removeUpdateListener(FilterUpdateListener listener){
+    public void removeUpdateListener(FilterUpdateListener listener) {
         listenerList.remove(listener);
     }
 
-    protected void triggerUpdateEvent(ActionEvent e){
+    protected void triggerUpdateEvent(ActionEvent e) {
         listenerList.iterator().forEachRemaining(l -> l.filterUpdated(e));
     }
 
@@ -204,8 +227,15 @@ public class FilterControl extends VBox {
         return context;
     }
 
-    public String getRangeString(){
+    public String getRangeString() {
         Query.RANGE range = getRange();
         return range.toString().substring(0, 1).toUpperCase() + range.toString().substring(1).toLowerCase();
+    }
+
+    protected void bounceToggle(ActionEvent e) {
+        isBounceTime = !isBounceTime;
+        bounceToggle.setText(isBounceTime ? "Time < 60s" : "1 Page Viewed");
+        if(lastQuery != Query.TYPE.BOUNCES && lastQuery != Query.TYPE.BOUNCE_RATE) return;
+        this.triggerUpdateEvent(e);
     }
 }
