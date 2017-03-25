@@ -20,35 +20,57 @@ public class StatsControl extends VBox {
 
     //<editor-fold desc="View Controls">
     @FXML
+    private Label impressionsLabel;
+    @FXML
     private Label numberImpressions;
 
+    @FXML
+    private Label clicksLabel;
     @FXML
     private Label numberClicks;
 
     @FXML
+    private Label uniquesLabel;
+    @FXML
     private Label numberUniques;
 
+    @FXML
+    private Label conversionsLabel;
     @FXML
     private Label numberConversions;
 
     @FXML
+    private Label bouncesLabel;
+    @FXML
     private Label numberBounces;
 
+    @FXML
+    private Label totalCostLabel;
     @FXML
     private Label totalCost;
 
     @FXML
+    private Label costClickLabel;
+    @FXML
     private Label costPerClick;
 
+    @FXML
+    private Label costAquisitionLabel;
     @FXML
     private Label costPerAcquisition;
 
     @FXML
+    private Label cost1kImpressionLabel;
+    @FXML
     private Label costPer1kImpressions;
 
     @FXML
+    private Label clickThruLabel;
+    @FXML
     private Label clickThroughRate;
 
+    @FXML
+    private Label bounceRateLabel;
     @FXML
     private Label bounceRate;
     //</editor-fold>
@@ -85,27 +107,27 @@ public class StatsControl extends VBox {
         this.numberConversions.setText(nf.format(numberConversions));
     }
 
-    public void setNumberBounces(Label numberBounces) {
-        this.numberBounces = numberBounces;
+    public void setNumberBounces(long numberBounces) {
+        this.numberBounces.setText(nf.format(numberBounces));
     }
 
     public void setTotalCost(BigDecimal totalCost) {
-        if(totalCost == null) totalCost = BigDecimal.ZERO;
+        if (totalCost == null) totalCost = BigDecimal.ZERO;
         this.totalCost.setText(cf.format(totalCost));
     }
 
     public void setCostPerClick(BigDecimal costPerClick) {
-        if(costPerClick == null) costPerClick = BigDecimal.ZERO;
+        if (costPerClick == null) costPerClick = BigDecimal.ZERO;
         this.costPerClick.setText(cf.format(costPerClick));
     }
 
     public void setCostPerAcquisition(BigDecimal costPerAcquisition) {
-        if(costPerAcquisition == null) costPerAcquisition = BigDecimal.ZERO;
+        if (costPerAcquisition == null) costPerAcquisition = BigDecimal.ZERO;
         this.costPerAcquisition.setText(cf.format(costPerAcquisition));
     }
 
     public void setCostPer1kImpressions(BigDecimal costPer1kImpressions) {
-        if(costPer1kImpressions == null) costPer1kImpressions = BigDecimal.ZERO;
+        if (costPer1kImpressions == null) costPer1kImpressions = BigDecimal.ZERO;
         this.costPer1kImpressions.setText(cf.format(costPer1kImpressions));
     }
 
