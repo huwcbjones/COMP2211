@@ -59,6 +59,16 @@ public class Database {
         }
 
         this.connectionPool = JdbcConnectionPool.create("jdbc:h2:" + databasePath + ";MV_STORE=FALSE", user, password);
+
+        // Test the connection - should provide a better error message if the database is already in use
+        try (Connection c = getConnection()){
+            try (Statement s = c.createStatement()){
+                s.execute("SHOW TABLES");
+            }
+        } catch (SQLException e) {
+            throw new DatabaseConnectionException("Failed to open database. Is the database already in use?", e);
+        }
+
         this.isConnected = true;
         this.databaseFile = databaseFile;
     }
