@@ -102,10 +102,8 @@ public class Database {
                     log.debug("Creating indexes for {}", t);
                     indexStmt.execute("CREATE INDEX ID_" + t + "_IND ON " + t + "(ID)");
                     indexStmt.execute("CREATE INDEX date_" + t + "_IND ON " + t + "(year, month, day, hour)");
-                    /*indexStmt.execute("CREATE INDEX month_" + t + "_IND ON " + t + "(month)");
-                    indexStmt.execute("CREATE INDEX day_" + t + "_IND ON " + t + "(day)");
-                    indexStmt.execute("CREATE INDEX hour_" + t + "_IND ON " + t + "(hour)");*/
                 }
+                indexStmt.execute("CREATE INDEX conversion_IND ON `Server` (`conversion`)");
             }
         }
         log.debug("Created all indexes!");
@@ -312,7 +310,7 @@ public class Database {
         try (Connection c = this.connectionPool.getConnection()) {
             try (Statement s = c.createStatement()) {
                 ResultSet set = s.executeQuery(
-                        "SELECT CAST(clicks AS DOUBLE)/NULLIF(CAST(impressions AS DOUBLE), 0) * 100 AS clickThrough FROM" +
+                        "SELECT CAST(clicks AS DOUBLE)/NULLIF(CAST(impressions AS DOUBLE), 0) AS clickThrough FROM" +
                                 "  (SELECT COUNT(*) AS `impressions` FROM `Impressions`) i_r" +
                                 "  LEFT JOIN" +
                                 "  (SELECT  COUNT(*) AS `clicks` FROM `Clicks`) c_r"
