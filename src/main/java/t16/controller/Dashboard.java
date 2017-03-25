@@ -13,10 +13,11 @@ import org.apache.logging.log4j.Logger;
 import t16.AdDashboard;
 import t16.components.dialogs.ConfirmationDialog;
 import t16.components.dialogs.ExceptionDialog;
-import t16.model.*;
-import t16.model.Query.*;
+import t16.model.Campaign;
+import t16.model.Chart;
+import t16.model.Query;
+import t16.model.Query.TYPE;
 
-import java.sql.Timestamp;
 import java.text.NumberFormat;
 import java.util.Optional;
 
@@ -62,11 +63,6 @@ public class Dashboard {
     //</editor-fold>
 
     //<editor-fold desc="View Methods">
-    @FXML
-    private void viewStats(ActionEvent event) {
-        displayLoading(true);
-        displayStats();
-    }
 
     @FXML
     private void viewClicks(ActionEvent event) {
@@ -146,17 +142,7 @@ public class Dashboard {
      */
     private void displayLoading(boolean working) {
         workingIndicator.setVisible(working);
-        statsPanel.setVisible(false);
-        mainPane.getChildren().removeIf(node -> !((node instanceof StatsControl) || (node instanceof ProgressIndicator)));
-    }
-
-    /**
-     * Displays the "Stats" Dashboard
-     */
-    private void displayStats() {
-        displayLoading(false);
-        filterPanel.setVisible(false);
-        statsPanel.setVisible(true);
+        mainPane.getChildren().removeIf(node -> !(node instanceof ProgressIndicator));
     }
 
     /**
@@ -166,7 +152,6 @@ public class Dashboard {
      */
     private void displayChart(Chart chart) {
         displayLoading(false);
-        filterPanel.setVisible(true);
         mainPane.getChildren().add(0, chart.renderChart());
     }
 
@@ -258,7 +243,7 @@ public class Dashboard {
         final String fyAxis = yAxis;
         final String fxAxis = xAxis;
         final String fSeries = series;
-        Task<Chart> getClicksTask = new Task<Chart>() {
+        Task<Chart> processChartTask = new Task<Chart>() {
             @Override
             protected Chart call() throws Exception {
                 long time = System.currentTimeMillis();
@@ -268,17 +253,18 @@ public class Dashboard {
 
                 log.debug("Query: {}", query.getQuery());
                 c.addSeries(fSeries, AdDashboard.getDataController().getQuery(query));
+
                 time = System.currentTimeMillis() - time;
                 log.info("Chart processed in {}", NumberFormat.getNumberInstance().format(time / 1000d));
                 return c;
             }
         };
 
-        getClicksTask.setOnSucceeded(e -> {
+        processChartTask.setOnSucceeded(e -> {
             currentChart = t;
             displayChart((Chart) e.getSource().getValue());
         });
-        getClicksTask.setOnFailed(e -> {
+        processChartTask.setOnFailed(e -> {
             displayLoading(false);
             ExceptionDialog dialog = new ExceptionDialog(
                     "Click Load Error",
@@ -287,7 +273,7 @@ public class Dashboard {
             );
             dialog.showAndWait();
         });
-        AdDashboard.getWorkerPool().queueTask(getClicksTask);
+        AdDashboard.getWorkerPool().queueTask(processChartTask);
     }
     //</editor-fold>
 
@@ -311,13 +297,6 @@ public class Dashboard {
                     e.consume();
                 }
             });
-    }
-
-    /**
-     * Sets the stats view
-     */
-    public void setStats() {
-        if (statsPanel != null) statsPanel.setCampaign(campaign);
     }
 
     /**
