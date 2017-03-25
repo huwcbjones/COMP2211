@@ -302,7 +302,7 @@ public class Database {
         try (Connection c = this.connectionPool.getConnection()) {
             try (Statement s = c.createStatement()) {
                 ResultSet set = s.executeQuery(
-                        "SELECT CAST(clicks AS DOUBLE)/CAST(impressions AS DOUBLE) * 100 AS clickThrough FROM" +
+                        "SELECT CAST(clicks AS DOUBLE)/NULLIF(CAST(impressions AS DOUBLE), 0) * 100 AS clickThrough FROM" +
                                 "  (SELECT COUNT(*) AS `impressions` FROM `Impressions`) i_r" +
                                 "  LEFT JOIN" +
                                 "  (SELECT  COUNT(*) AS `clicks` FROM `Clicks`) c_r"
