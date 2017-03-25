@@ -125,8 +125,7 @@ public class Dashboard {
     }
 
     @FXML
-    private void bounceToggleAction(ActionEvent event)
-    {
+    private void bounceToggleAction(ActionEvent event) {
         BOUNCE_DEFINITION = !BOUNCE_DEFINITION;
         bounceToggle.setText(BOUNCE_DEFINITION ? "Bounce: 1 page viewed" : "Bounce: viewed < 60s");
     }
@@ -297,6 +296,7 @@ public class Dashboard {
                     e.consume();
                 }
             });
+        filterController.addUpdateListener(e -> renderChart(currentChart));
     }
 
     /**

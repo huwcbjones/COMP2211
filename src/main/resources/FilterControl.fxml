@@ -93,13 +93,7 @@
                 <Insets bottom="5.0"/>
             </VBox.margin>
         </ComboBox>
-        <Button fx:id="bounceToggle" mnemonicParsing="false" text="Bounce: 1 page viewed">
-        </Button>
-        <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Update" defaultButton="true">
-            <VBox.margin>
-                <Insets top="40.0"/>
-            </VBox.margin>
-        </Button>
+        <Button fx:id="bounceToggle" mnemonicParsing="false" text="Bounce: 1 page viewed"/>
     </children>
     <padding>
         <Insets left="5.0" right="5.0"/>

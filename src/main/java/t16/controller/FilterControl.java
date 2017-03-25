@@ -1,5 +1,6 @@
 package t16.controller;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
@@ -7,10 +8,12 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.VBox;
+import t16.events.FilterUpdateListener;
 import t16.model.*;
 
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 
 /**
  * {DESCRIPTION}
@@ -50,10 +53,9 @@ public class FilterControl extends VBox {
 
     @FXML
     protected Button bounceToggle;
-
-    @FXML
-    protected Button updateButton;
     //</editor-fold>
+
+    private ArrayList<FilterUpdateListener> listenerList = new ArrayList<>();
 
     public FilterControl() {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/FilterControl.fxml"));
@@ -101,6 +103,21 @@ public class FilterControl extends VBox {
                 new Context(Query.CONTEXT.SOCIAL_MEDIA, "Social Media"),
                 new Context(Query.CONTEXT.TRAVEL, "Travel")
         );
+
+        initialiseEventListeners();
+    }
+
+    protected void initialiseEventListeners(){
+        hourlyButton.setOnAction(this::triggerUpdateEvent);
+        dailyButton.setOnAction(this::triggerUpdateEvent);
+        monthlyButton.setOnAction(this::triggerUpdateEvent);
+
+        startDate.setOnAction(this::triggerUpdateEvent);
+        endDate.setOnAction(this::triggerUpdateEvent);
+        genderCombo.setOnAction(this::triggerUpdateEvent);
+        ageCombo.setOnAction(this::triggerUpdateEvent);
+        incomeCombo.setOnAction(this::triggerUpdateEvent);
+        contextCombo.setOnAction(this::triggerUpdateEvent);
     }
 
     public Query getQuery(Query.TYPE type) {
@@ -114,6 +131,18 @@ public class FilterControl extends VBox {
         Query.CONTEXT context = getContext();
 
         return new Query(type, range, from, to, gender, age, income, context);
+    }
+
+    public void addUpdateListener(FilterUpdateListener listener){
+        listenerList.add(listener);
+    }
+
+    public void removeUpdateListener(FilterUpdateListener listener){
+        listenerList.remove(listener);
+    }
+
+    protected void triggerUpdateEvent(ActionEvent e){
+        listenerList.iterator().forEachRemaining(l -> l.filterUpdated(e));
     }
 
     /**
