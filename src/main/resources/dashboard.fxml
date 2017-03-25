@@ -4,7 +4,8 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-<?import t16.controller.StatsController?>
+<?import t16.controller.StatsControl?>
+<?import t16.controller.FilterControl?>
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="700" minWidth="1200" prefHeight="720.0" prefWidth="1280.0"
             xmlns="http://javafx.com/javafx/8.0.101" xmlns:fx="http://javafx.com/fxml/1" fx:controller="t16.controller.Dashboard">
     <left>
@@ -104,12 +105,12 @@
     </left>
     <center>
         <StackPane fx:id="mainPane" BorderPane.alignment="CENTER">
-            <StatsController fx:id="statsPanel" hgap="10.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
-                             StackPane.alignment="CENTER">
+            <StatsControl fx:id="statsPanel" hgap="10.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+                          StackPane.alignment="CENTER">
                 <StackPane.margin>
                     <Insets bottom="150.0" left="150.0" right="150.0" top="150.0"/>
                 </StackPane.margin>
-            </StatsController>
+            </StatsControl>
             <ProgressIndicator fx:id="workingIndicator" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
                                mouseTransparent="true" prefHeight="175.0" prefWidth="175.0" visible="false" StackPane.alignment="CENTER">
                 <StackPane.margin>
@@ -121,103 +122,7 @@
     <right>
         <BorderPane fx:id="filterPanel" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" visible="false">
             <center>
-                <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
-                    <children>
-                        <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="Group by">
-                            <VBox.margin>
-                                <Insets bottom="5.0" top="10.0"/>
-                            </VBox.margin>
-                        </Label>
-                        <ToggleButton fx:id="hourlyButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" selected="true" text="Hours">
-                            <toggleGroup>
-                                <ToggleGroup fx:id="timeControls"/>
-                            </toggleGroup>
-                            <VBox.margin>
-                                <Insets top="3.0"/>
-                            </VBox.margin>
-                        </ToggleButton>
-                        <ToggleButton fx:id="dailyButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Days" toggleGroup="$timeControls">
-                            <VBox.margin>
-                                <Insets top="3.0"/>
-                            </VBox.margin>
-                        </ToggleButton>
-                        <ToggleButton fx:id="monthlyButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Months" toggleGroup="$timeControls">
-                            <VBox.margin>
-                                <Insets top="3.0"/>
-                            </VBox.margin>
-                        </ToggleButton>
-                        <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="Display From">
-                            <VBox.margin>
-                                <Insets bottom="5.0" top="10.0"/>
-                            </VBox.margin>
-                        </Label>
-                        <DatePicker fx:id="startDate" maxWidth="1.7976931348623157E308" promptText="Start Date">
-                            <VBox.margin>
-                                <Insets bottom="5.0"/>
-                            </VBox.margin>
-                        </DatePicker>
-                        <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="Display To">
-                            <VBox.margin>
-                                <Insets bottom="5.0" top="10.0"/>
-                            </VBox.margin>
-                        </Label>
-                        <DatePicker fx:id="endDate" maxWidth="1.7976931348623157E308" promptText="End Date">
-                            <VBox.margin>
-                                <Insets bottom="5.0"/>
-                            </VBox.margin>
-                        </DatePicker>
-                        <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="Gender">
-                            <VBox.margin>
-                                <Insets bottom="5.0" top="10.0"/>
-                            </VBox.margin>
-                        </Label>
-                        <ComboBox fx:id="genderCombo" maxWidth="1.7976931348623157E308" prefWidth="150.0" promptText="Gender" visibleRowCount="3">
-                            <VBox.margin>
-                                <Insets bottom="5.0"/>
-                            </VBox.margin>
-                        </ComboBox>
-                        <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="Age">
-                            <VBox.margin>
-                                <Insets bottom="5.0" top="10.0"/>
-                            </VBox.margin>
-                        </Label>
-                        <ComboBox fx:id="ageCombo" maxWidth="1.7976931348623157E308" prefWidth="150.0" promptText="Age">
-                            <VBox.margin>
-                                <Insets bottom="5.0" />
-                            </VBox.margin>
-                        </ComboBox>
-                        <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="Income">
-                            <VBox.margin>
-                                <Insets bottom="5.0" top="10.0"/>
-                            </VBox.margin>
-                        </Label>
-                        <ComboBox fx:id="incomeCombo" maxWidth="1.7976931348623157E308" prefWidth="150.0" promptText="Income">
-                            <VBox.margin>
-                                <Insets bottom="5.0"/>
-                            </VBox.margin>
-                        </ComboBox>
-                        <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="Context">
-                            <VBox.margin>
-                                <Insets bottom="5.0" top="10.0"/>
-                            </VBox.margin>
-                        </Label>
-                        <ComboBox fx:id="contextCombo" maxWidth="1.7976931348623157E308" prefWidth="150.0" promptText="Context">
-                            <VBox.margin>
-                                <Insets bottom="5.0" />
-                            </VBox.margin>
-                        </ComboBox>
-                        <Button fx:id="bounceToggle" mnemonicParsing="false" onAction="#bounceToggleAction" text="Bounce: 1 page viewed">
-                        </Button>
-                        <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#updateChart" text="Update" defaultButton="true">
-                            <VBox.margin>
-                                <Insets top="40.0"/>
-                            </VBox.margin>
-                        </Button>
-                    </children>
-                    <padding>
-                        <Insets left="5.0" right="5.0"/>
-                    </padding>
-                </VBox>
+                <FilterControl />
             </center>
             <top>
                 <Label text="Filters" BorderPane.alignment="CENTER">

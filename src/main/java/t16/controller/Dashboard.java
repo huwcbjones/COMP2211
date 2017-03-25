@@ -46,40 +46,16 @@ public class Dashboard {
     private StackPane mainPane;
 
     @FXML
-    private DatePicker startDate;
-
-    @FXML
-    private DatePicker endDate;
-
-    @FXML
     private BorderPane filterPanel;
-
-    @FXML
-    private ToggleButton hourlyButton;
-
-    @FXML
-    private ToggleButton dailyButton;
-
-    @FXML
-    private ToggleButton monthlyButton;
-
-    @FXML
-    private ComboBox<Gender> genderCombo;
-
-    @FXML
-    private ComboBox<Age> ageCombo;
-
-    @FXML
-    private ComboBox<Income> incomeCombo;
-
-    @FXML
-    private ComboBox<Context> contextCombo;
 
     @FXML
     private Button bounceToggle;
 
     @FXML
-    private StatsController statsPanel;
+    private StatsControl statsPanel;
+
+    @FXML
+    private FilterControl filterController;
 
     @FXML
     private ProgressIndicator workingIndicator;
@@ -171,7 +147,7 @@ public class Dashboard {
     private void displayLoading(boolean working) {
         workingIndicator.setVisible(working);
         statsPanel.setVisible(false);
-        mainPane.getChildren().removeIf(node -> !((node instanceof StatsController) || (node instanceof ProgressIndicator)));
+        mainPane.getChildren().removeIf(node -> !((node instanceof StatsControl) || (node instanceof ProgressIndicator)));
     }
 
     /**
@@ -204,7 +180,6 @@ public class Dashboard {
         displayLoading(true);
 
         String title, xAxis, yAxis, series;
-        RANGE range = getRange();
         xAxis = "Time";
         switch (t) {
             case IMPRESSIONS:
@@ -276,8 +251,8 @@ public class Dashboard {
                 return;
         }
 
-        title = title.replace("{}", range.toString().substring(0, 1).toUpperCase() + range.toString().substring(1).toLowerCase());
-        yAxis = yAxis.replace("{}", range.toString().substring(0, 1).toUpperCase() + range.toString().substring(1).toLowerCase());
+        title = title.replace("{}", filterController.getRangeString());
+        yAxis = yAxis.replace("{}", filterController.getRangeString());
 
         final String fTitle = title;
         final String fyAxis = yAxis;
@@ -289,30 +264,8 @@ public class Dashboard {
                 long time = System.currentTimeMillis();
                 Chart c = new Chart(fTitle, fxAxis, fyAxis);
 
-                Timestamp from = (startDate.getValue() == null) ? null : Timestamp.valueOf(startDate.getValue().atStartOfDay());
-                Timestamp to = (endDate.getValue() == null) ? null : Timestamp.valueOf(endDate.getValue().atStartOfDay());
+                Query query = filterController.getQuery(t);
 
-                GENDER gender = GENDER.ALL;
-                if (genderCombo.getSelectionModel().getSelectedItem() != null) {
-                    gender = genderCombo.getSelectionModel().getSelectedItem().getType();
-                }
-
-                INCOME income = INCOME.ALL;
-                if (incomeCombo.getSelectionModel().getSelectedItem() != null) {
-                    income = incomeCombo.getSelectionModel().getSelectedItem().getType();
-                }
-
-                AGE age = AGE.ALL;
-                if (ageCombo.getSelectionModel().getSelectedItem() != null) {
-                    age = ageCombo.getSelectionModel().getSelectedItem().getType();
-                }
-
-                CONTEXT context = CONTEXT.ALL;
-                if (contextCombo.getSelectionModel().getSelectedItem() != null) {
-                    context = contextCombo.getSelectionModel().getSelectedItem().getType();
-                }
-
-                Query query = new Query(t, range, from, to, gender, age, income, context);
                 log.debug("Query: {}", query.getQuery());
                 c.addSeries(fSeries, AdDashboard.getDataController().getQuery(query));
                 time = System.currentTimeMillis() - time;
@@ -336,25 +289,6 @@ public class Dashboard {
         });
         AdDashboard.getWorkerPool().queueTask(getClicksTask);
     }
-
-    /**
-     * Gets the range type from the range buttons
-     *
-     * @return Range Type (Hour, Day, Month)
-     */
-    private RANGE getRange() {
-        if (hourlyButton.isSelected()) {
-            return RANGE.HOUR;
-        }
-        if (dailyButton.isSelected()) {
-            return RANGE.DAY;
-        }
-        if (monthlyButton.isSelected()) {
-            return RANGE.MONTH;
-        }
-
-        throw new IllegalStateException();
-    }
     //</editor-fold>
 
     @FXML
@@ -377,38 +311,6 @@ public class Dashboard {
                     e.consume();
                 }
             });
-
-        genderCombo.getItems().addAll(
-                new Gender(GENDER.ALL, "All"),
-                new Gender(GENDER.FEMALE, "Female"),
-                new Gender(GENDER.MALE, "Male")
-        );
-
-        ageCombo.getItems().addAll(
-                new Age(AGE.ALL, "All"),
-                new Age(AGE.LT_25, "< 25"),
-                new Age(AGE._25_TO_34, "25 to 34"),
-                new Age(AGE._35_TO_44, "35 to 44"),
-                new Age(AGE._45_TO_54, "45 to 54"),
-                new Age(AGE.GT_54, "> 54")
-        );
-
-        incomeCombo.getItems().addAll(
-                new Income(INCOME.ALL, "All"),
-                new Income(INCOME.HIGH, "High"),
-                new Income(INCOME.MEDIUM, "Medium"),
-                new Income(INCOME.LOW, "Low")
-        );
-
-        contextCombo.getItems().addAll(
-                new Context(CONTEXT.ALL, "All"),
-                new Context(CONTEXT.BLOG, "Blog"),
-                new Context(CONTEXT.HOBBIES, "Hobbies"),
-                new Context(CONTEXT.NEWS, "News"),
-                new Context(CONTEXT.SHOPPING, "Shopping"),
-                new Context(CONTEXT.SOCIAL_MEDIA, "Social Media"),
-                new Context(CONTEXT.TRAVEL, "Travel")
-        );
     }
 
     /**
