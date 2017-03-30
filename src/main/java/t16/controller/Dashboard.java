@@ -5,7 +5,10 @@ import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import org.apache.logging.log4j.LogManager;
@@ -13,12 +16,16 @@ import org.apache.logging.log4j.Logger;
 import t16.AdDashboard;
 import t16.components.dialogs.ConfirmationDialog;
 import t16.components.dialogs.ExceptionDialog;
-import t16.model.*;
-import t16.model.Query.*;
+import t16.model.Campaign;
+import t16.model.Chart;
+import t16.model.Query;
+import t16.model.Query.TYPE;
 
-import java.sql.Timestamp;
+import java.math.BigDecimal;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Dashboard Controller
@@ -28,11 +35,6 @@ import java.util.Optional;
  */
 public class Dashboard {
     protected static final Logger log = LogManager.getLogger(Dashboard.class);
-    /**
-     * If true, a bounce is defined as 1 page being viewed.
-     * Otherwise, less than 60 seconds being spent on the site
-     */
-    public static boolean BOUNCE_DEFINITION;
 
     private Scene scene = null;
     private Campaign campaign = null;
@@ -46,51 +48,19 @@ public class Dashboard {
     private StackPane mainPane;
 
     @FXML
-    private DatePicker startDate;
-
-    @FXML
-    private DatePicker endDate;
-
-    @FXML
     private BorderPane filterPanel;
 
     @FXML
-    private ToggleButton hourlyButton;
+    private StatsControl statsPanel;
 
     @FXML
-    private ToggleButton dailyButton;
-
-    @FXML
-    private ToggleButton monthlyButton;
-
-    @FXML
-    private ComboBox<Gender> genderCombo;
-
-    @FXML
-    private ComboBox<Age> ageCombo;
-
-    @FXML
-    private ComboBox<Income> incomeCombo;
-
-    @FXML
-    private ComboBox<Context> contextCombo;
-
-    @FXML
-    private Button bounceToggle;
-
-    @FXML
-    private StatsController statsPanel;
+    private FilterControl filterController;
 
     @FXML
     private ProgressIndicator workingIndicator;
     //</editor-fold>
 
     //<editor-fold desc="View Methods">
-    @FXML
-    private void viewStats(ActionEvent event) {
-        displayLoading(true);
-        displayStats();
-    }
 
     @FXML
     private void viewClicks(ActionEvent event) {
@@ -109,7 +79,7 @@ public class Dashboard {
 
     @FXML
     private void viewBounces(ActionEvent event) {
-        renderChart(BOUNCE_DEFINITION ? TYPE.BOUNCES_PAGES : TYPE.BOUNCES_TIME);
+        renderChart(TYPE.BOUNCES);
     }
 
     @FXML
@@ -144,21 +114,8 @@ public class Dashboard {
 
     @FXML
     private void viewBounceRate(ActionEvent event) {
-        renderChart(BOUNCE_DEFINITION ? TYPE.BOUNCE_RATE_PAGES : TYPE.BOUNCE_RATE_TIME);
+        renderChart(TYPE.BOUNCE_RATE);
     }
-
-    @FXML
-    private void updateChart(ActionEvent event) {
-        renderChart(currentChart);
-    }
-
-    @FXML
-    private void bounceToggleAction(ActionEvent event)
-    {
-        BOUNCE_DEFINITION = !BOUNCE_DEFINITION;
-        bounceToggle.setText(BOUNCE_DEFINITION ? "Bounce: 1 page viewed" : "Bounce: viewed < 60s");
-    }
-
     //</editor-fold>
 
     //<editor-fold desc="Helper Methods">
@@ -170,17 +127,7 @@ public class Dashboard {
      */
     private void displayLoading(boolean working) {
         workingIndicator.setVisible(working);
-        statsPanel.setVisible(false);
-        mainPane.getChildren().removeIf(node -> !((node instanceof StatsController) || (node instanceof ProgressIndicator)));
-    }
-
-    /**
-     * Displays the "Stats" Dashboard
-     */
-    private void displayStats() {
-        displayLoading(false);
-        filterPanel.setVisible(false);
-        statsPanel.setVisible(true);
+        mainPane.getChildren().removeIf(node -> !(node instanceof ProgressIndicator));
     }
 
     /**
@@ -190,7 +137,6 @@ public class Dashboard {
      */
     private void displayChart(Chart chart) {
         displayLoading(false);
-        filterPanel.setVisible(true);
         mainPane.getChildren().add(0, chart.renderChart());
     }
 
@@ -204,7 +150,6 @@ public class Dashboard {
         displayLoading(true);
 
         String title, xAxis, yAxis, series;
-        RANGE range = getRange();
         xAxis = "Time";
         switch (t) {
             case IMPRESSIONS:
@@ -222,12 +167,7 @@ public class Dashboard {
                 yAxis = "Unique Clicks per {}";
                 series = "Unique Clicks";
                 break;
-            case BOUNCES_PAGES:
-                title = "Bounces per {}";
-                yAxis = "Bounces per {}";
-                series = "Bounces";
-                break;
-            case BOUNCES_TIME:
+            case BOUNCES:
                 title = "Bounces per {}";
                 yAxis = "Bounces per {}";
                 series = "Bounces";
@@ -262,98 +202,55 @@ public class Dashboard {
                 yAxis = "Click Through Rate per {}";
                 series = "Click Through Rate";
                 break;
-            case BOUNCE_RATE_PAGES:
-                title = "Bounce Rate per {}";
-                yAxis = "Bounce Rate per {}";
-                series = "Bounce Rate";
-                break;
-            case BOUNCE_RATE_TIME:
+            case BOUNCE_RATE:
                 title = "Bounce Rate per {}";
                 yAxis = "Bounce Rate per {}";
                 series = "Bounce Rate";
                 break;
             default:
+                log.warn("No handler for chart type {}", t.toString());
+                displayLoading(false);
                 return;
         }
 
-        title = title.replace("{}", range.toString().substring(0, 1).toUpperCase() + range.toString().substring(1).toLowerCase());
-        yAxis = yAxis.replace("{}", range.toString().substring(0, 1).toUpperCase() + range.toString().substring(1).toLowerCase());
+        title = title.replace("{}", filterController.getRangeString());
+        yAxis = yAxis.replace("{}", filterController.getRangeString());
 
         final String fTitle = title;
         final String fyAxis = yAxis;
         final String fxAxis = xAxis;
         final String fSeries = series;
-        Task<Chart> getClicksTask = new Task<Chart>() {
+        Task<Chart> processChartTask = new Task<Chart>() {
             @Override
             protected Chart call() throws Exception {
                 long time = System.currentTimeMillis();
                 Chart c = new Chart(fTitle, fxAxis, fyAxis);
 
-                Timestamp from = (startDate.getValue() == null) ? null : Timestamp.valueOf(startDate.getValue().atStartOfDay());
-                Timestamp to = (endDate.getValue() == null) ? null : Timestamp.valueOf(endDate.getValue().atStartOfDay());
+                Query query = filterController.getQuery(t);
 
-                GENDER gender = GENDER.ALL;
-                if (genderCombo.getSelectionModel().getSelectedItem() != null) {
-                    gender = genderCombo.getSelectionModel().getSelectedItem().getType();
-                }
-
-                INCOME income = INCOME.ALL;
-                if (incomeCombo.getSelectionModel().getSelectedItem() != null) {
-                    income = incomeCombo.getSelectionModel().getSelectedItem().getType();
-                }
-
-                AGE age = AGE.ALL;
-                if (ageCombo.getSelectionModel().getSelectedItem() != null) {
-                    age = ageCombo.getSelectionModel().getSelectedItem().getType();
-                }
-
-                CONTEXT context = CONTEXT.ALL;
-                if (contextCombo.getSelectionModel().getSelectedItem() != null) {
-                    context = contextCombo.getSelectionModel().getSelectedItem().getType();
-                }
-
-                Query query = new Query(t, range, from, to, gender, age, income, context);
                 log.debug("Query: {}", query.getQuery());
                 c.addSeries(fSeries, AdDashboard.getDataController().getQuery(query));
+
                 time = System.currentTimeMillis() - time;
                 log.info("Chart processed in {}", NumberFormat.getNumberInstance().format(time / 1000d));
                 return c;
             }
         };
 
-        getClicksTask.setOnSucceeded(e -> {
+        processChartTask.setOnSucceeded(e -> {
             currentChart = t;
             displayChart((Chart) e.getSource().getValue());
         });
-        getClicksTask.setOnFailed(e -> {
+        processChartTask.setOnFailed(e -> {
             displayLoading(false);
             ExceptionDialog dialog = new ExceptionDialog(
-                    "Click Load Error",
-                    "Failed end load clicks.",
+                    "Chart Load Error",
+                    "Failed to load chart. " + e.getSource().getMessage(),
                     e.getSource().getException()
             );
             dialog.showAndWait();
         });
-        AdDashboard.getWorkerPool().queueTask(getClicksTask);
-    }
-
-    /**
-     * Gets the range type from the range buttons
-     *
-     * @return Range Type (Hour, Day, Month)
-     */
-    private RANGE getRange() {
-        if (hourlyButton.isSelected()) {
-            return RANGE.HOUR;
-        }
-        if (dailyButton.isSelected()) {
-            return RANGE.DAY;
-        }
-        if (monthlyButton.isSelected()) {
-            return RANGE.MONTH;
-        }
-
-        throw new IllegalStateException();
+        AdDashboard.getWorkerPool().queueTask(processChartTask);
     }
     //</editor-fold>
 
@@ -362,60 +259,163 @@ public class Dashboard {
      * Initialises the View
      */
     public void initialize() {
-        if (campaign != null) campaignName.setText(campaign.getName());
-        if (scene != null)
-            scene.getWindow().setOnCloseRequest(e -> {
-                ConfirmationDialog confirm = new ConfirmationDialog(
-                        Alert.AlertType.CONFIRMATION,
-                        "Exit Ad Dashboard?",
-                        "Are you sure you want end exit " + campaign.getName() + " Dashboard?",
-                        "Exit " + campaign.getName());
-                Optional<ButtonType> result = confirm.showAndWait();
-                if (result.isPresent() && confirm.isAction(result.get())) {
-                    Platform.exit();
-                } else {
-                    e.consume();
-                }
-            });
+        filterController.addUpdateListener(e -> renderChart(currentChart));
 
-        genderCombo.getItems().addAll(
-                new Gender(GENDER.ALL, "All"),
-                new Gender(GENDER.FEMALE, "Female"),
-                new Gender(GENDER.MALE, "Male")
-        );
-
-        ageCombo.getItems().addAll(
-                new Age(AGE.ALL, "All"),
-                new Age(AGE.LT_25, "< 25"),
-                new Age(AGE._25_TO_34, "25 to 34"),
-                new Age(AGE._35_TO_44, "35 to 44"),
-                new Age(AGE._45_TO_54, "45 to 54"),
-                new Age(AGE.GT_54, "> 54")
-        );
-
-        incomeCombo.getItems().addAll(
-                new Income(INCOME.ALL, "All"),
-                new Income(INCOME.HIGH, "High"),
-                new Income(INCOME.MEDIUM, "Medium"),
-                new Income(INCOME.LOW, "Low")
-        );
-
-        contextCombo.getItems().addAll(
-                new Context(CONTEXT.ALL, "All"),
-                new Context(CONTEXT.BLOG, "Blog"),
-                new Context(CONTEXT.HOBBIES, "Hobbies"),
-                new Context(CONTEXT.NEWS, "News"),
-                new Context(CONTEXT.SHOPPING, "Shopping"),
-                new Context(CONTEXT.SOCIAL_MEDIA, "Social Media"),
-                new Context(CONTEXT.TRAVEL, "Travel")
-        );
+        log.info("Dashboard initialised!");
+        loadStats();
     }
 
-    /**
-     * Sets the stats view
-     */
-    public void setStats() {
-        if (statsPanel != null) statsPanel.setCampaign(campaign);
+    public void loadStats() {
+        log.info("Loading statistics...");
+        Task<Long> statsTask = new Task<Long>() {
+            @Override
+            protected Long call() throws Exception {
+                long startTime = System.currentTimeMillis();
+
+                ArrayList<Task> taskList = new ArrayList<>();
+                CountDownLatch latch = new CountDownLatch(11);
+
+                Task<Long> impressionsTask = new Task<Long>() {
+                    @Override
+                    protected Long call() throws Exception {
+                        return AdDashboard.getDataController().getTotalImpressions();
+                    }
+                };
+                impressionsTask.setOnSucceeded(event -> {
+                    statsPanel.setNumberImpressions((long) event.getSource().getValue());
+                    latch.countDown();
+                });
+                taskList.add(impressionsTask);
+
+                Task<Long> clicksTask = new Task<Long>() {
+                    @Override
+                    protected Long call() throws Exception {
+                        return AdDashboard.getDataController().getTotalClicks();
+                    }
+                };
+                clicksTask.setOnSucceeded(event -> {
+                    statsPanel.setNumberClicks((long) event.getSource().getValue());
+                    latch.countDown();
+                });
+                taskList.add(clicksTask);
+
+                Task<Long> uniquesTask = new Task<Long>() {
+                    @Override
+                    protected Long call() throws Exception {
+                        return AdDashboard.getDataController().getTotalUniques();
+                    }
+                };
+                uniquesTask.setOnSucceeded(event -> {
+                    statsPanel.setNumberUniques((long) event.getSource().getValue());
+                    latch.countDown();
+                });
+                taskList.add(uniquesTask);
+
+                Task<Long> conversionsTask = new Task<Long>() {
+                    @Override
+                    protected Long call() throws Exception {
+                        return AdDashboard.getDataController().getTotalConversions();
+                    }
+                };
+                conversionsTask.setOnSucceeded(event -> {
+                    statsPanel.setNumberConversions((long) event.getSource().getValue());
+                    latch.countDown();
+                });
+                taskList.add(conversionsTask);
+
+                Task<Long> bouncesTask = new Task<Long>() {
+                    @Override
+                    protected Long call() throws Exception {
+                        return AdDashboard.getDataController().getTotalBouncesPages();
+                    }
+                };
+                bouncesTask.setOnSucceeded(event -> {
+                    statsPanel.setNumberBounces((long) event.getSource().getValue());
+                    latch.countDown();
+                });
+                taskList.add(bouncesTask);
+
+                Task<BigDecimal> totalCostTask = new Task<BigDecimal>() {
+                    @Override
+                    protected BigDecimal call() throws Exception {
+                        return AdDashboard.getDataController().getTotalCost();
+                    }
+                };
+                totalCostTask.setOnSucceeded(event -> {
+                    statsPanel.setTotalCost((BigDecimal) event.getSource().getValue());
+                    latch.countDown();
+                });
+                taskList.add(totalCostTask);
+
+                Task<BigDecimal> costPerClickTask = new Task<BigDecimal>() {
+                    @Override
+                    protected BigDecimal call() throws Exception {
+                        return AdDashboard.getDataController().getCostPerClick();
+                    }
+                };
+                costPerClickTask.setOnSucceeded(event -> {
+                    statsPanel.setCostPerClick((BigDecimal) event.getSource().getValue());
+                    latch.countDown();
+                });
+                taskList.add(costPerClickTask);
+
+                Task<BigDecimal> costPerAcquisitionTask = new Task<BigDecimal>() {
+                    @Override
+                    protected BigDecimal call() throws Exception {
+                        return AdDashboard.getDataController().getCostPerAcquisition();
+                    }
+                };
+                costPerAcquisitionTask.setOnSucceeded(event -> {
+                    statsPanel.setCostPerAcquisition((BigDecimal) event.getSource().getValue());
+                    latch.countDown();
+                });
+                taskList.add(costPerAcquisitionTask);
+
+                Task<BigDecimal> costPer1kTask = new Task<BigDecimal>() {
+                    @Override
+                    protected BigDecimal call() throws Exception {
+                        return AdDashboard.getDataController().getCostPer1kImpressions();
+                    }
+                };
+                costPer1kTask.setOnSucceeded(event -> {
+                    statsPanel.setCostPer1kImpressions((BigDecimal) event.getSource().getValue());
+                    latch.countDown();
+                });
+                taskList.add(costPer1kTask);
+
+                Task<Double> clickThruTask = new Task<Double>() {
+                    @Override
+                    protected Double call() throws Exception {
+                        return AdDashboard.getDataController().getClickThroughRate();
+                    }
+                };
+                clickThruTask.setOnSucceeded(event -> {
+                    statsPanel.setClickThroughRate((double) event.getSource().getValue());
+                    latch.countDown();
+                });
+                taskList.add(clickThruTask);
+
+                Task<Double> bounceRateTask = new Task<Double>() {
+                    @Override
+                    protected Double call() throws Exception {
+                        //return AdDashboard.getDataController().getBounceRate();
+                        return 0d;
+                    }
+                };
+                bounceRateTask.setOnSucceeded(event -> {
+                    statsPanel.setBounceRate((double) event.getSource().getValue());
+                    latch.countDown();
+                });
+                taskList.add(bounceRateTask);
+
+                taskList.forEach(e -> AdDashboard.getWorkerPool().queueTask(e));
+                latch.await();
+                return (System.currentTimeMillis() - startTime);
+            }
+        };
+
+        statsTask.setOnSucceeded(e -> log.info("Statistics loaded in {}ms", e.getSource().getValue()));
+        AdDashboard.getWorkerPool().queueTask(statsTask);
     }
 
     /**
@@ -438,5 +438,22 @@ public class Dashboard {
 
     public void setScene(Scene scene) {
         this.scene = scene;
+        addExitHandler();
+    }
+
+    protected void addExitHandler() {
+        this.scene.getWindow().setOnCloseRequest(e -> {
+            ConfirmationDialog confirm = new ConfirmationDialog(
+                    Alert.AlertType.CONFIRMATION,
+                    "Exit Ad Dashboard?",
+                    "Are you sure you want end exit " + campaign.getName() + " Dashboard?",
+                    "Exit " + campaign.getName());
+            Optional<ButtonType> result = confirm.showAndWait();
+            if (result.isPresent() && confirm.isAction(result.get())) {
+                Platform.exit();
+            } else {
+                e.consume();
+            }
+        });
     }
 }
