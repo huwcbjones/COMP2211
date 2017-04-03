@@ -3,7 +3,7 @@
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<BorderPane focusTraversable="true" maxHeight="450" maxWidth="600" minHeight="450" minWidth="600" prefHeight="450.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.101" xmlns:fx="http://javafx.com/fxml/1" fx:controller="t16.controller.NewCampaign">
+<BorderPane focusTraversable="true" maxHeight="450" maxWidth="600" minHeight="450" minWidth="600" prefHeight="450.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="t16.controller.NewCampaign">
     <center>
         <GridPane BorderPane.alignment="CENTER">
             <columnConstraints>

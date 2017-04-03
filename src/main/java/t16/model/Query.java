@@ -66,9 +66,11 @@ public class Query {
             case COST_PER_THOUSAND_IMPRESSIONS:
             case COST_PER_CLICK:
             case BOUNCE_RATE_PAGES:
-                throw new UnsupportedOperationException();
             case BOUNCE_RATE_TIME:
                 throw new UnsupportedOperationException();
+            case BOUNCES:
+            case BOUNCE_RATE:
+                throw new IllegalStateException("Chart type not permitted.");
             default:
                 throw new IllegalStateException("Should not happen");
         }
@@ -549,6 +551,7 @@ public class Query {
         CLICKS,
         IMPRESSIONS,
         UNIQUES,
+        BOUNCES,
         BOUNCES_PAGES,
         BOUNCES_TIME,
         CONVERSIONS,
@@ -557,6 +560,7 @@ public class Query {
         COST_PER_ACQUISITION,
         COST_PER_CLICK,
         COST_PER_THOUSAND_IMPRESSIONS,
+        BOUNCE_RATE,
         BOUNCE_RATE_PAGES,
         BOUNCE_RATE_TIME
     }
