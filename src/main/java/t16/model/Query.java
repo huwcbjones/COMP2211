@@ -175,35 +175,19 @@ public class Query {
     }
 
     protected String totalCostQuery() {
-        if (!isComplicated()) {
-            String rangeString = getRangeString();
-            String whereClause = getWhereClause();
-            String clickWhereClause = getWhereClause("Clicks");
-            if (clickWhereClause.length() != 0) clickWhereClause = " WHERE " + clickWhereClause;
-            if (whereClause.length() != 0) whereClause = " WHERE " + whereClause;
-            String q =
-                    "SELECT " + getDateString("i_r") + ", (clicks + impressions)/100 AS cost FROM" +
-                            "  (SELECT " + rangeString + ", SUM(cost) AS `impressions` FROM `Impressions` " + whereClause + " GROUP BY " + rangeString + ") i_r" +
-                            "  JOIN" +
-                            "  (SELECT " + rangeString + ", SUM(click_cost) AS `clicks` FROM `Clicks` " + clickWhereClause + " GROUP BY " + rangeString + ") c_r" +
-                            " ON i_r.YEAR = c_r.YEAR" +
-                            "    AND i_r.MONTH = c_r.MONTH";
-            if (range != RANGE.MONTH) {
-                q += " AND i_r.DAY = c_r.DAY";
-                if (range != RANGE.DAY) {
-                    q += " AND i_r.HOUR = c_r.HOUR";
-                }
-            }
-            return q;
-        }
-
         String rangeString = getRangeString();
+
         String whereClause = getWhereClause();
+        if (whereClause.length() != 0) whereClause = " WHERE " + whereClause;
+
+        String clickWhereClause = getWhereClause("Clicks");
+        if (clickWhereClause.length() != 0) clickWhereClause = " WHERE " + clickWhereClause;
+
         String q =
                 "SELECT " + getDateString("i_r") + ", (clicks + impressions)/100 AS cost FROM" +
-                        "  (SELECT " + rangeString + ", SUM(cost) AS `impressions` FROM `Impressions` WHERE " + whereClause + " GROUP BY " + rangeString + ") i_r" +
+                        "  (SELECT " + rangeString + ", SUM(cost) AS `impressions` FROM `Impressions` " + whereClause + " GROUP BY " + rangeString + ") i_r" +
                         "  JOIN" +
-                        "  (SELECT " + getRangeString("Clicks") + ", SUM(click_cost) AS `clicks` FROM `Clicks` LEFT JOIN `Impressions` ON `Impressions`.ID = `Clicks`.ID WHERE " + getWhereClause("Clicks") + " GROUP BY " + getRangeString("Clicks") + ") c_r\n" +
+                        "  (SELECT " + getRangeString("Clicks") + ", SUM(click_cost) AS `clicks` FROM `Clicks` LEFT JOIN `Impressions` ON `Impressions`.ID = `Clicks`.ID " + clickWhereClause + " GROUP BY " + getRangeString("Clicks") + ") c_r\n" +
                         " ON i_r.YEAR = c_r.YEAR" +
                         " AND i_r.MONTH = c_r.MONTH";
         if (range != RANGE.MONTH) {
