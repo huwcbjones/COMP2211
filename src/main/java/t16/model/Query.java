@@ -163,21 +163,13 @@ public class Query {
     }
 
     protected String conversionsQuery() {
-        if (!isComplicated()) {
-            String whereClause = getWhereClause();
-            if (whereClause.length() != 0) whereClause = " AND " + whereClause;
-            return
-                    "SELECT " + getDateString() + ", COUNT(*) AS conversions" +
-                            " FROM `Server` " +
-                            " WHERE `conversion`=1 " + whereClause +
-                            " GROUP BY " + getRangeString() +
-                            " ORDER BY " + getRangeString() + " ASC";
-        }
+        String whereClause = getWhereClause("Impressions");
+        if (whereClause.length() != 0) whereClause = " AND " + whereClause;
         return
                 "SELECT " + getDateString("Server") + ", COUNT(*) AS conversions" +
                         " FROM `Server` " +
                         " LEFT JOIN `Impressions` ON `Impressions`.`ID`=`Server`.`ID`" +
-                        " WHERE `conversion`=1 AND " + getWhereClause("Impressions") +
+                        " WHERE `conversion`=1 " + whereClause +
                         " GROUP BY " + getRangeString("Server") +
                         " ORDER BY " + getRangeString("Server") + " ASC";
     }
