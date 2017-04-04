@@ -100,31 +100,12 @@ public class Query {
     }
 
     protected String clickThroughQuery() {
-        if (!isComplicated()) {
-            String rangeString = getRangeString();
-            String whereClause = getWhereClause();
-            if (whereClause.length() != 0) whereClause = " WHERE " + whereClause;
-            String q =
-                    "SELECT " + getDateString("i_r") + ", CAST(clicks AS FLOAT)/CAST(impressions AS FLOAT) AS clickThrough FROM" +
-                            "  (SELECT " + rangeString + ", COUNT(*) AS `impressions` FROM `Impressions`" + whereClause + " GROUP BY " + rangeString + ") i_r" +
-                            "  LEFT JOIN" +
-                            "  (SELECT " + rangeString + ", COUNT(*) AS `clicks` FROM `Clicks` GROUP BY " + rangeString + ") c_r" +
-                            " ON i_r.YEAR = c_r.YEAR" +
-                            "    AND i_r.MONTH = c_r.MONTH";
-            if (range != RANGE.MONTH) {
-                q += " AND i_r.DAY = c_r.DAY";
-                if (range != RANGE.DAY) {
-                    q += " AND i_r.HOUR = c_r.HOUR";
-                }
-            }
-            return q;
-        }
-
         String rangeString = getRangeString();
         String whereClause = getWhereClause();
+        if (whereClause.length() != 0) whereClause = " WHERE " + whereClause;
         String q =
                 "SELECT " + getDateString("i_r") + ", CAST(clicks AS FLOAT)/CAST(impressions AS FLOAT) AS clickThrough FROM" +
-                        "  (SELECT " + rangeString + ", COUNT(*) AS `impressions` FROM `Impressions` WHERE " + whereClause + " GROUP BY " + rangeString + ") i_r" +
+                        "  (SELECT " + rangeString + ", COUNT(*) AS `impressions` FROM `Impressions` " + whereClause + " GROUP BY " + rangeString + ") i_r" +
                         "  LEFT JOIN" +
                         "  (SELECT " + rangeString + ", COUNT(*) AS `clicks` FROM `Clicks` GROUP BY " + rangeString + ") c_r" +
                         " ON i_r.YEAR = c_r.YEAR" +
