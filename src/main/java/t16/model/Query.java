@@ -88,21 +88,13 @@ public class Query {
     }
 
     protected String clicksQuery() {
-        if (!isComplicated()) {
-            String whereClause = getWhereClause();
-            if (whereClause.length() != 0) whereClause = " WHERE " + whereClause;
-            return
-                    "SELECT " + getDateString("Clicks") + ", COUNT(*) AS clicks" +
-                            " FROM `Clicks` " +
-                            whereClause +
-                            " GROUP BY " + getRangeString() +
-                            " ORDER BY " + getRangeString() + " ASC";
-        }
+        String whereClause = getWhereClause("Impressions");
+        if (whereClause.length() != 0) whereClause = " WHERE " + whereClause;
         return
                 "SELECT " + getDateString("Clicks") + ", COUNT(*) AS clicks" +
                         " FROM `Clicks` " +
                         " LEFT JOIN `Impressions` ON `Impressions`.`ID`=`Clicks`.`ID`" +
-                        " WHERE " + getWhereClause("Impressions") +
+                        whereClause +
                         " GROUP BY " + getRangeString("Clicks") +
                         " ORDER BY " + getRangeString("Clicks") + " ASC";
     }
