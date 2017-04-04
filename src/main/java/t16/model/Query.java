@@ -202,64 +202,28 @@ public class Query {
 
     protected String costPerAcquisitionQuery() {
         // hcbj: I hate life sometimes
-        if (!isComplicated()) {
-            String rangeString = getRangeString();
-            String impressionsWhereClause = getWhereClause();
-            String serverWhereClause = getWhereClause("Server");
-            String clickWhereClause = getWhereClause("Clicks");
-            if (impressionsWhereClause.length() != 0) impressionsWhereClause = " WHERE " + impressionsWhereClause;
-            if (clickWhereClause.length() != 0) clickWhereClause = " WHERE " + clickWhereClause;
-            if (serverWhereClause.length() != 0) serverWhereClause = " AND " + serverWhereClause;
-            String q =
-                    "SELECT\n" +
-                            "  " + getDateString("s") + ", cost / COUNT(*) AS costPerAcquisition\n" +
-                            "FROM\n" +
-                            "  (SELECT " + getRangeString("i_r") + ", (clicks + impressions) / 100 AS cost\n" +
-                            "   FROM\n" +
-                            "     (SELECT " + rangeString + ", SUM(cost) AS `impressions` FROM `Impressions` " + impressionsWhereClause + " GROUP BY " + rangeString + ") i_r\n" +
-                            "     JOIN\n" +
-                            "     (SELECT " + getRangeString("Clicks") + ", SUM(click_cost) AS `clicks` FROM `Clicks` LEFT JOIN `Impressions`ON `Impressions`.ID = `Clicks`.ID " + clickWhereClause + " GROUP BY " + getRangeString("Clicks") + ") c_r\n" +
-                            "      ON i_r.YEAR = c_r.YEAR AND i_r.MONTH = c_r.MONTH ";
-            if (range != RANGE.MONTH) {
-                q += "AND i_r.DAY = c_r.DAY\n";
-                if (range != RANGE.DAY) {
-                    q += "AND i_r.HOUR = c_r.HOUR\n";
-                }
-            }
-            q +=
-                    "  ) c\n" +
-                            "  JOIN\n" +
-                            "  (SELECT " + getRangeString("Server") + ", COUNT(*) FROM `Server`\n" +
-                            "    LEFT JOIN `Impressions`\n" +
-                            "    ON `Server`.`ID` = `Impressions`.`ID`\n" +
-                            "    WHERE `Conversion` = 1 " + serverWhereClause +
-                            "    GROUP BY " + getRangeString("Server") + "\n" +
-                            "  ) s\n" +
-                            "  ON s.YEAR = c.YEAR AND s.MONTH = c.MONTH";
-            if (range != RANGE.MONTH) {
-                q += " AND s.DAY = c.DAY\n";
-                if (range != RANGE.DAY) {
-                    q += " AND s.HOUR = c.HOUR\n";
-                }
-            }
-            q += " GROUP BY" +
-                    " " + getRangeString("s");
-            return q;
-        }
+        // The query works by getting the total cost per RANGE
+        // Then dividing that by the conversions per RANGE
+        // Yes, it could be simplified to iterate through a totalCostQuery / AcquisitionQuery
         String rangeString = getRangeString();
+
         String impressionsWhereClause = getWhereClause();
         String serverWhereClause = getWhereClause("Server");
         String clickWhereClause = getWhereClause("Clicks");
+
+        if (impressionsWhereClause.length() != 0) impressionsWhereClause = " WHERE " + impressionsWhereClause;
+        if (clickWhereClause.length() != 0) clickWhereClause = " WHERE " + clickWhereClause;
         if (serverWhereClause.length() != 0) serverWhereClause = " AND " + serverWhereClause;
+
         String q =
                 "SELECT\n" +
                         "  " + getDateString("s") + ", cost / COUNT(*) AS costPerAcquisition\n" +
                         "FROM\n" +
                         "  (SELECT " + getRangeString("i_r") + ", (clicks + impressions) / 100 AS cost\n" +
                         "   FROM\n" +
-                        "     (SELECT " + rangeString + ", SUM(cost) AS `impressions` FROM `Impressions` WHERE " + impressionsWhereClause + " GROUP BY " + rangeString + ") i_r\n" +
+                        "     (SELECT " + rangeString + ", SUM(cost) AS `impressions` FROM `Impressions` " + impressionsWhereClause + " GROUP BY " + rangeString + ") i_r\n" +
                         "     JOIN\n" +
-                        "     (SELECT " + getRangeString("Clicks") + ", SUM(click_cost) AS `clicks` FROM `Clicks` LEFT JOIN `Impressions`ON `Impressions`.ID = `Clicks`.ID WHERE " + clickWhereClause + " GROUP BY " + getRangeString("Clicks") + ") c_r\n" +
+                        "     (SELECT " + getRangeString("Clicks") + ", SUM(click_cost) AS `clicks` FROM `Clicks` LEFT JOIN `Impressions` ON `Impressions`.ID = `Clicks`.ID " + clickWhereClause + " GROUP BY " + getRangeString("Clicks") + ") c_r\n" +
                         "      ON i_r.YEAR = c_r.YEAR AND i_r.MONTH = c_r.MONTH ";
         if (range != RANGE.MONTH) {
             q += "AND i_r.DAY = c_r.DAY\n";
