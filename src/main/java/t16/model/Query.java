@@ -121,21 +121,13 @@ public class Query {
     }
 
     protected String uniquesQuery() {
-        if (!isComplicated()) {
-            String whereClause = getWhereClause();
-            if (whereClause.length() != 0) whereClause = " WHERE " + whereClause;
-            return
-                    "SELECT " + getDateString("Server") + ", COUNT(*) AS numberOfUniques" +
-                            " FROM `Server` " +
-                            whereClause +
-                            " GROUP BY " + getRangeString() +
-                            " ORDER BY " + getRangeString() + " ASC";
-        }
+        String whereClause = getWhereClause("Impressions");
+        if (whereClause.length() != 0) whereClause = " WHERE " + whereClause;
         return
                 "SELECT " + getDateString("Server") + ", COUNT(*) AS numberOfUniques" +
                         " FROM `Server` " +
                         " LEFT JOIN `Impressions` ON `Impressions`.`ID`=`Server`.`ID`" +
-                        " WHERE " + getWhereClause("Impressions") +
+                        whereClause +
                         " GROUP BY " + getRangeString("Server") +
                         " ORDER BY " + getRangeString("Server") + " ASC";
     }
