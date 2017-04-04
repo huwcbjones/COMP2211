@@ -77,21 +77,12 @@ public class Query {
     }
 
     protected String impressionsQuery() {
-        if (!isComplicated()) {
-            String whereClause = getWhereClause();
-            if (whereClause.length() != 0) whereClause = " WHERE " + whereClause;
-
-            return
-                    "SELECT " + getDateString("Impressions") + ", COUNT(*) AS impressions" +
-                            " FROM `Impressions` " +
-                            whereClause +
-                            " GROUP BY " + getRangeString() +
-                            " ORDER BY " + getRangeString() + " ASC";
-        }
+        String whereClause = getWhereClause();
+        if (whereClause.length() != 0) whereClause = " WHERE " + whereClause;
         return
                 "SELECT " + getDateString("Impressions") + ", COUNT(*) AS impressions" +
                         " FROM `Impressions` " +
-                        " WHERE " + getWhereClause() +
+                        whereClause +
                         " GROUP BY " + getRangeString() +
                         " ORDER BY " + getRangeString() + " ASC";
     }
