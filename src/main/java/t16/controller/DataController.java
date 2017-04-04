@@ -239,6 +239,7 @@ public class DataController {
             database.connect(databaseFile);
         } catch (DatabaseConnectionException e) {
             log.catching(e);
+            throw new CampaignLoadException(e.getMessage());
         }
         return new Campaign(databaseFile.getName());
     }
