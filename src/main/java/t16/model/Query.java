@@ -180,21 +180,13 @@ public class Query {
      * Here a bounce is when one page is viewed
      */
     protected String bouncesQueryPages() {
-        if (!isComplicated()) {
-            String whereClause = getWhereClause();
-            if (whereClause.length() != 0) whereClause = " AND " + whereClause;
-            return
-                    "SELECT " + getDateString() + ", COUNT(*) AS bounces" +
-                            " FROM `Server` " +
-                            " WHERE `page_viewed`=1 " + whereClause +
-                            " GROUP BY " + getRangeString() +
-                            " ORDER BY " + getRangeString() + " ASC";
-        }
+        String whereClause = getWhereClause("Impressions");
+        if (whereClause.length() != 0) whereClause = " AND " + whereClause;
         return
                 "SELECT " + getDateString("Server") + ", COUNT(*) AS bounces" +
                         " FROM `Server` " +
                         " LEFT JOIN `Impressions` ON `Impressions`.`ID`=`Server`.`ID`" +
-                        " WHERE `page_viewed`=1 AND " + getWhereClause("Impressions") +
+                        " WHERE `page_viewed`=1 " + whereClause +
                         " GROUP BY " + getRangeString("Server") +
                         " ORDER BY " + getRangeString("Server") + " ASC";
     }
@@ -203,21 +195,13 @@ public class Query {
      * Here a bounce is when less than 60 seconds are spent on the site
      */
     protected String bouncesQueryTime() {
-        if (!isComplicated()) {
-            String whereClause = getWhereClause();
-            if (whereClause.length() != 0) whereClause = " AND " + whereClause;
-            return
-                    "SELECT " + getDateString() + ", COUNT(*) AS bounces" +
-                            " FROM `Server` " +
-                            " WHERE TIMESTAMPDIFF(SECOND,`date`,`exit_date`) < 60 " + whereClause +
-                            " GROUP BY " + getRangeString() +
-                            " ORDER BY " + getRangeString() + " ASC";
-        }
+        String whereClause = getWhereClause("Server");
+        if (whereClause.length() != 0) whereClause = " AND " + whereClause;
         return
                 "SELECT " + getDateString("Server") + ", COUNT(*) AS bounces" +
                         " FROM `Server` " +
                         " LEFT JOIN `Impressions` ON `Impressions`.`ID`=`Server`.`ID`" +
-                        " WHERE TIMESTAMPDIFF(SECOND,`Server`.`date`,`exit_date`) < 60 AND " + getWhereClause("Server") +
+                        " WHERE TIMESTAMPDIFF(SECOND,`Server`.`date`,`exit_date`) < 60 " + whereClause +
                         " GROUP BY " + getRangeString("Server") +
                         " ORDER BY " + getRangeString("Server") + " ASC";
     }
@@ -285,6 +269,7 @@ public class Query {
     }
 
     protected String costPerAcquisitionQuery() {
+        // hcbj: I hate life sometimes
         if (!isComplicated()) {
             String rangeString = getRangeString();
             String impressionsWhereClause = getWhereClause();
@@ -369,6 +354,10 @@ public class Query {
         q += " GROUP BY" +
                 " " + getRangeString("s");
         return q;
+    }
+
+    protected String costPer1kImpressionsQuery() {
+        return "";
     }
 
     protected String getDateString(String table) {
@@ -477,6 +466,12 @@ public class Query {
         return t + "`YEAR`" + r;
     }
 
+    /**
+     * Converts AGE enum to the appropriate string for SQL queries
+     *
+     * @param age AGE enum
+     * @return String to use in SQL queries
+     */
     private String getAgeString(AGE age) {
         switch (age) {
             case ALL:
@@ -528,6 +523,11 @@ public class Query {
         this.context = context;
     }
 
+    /**
+     * Returns whether the values of this query should be treated as INTs, otherwise, treat as floats
+     *
+     * @return True if the result's are INTs
+     */
     public boolean isInt() {
         return type == TYPE.CLICKS
                 || type == TYPE.IMPRESSIONS
@@ -537,6 +537,11 @@ public class Query {
                 || type == TYPE.CONVERSIONS;
     }
 
+    /**
+     * Returns true if a complicated filter is applied
+     *
+     * @return
+     */
     public boolean isComplicated() {
         return gender != GENDER.ALL || income != INCOME.ALL || context != CONTEXT.ALL || age != AGE.ALL;
     }
