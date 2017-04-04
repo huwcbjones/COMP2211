@@ -4,8 +4,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Test;
 import org.junit.Ignore;
+import org.junit.Test;
 import t16.AdDashboard;
 import t16.controller.DataController;
 
@@ -124,6 +124,16 @@ public class QueryTest {
     public void costPerAcquisitionQuery() throws Exception {
         log.info("** Testing Cost per Acquisition **");
         Query q = new Query(Query.TYPE.COST_PER_ACQUISITION, Query.RANGE.HOUR);
+
+        genderTestQuery(q);
+
+        log.info("** Test finished! **");
+    }
+
+    @Test
+    public void costPer1kImpressionsQuery() throws Exception {
+        log.info("** Testing Cost per 1k Impressions **");
+        Query q = new Query(Query.TYPE.COST_PER_THOUSAND_IMPRESSIONS, Query.RANGE.HOUR);
 
         genderTestQuery(q);
 
