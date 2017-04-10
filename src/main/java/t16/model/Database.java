@@ -120,11 +120,11 @@ public class Database {
             try (Statement createStmt = c.createStatement()) {
                 log.debug("Creating temporary tables...");
                 // Create temporary
-                createStmt.execute("CREATE TEMPORARY TABLE TotalCost(year INT, month TINYINT, day TINYINT, hour TINYINT, cost DECIMAL(10, 7), gender CHAR(6), age CHAR(5), income CHAR(6), context CHAR(12))");
+                createStmt.execute("CREATE TEMPORARY TABLE TotalCost(date TIMESTAMP, year INT, month TINYINT, day TINYINT, hour TINYINT, cost DECIMAL(10, 7), gender CHAR(6), age CHAR(5), income CHAR(6), context CHAR(12))");
                 createStmt.execute("CREATE INDEX date_TotalCost_IND ON TotalCost(year, month, day, hour)");
                 createStmt.execute(
-                        "INSERT INTO TotalCost (year, month, day, hour, gender, age, income, context, cost)\n" +
-                                "  SELECT `i`.`YEAR`, `i`.`MONTH`, `i`.`DAY`, `i`.`HOUR`, `i`.`gender`, `i`.`age`, `i`.`income`, `i`.`context`, SUM(`i`.`cost`) + SUM(`c`.`click_cost`) AS totalCost\n" +
+                        "INSERT INTO TotalCost (date, year, month, day, hour, gender, age, income, context, cost)\n" +
+                                "  SELECT TO_TIMESTAMP(CONCAT(`i`.`YEAR`, '-', `i`.`MONTH`, '-', `i`.`DAY`, ' ', `i`.`HOUR`), 'YYYY-MM-DD HH24'), `i`.`YEAR`, `i`.`MONTH`, `i`.`DAY`, `i`.`HOUR`, `i`.`gender`, `i`.`age`, `i`.`income`, `i`.`context`, SUM(`i`.`cost`) + SUM(`c`.`click_cost`) AS totalCost\n" +
                                 "  FROM\n" +
                                 "    `Impressions` `i`\n" +
                                 "    RIGHT JOIN `Clicks` `c` ON `c`.ID = `i`.ID\n" +
