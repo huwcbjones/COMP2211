@@ -61,8 +61,8 @@ public class Database {
         this.connectionPool = JdbcConnectionPool.create("jdbc:h2:" + databasePath + ";MV_STORE=FALSE", user, password);
 
         // Test the connection - should provide a better error message if the database is already in use
-        try (Connection c = getConnection()){
-            try (Statement s = c.createStatement()){
+        try (Connection c = getConnection()) {
+            try (Statement s = c.createStatement()) {
                 s.execute("SHOW TABLES");
             }
         } catch (SQLException e) {
@@ -120,17 +120,15 @@ public class Database {
             try (Statement createStmt = c.createStatement()) {
                 log.debug("Creating temporary tables...");
                 // Create temporary
-                createStmt.execute("CREATE TEMPORARY TABLE TotalCost(year INT, month TINYINT, day TINYINT, hour TINYINT, cost DECIMAL(10, 7))");
+                createStmt.execute("CREATE TEMPORARY TABLE TotalCost(year INT, month TINYINT, day TINYINT, hour TINYINT, cost DECIMAL(10, 7), gender CHAR(6), age CHAR(5), income CHAR(6), context CHAR(12))");
                 createStmt.execute("CREATE INDEX date_TotalCost_IND ON TotalCost(year, month, day, hour)");
                 createStmt.execute(
-                        "INSERT INTO TotalCost (year, month, day, hour, cost)" +
-                        "SELECT `i_r`.`YEAR`, `i_r`.`MONTH`, `i_r`.`DAY`, `i_r`.`HOUR`, (clicks + impressions) AS totalCost\n" +
-                        "FROM\n" +
-                        "  (SELECT `YEAR`, `MONTH`, `DAY`, `HOUR`, SUM(cost) AS `impressions` FROM `Impressions`  GROUP BY `YEAR`, `MONTH`, `DAY`, `HOUR`) i_r\n" +
-                        "  JOIN\n" +
-                        "  (SELECT `Clicks`.`YEAR`, `Clicks`.`MONTH`, `Clicks`.`DAY`, `Clicks`.`HOUR`, SUM(click_cost) AS `clicks` FROM `Clicks` LEFT JOIN `Impressions` ON `Impressions`.ID = `Clicks`.ID  GROUP BY `Clicks`.`YEAR`, `Clicks`.`MONTH`, `Clicks`.`DAY`, `Clicks`.`HOUR`) c_r\n" +
-                        "    ON i_r.YEAR = c_r.YEAR AND i_r.MONTH = c_r.MONTH AND i_r.DAY = c_r.DAY\n" +
-                        "       AND i_r.HOUR = c_r.HOUR"
+                        "INSERT INTO TotalCost (year, month, day, hour, gender, age, income, context, cost)\n" +
+                                "  SELECT `i`.`YEAR`, `i`.`MONTH`, `i`.`DAY`, `i`.`HOUR`, `i`.`gender`, `i`.`age`, `i`.`income`, `i`.`context`, SUM(`i`.`cost`) + SUM(`c`.`click_cost`) AS totalCost\n" +
+                                "  FROM\n" +
+                                "    `Impressions` `i`\n" +
+                                "    RIGHT JOIN `Clicks` `c` ON `c`.ID = `i`.ID\n" +
+                                "  GROUP BY `i`.`YEAR`, `i`.`MONTH`, `i`.`DAY`, `i`.`HOUR`, `i`.`gender`, `i`.`age`, `i`.`income`, `i`.`context`"
                 );
             }
         }
@@ -302,7 +300,7 @@ public class Database {
     public BigDecimal getCostPer1kImpressions() throws SQLException {
         try (Connection c = this.connectionPool.getConnection()) {
             try (Statement s = c.createStatement()) {
-                try(ResultSet set = s.executeQuery("SELECT (SELECT SUM(cost) / 100 FROM TotalCost) / NULLIF((SELECT COUNT(*) / 1000 FROM Impressions), 0) AS costPer1kImpressions")) {
+                try (ResultSet set = s.executeQuery("SELECT (SELECT SUM(cost) / 100 FROM TotalCost) / NULLIF((SELECT COUNT(*) / 1000 FROM Impressions), 0) AS costPer1kImpressions")) {
                     while (set.next()) {
                         return set.getBigDecimal("costPer1kImpressions");
                     }
