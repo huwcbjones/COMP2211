@@ -176,12 +176,33 @@ public class Query {
     }
 
     protected String totalCostQuery() {
+        //TODO: This needs to be refactored so filters can be applied to total cost blehhhh
+        String whereClause = getWhereClause("s");
+        if (whereClause.length() != 0) whereClause = " WHERE " + whereClause;
         return "SELECT " + getDateString("TotalCost") + ", SUM(cost)/100 AS cost FROM TotalCost GROUP BY " + getRangeString();
     }
 
     protected String costPerAcquisitionQuery() {
+        String whereClause = getWhereClause("s");
+        if (whereClause.length() != 0) whereClause = " AND " + whereClause;
         String q = "SELECT " + getDateString("s") + ", (SUM(cost) / 100) / COUNT(*) AS costPerAcquisition\n" +
                 " FROM `Server` s\n" +
+                " JOIN `TotalCost` c\n" +
+                " ON s.YEAR = c.YEAR AND s.MONTH = c.MONTH ";
+        if (range != RANGE.MONTH) {
+            q += "AND s.DAY = c.DAY\n";
+            if (range != RANGE.DAY) {
+                q += "AND s.HOUR = c.HOUR\n";
+            }
+        }
+        q += "WHERE s.`Conversion` = 1 " + whereClause +
+                " GROUP BY " + getRangeString("s");
+        return q;
+    }
+
+    protected String costPerClick() {
+        String q = "SELECT " + getDateString("s") + ", (SUM(cost) / 100) / COUNT(*) AS costPerClick\n" +
+                " FROM `Click` s\n" +
                 " JOIN `TotalCost` c\n" +
                 " ON s.YEAR = c.YEAR AND s.MONTH = c.MONTH ";
         if (range != RANGE.MONTH) {
