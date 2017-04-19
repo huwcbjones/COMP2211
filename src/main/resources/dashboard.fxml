@@ -25,6 +25,13 @@
                   <Insets left="10.0" right="10.0" />
                </BorderPane.margin></StatsControl>
             </center>
+            <bottom>
+                <Button fx:id="exportButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false" onAction="#export" text="Print/Save Screen">
+                    <BorderPane.margin>
+                        <Insets bottom="10.0" top="25.0" left="10.0" right="10.0"/>
+                    </BorderPane.margin>
+                </Button>
+            </bottom>
         </BorderPane>
     </left>
     <center>
