@@ -3,12 +3,14 @@ package t16.controller;
 import com.sun.prism.j2d.print.J2DPrinter;
 import com.sun.prism.j2d.print.J2DPrinterJob;
 import javafx.embed.swing.SwingFXUtils;
-import javafx.print.PrinterJob;
+import javafx.print.*;
 import javafx.scene.SnapshotParameters;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
+import javafx.scene.transform.Scale;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import t16.components.dialogs.ExceptionDialog;
@@ -70,17 +72,29 @@ public class Export
         return fc.showSaveDialog(((Control) event.getSource()).getScene().getWindow());
     }
 
+    /**
+     * Prints out the Pane, fitted to landscape A4 paper.
+     */
     @FXML
     private void printScreen(ActionEvent event) {
+        //Fit to landscape A4
+        ImageView imageView =new ImageView(this.node.snapshot(new SnapshotParameters(), null));
+        Printer printer = Printer.getDefaultPrinter();
+        PageLayout pageLayout = printer.createPageLayout(Paper.A4, PageOrientation.LANDSCAPE, Printer.MarginType.DEFAULT);
+        double scaleX = pageLayout.getPrintableWidth() / imageView.getBoundsInParent().getWidth();
+        double scaleY = pageLayout.getPrintableHeight() / imageView.getBoundsInParent().getHeight();
+        imageView.getTransforms().add(new Scale(scaleX, scaleY));
+
+
         PrinterJob job = PrinterJob.createPrinterJob();
         if (job == null) {
             InfoDialog id = new InfoDialog("Failed to print", "No printers were detected.");
             id.showAndWait();
         } else {
             if (job.showPrintDialog(this.node.getScene().getWindow())) {
-                if (job.printPage(this.node)) {
+                if (job.printPage(pageLayout, imageView)) {
                     job.endJob();
-                    InfoDialog id = new InfoDialog("Success", "Print job completed successfully");
+                    InfoDialog id = new InfoDialog("Success", "Print job started successfully.");
                     id.showAndWait();
                 }
                 else
