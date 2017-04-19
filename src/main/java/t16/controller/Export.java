@@ -1,5 +1,7 @@
 package t16.controller;
 
+import com.sun.prism.j2d.print.J2DPrinter;
+import com.sun.prism.j2d.print.J2DPrinterJob;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.print.PrinterJob;
 import javafx.scene.SnapshotParameters;
@@ -71,11 +73,14 @@ public class Export
     @FXML
     private void printScreen(ActionEvent event) {
         PrinterJob job = PrinterJob.createPrinterJob();
-        if(job != null && job.showPrintDialog(this.node.getScene().getWindow()))
-        {
-            if(job.printPage(this.node))
-            {
-                job.endJob();
+        if (job == null) {
+            InfoDialog id = new InfoDialog("Failed to print", "No printers were detected.");
+            id.showAndWait();
+        } else {
+            if (job.showPrintDialog(this.node.getScene().getWindow())) {
+                if (job.printPage(this.node)) {
+                    job.endJob();
+                }
             }
         }
     }
