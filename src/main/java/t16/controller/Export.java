@@ -80,7 +80,19 @@ public class Export
             if (job.showPrintDialog(this.node.getScene().getWindow())) {
                 if (job.printPage(this.node)) {
                     job.endJob();
+                    InfoDialog id = new InfoDialog("Success", "Print job completed successfully");
+                    id.showAndWait();
                 }
+                else
+                {
+                    InfoDialog id = new InfoDialog("Failed to print", "Couldn't print page. Please check your paper and ink.");
+                    id.showAndWait();
+                }
+            }
+            else
+            {
+                InfoDialog id = new InfoDialog("Failed to print", "Print was cancelled.");
+                id.showAndWait();
             }
         }
     }
