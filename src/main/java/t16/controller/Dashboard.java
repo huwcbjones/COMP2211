@@ -132,7 +132,7 @@ public class Dashboard {
             ((Export) loader.getController()).setNodeToPrint(mainPane);
             Stage stage = new Stage();
             stage.setTitle("Print/Save Screen");
-            stage.setScene(new Scene(parent, 600, 450));
+            stage.setScene(new Scene(parent, 250, 150));
             stage.setResizable(false);
             stage.show();
         } catch (Exception e) {
