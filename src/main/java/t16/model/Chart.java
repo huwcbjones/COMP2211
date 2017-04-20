@@ -3,6 +3,7 @@ package t16.model;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
+import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
@@ -88,9 +89,10 @@ public class Chart {
             {
                 for (Pair<String, Number> p : data)
                 {
+                    String s = p.getKey();
                     Number n = p.getValue();
-                    XYChart.Data element = new XYChart.Data<>(p.getKey(), n);
-                    element.setNode(new Chart.ExactDataNode(n));
+                    XYChart.Data element = new XYChart.Data<>(s, n);
+                    element.setNode(new Chart.ExactDataNode(s, n));
                     series.getData().add(element);
                 }
             }
@@ -115,24 +117,24 @@ public class Chart {
      */
     public class ExactDataNode extends StackPane
     {
-        private boolean selected;
 
-        public ExactDataNode(Number value)
+        public ExactDataNode(String date, Number value)
         {
             super();
             this.setPrefSize(10, 10);
-            final Label label = this.createLabel(value);
-            this.selected = false;
+            String valueString = value.toString();
+            final Label numLabel = this.createLabel(valueString);
+            final Label numDateLabel = this.createLabel("\t "+valueString+"\n"+date);
+            this.selected = 0;
             this.setOnMouseEntered(new EventHandler<MouseEvent>()
             {
                 @Override
                 public void handle(MouseEvent mouseEvent)
                 {
-                    if(!selected)
+                    if(selected == 0)
                     {
-                        getChildren().setAll(label);
+                        getChildren().setAll(numLabel);
                         toFront();
-                        //ExactDataNode.this.setStyle("");
                     }
                 }
             });
@@ -142,7 +144,7 @@ public class Chart {
                 @Override
                 public void handle(MouseEvent mouseEvent)
                 {
-                    if(!selected)
+                    if(selected == 0)
                     {
                         getChildren().clear();
                     }
@@ -152,14 +154,30 @@ public class Chart {
             this.setOnMouseClicked(new EventHandler<MouseEvent>()
             {
                 @Override
-                public void handle(MouseEvent event) {
-                    selected = !selected;
+                public void handle(MouseEvent event)
+                {
+                    if(selected == 0)
+                    {
+                        getChildren().setAll(numLabel);
+                        selected = 1;
+                    }
+                    else if(selected == 1)
+                    {
+                        getChildren().setAll(numDateLabel);
+                        selected = 2;
+                    }
+                    else if(selected == 2)
+                    {
+                        getChildren().clear();
+                        selected = 0;
+                    }
                 }
             });
         }
 
-        private Label createLabel(Number value) {
-            final Label label = new Label(value.toString());
+        private Label createLabel(String value) {
+            final Label label = new Label(value);
+            label.setAlignment(Pos.TOP_CENTER);
             label.setStyle("-fx-font-size: 10; -fx-font-weight: bold;");
             label.setTextFill(Color.DARKBLUE);
             label.setMinSize(Label.USE_PREF_SIZE, Label.USE_PREF_SIZE);
