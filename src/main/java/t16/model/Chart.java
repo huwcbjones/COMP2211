@@ -117,6 +117,7 @@ public class Chart {
      */
     public class ExactDataNode extends StackPane
     {
+        private byte selected;
 
         public ExactDataNode(String date, Number value)
         {
