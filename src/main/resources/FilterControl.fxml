@@ -11,8 +11,7 @@
                 <Insets bottom="5.0" top="10.0"/>
             </VBox.margin>
         </Label>
-        <ToggleButton fx:id="hourlyButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" selected="true"
-                      text="Hours">
+        <ToggleButton fx:id="hourlyButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Hours">
             <toggleGroup>
                 <ToggleGroup fx:id="timeControls"/>
             </toggleGroup>
@@ -20,7 +19,7 @@
                 <Insets top="3.0"/>
             </VBox.margin>
         </ToggleButton>
-        <ToggleButton fx:id="dailyButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Days"
+        <ToggleButton fx:id="dailyButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Days" selected="true"
                       toggleGroup="$timeControls">
             <VBox.margin>
                 <Insets top="3.0"/>
