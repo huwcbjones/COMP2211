@@ -4,6 +4,8 @@ import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -11,6 +13,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
+import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import t16.AdDashboard;
@@ -58,6 +61,8 @@ public class Dashboard {
 
     @FXML
     private ProgressIndicator workingIndicator;
+
+
     //</editor-fold>
 
     //<editor-fold desc="View Methods">
@@ -115,6 +120,25 @@ public class Dashboard {
     @FXML
     private void viewBounceRate(ActionEvent event) {
         renderChart(TYPE.BOUNCE_RATE);
+    }
+
+    @FXML
+    private void export(ActionEvent event)
+    {
+        try {
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(getClass().getResource("/export.fxml"));
+            Parent parent = loader.load();
+            ((Export) loader.getController()).setNodeToPrint(mainPane);
+            Stage stage = new Stage();
+            stage.setTitle("Print/Save Screen");
+            stage.setScene(new Scene(parent, 250, 150));
+            stage.setResizable(false);
+            stage.show();
+        } catch (Exception e) {
+            ExceptionDialog dialog = new ExceptionDialog("Export error", "Failed to create print/save screen dialog.", e);
+            dialog.showAndWait();
+        }
     }
     //</editor-fold>
 
@@ -446,7 +470,7 @@ public class Dashboard {
             ConfirmationDialog confirm = new ConfirmationDialog(
                     Alert.AlertType.CONFIRMATION,
                     "Exit Ad Dashboard?",
-                    "Are you sure you want end exit " + campaign.getName() + " Dashboard?",
+                    "Are you sure you want to exit the " + campaign.getName() + " Dashboard?",
                     "Exit " + campaign.getName());
             Optional<ButtonType> result = confirm.showAndWait();
             if (result.isPresent() && confirm.isAction(result.get())) {
