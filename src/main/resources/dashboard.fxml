@@ -45,7 +45,7 @@
                                     <Insets />
                                 </opaqueInsets>
                             </Button>
-                            <Button fx:id="impressionsButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false" onAction="#viewImpressions" text="Impresssions">
+                            <Button fx:id="impressionsButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false" onAction="#viewImpressions" text="Impressions">
                                 <opaqueInsets>
                                     <Insets />
                                 </opaqueInsets>

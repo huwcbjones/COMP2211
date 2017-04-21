@@ -470,7 +470,7 @@ public class Dashboard {
             ConfirmationDialog confirm = new ConfirmationDialog(
                     Alert.AlertType.CONFIRMATION,
                     "Exit Ad Dashboard?",
-                    "Are you sure you want end exit " + campaign.getName() + " Dashboard?",
+                    "Are you sure you want to exit the " + campaign.getName() + " Dashboard?",
                     "Exit " + campaign.getName());
             Optional<ButtonType> result = confirm.showAndWait();
             if (result.isPresent() && confirm.isAction(result.get())) {
