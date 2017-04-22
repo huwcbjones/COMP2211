@@ -7,10 +7,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
@@ -61,6 +58,9 @@ public class Dashboard {
 
     @FXML
     private ProgressIndicator workingIndicator;
+
+    @FXML
+    private Button clicksButton;
 
 
     //</editor-fold>
@@ -289,11 +289,13 @@ public class Dashboard {
         loadStats();
     }
 
-    public void loadStats() {
+    public void loadStats()
+    {
         log.info("Loading statistics...");
         Task<Long> statsTask = new Task<Long>() {
             @Override
-            protected Long call() throws Exception {
+            protected Long call() throws Exception
+            {
                 long startTime = System.currentTimeMillis();
 
                 ArrayList<Task> taskList = new ArrayList<>();
@@ -439,6 +441,13 @@ public class Dashboard {
         };
 
         statsTask.setOnSucceeded(e -> log.info("Statistics loaded in {}ms", e.getSource().getValue()));
+        AdDashboard.getWorkerPool().queueTask(new Task() {
+            @Override
+            protected Long call() throws Exception {
+                Dashboard.this.clicksButton.fire();
+                return null;
+            }
+        });
         AdDashboard.getWorkerPool().queueTask(statsTask);
     }
 
