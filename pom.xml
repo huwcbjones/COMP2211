@@ -29,6 +29,12 @@
             <artifactId>h2</artifactId>
             <version>1.4.194</version>
         </dependency>
+        <!--https://mvnrepository.com/artifact/com.lowagie/itext-->
+        <dependency>
+            <groupId>com.lowagie</groupId>
+            <artifactId>itext</artifactId>
+            <version>4.2.1</version>
+        </dependency>
     </dependencies>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

@@ -1,7 +1,9 @@
 package t16.controller;
 
-import com.sun.prism.j2d.print.J2DPrinter;
-import com.sun.prism.j2d.print.J2DPrinterJob;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Image;
+import com.itextpdf.text.pdf.PdfWriter;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.print.*;
 import javafx.scene.SnapshotParameters;
@@ -17,7 +19,9 @@ import t16.components.dialogs.ExceptionDialog;
 import t16.components.dialogs.InfoDialog;
 
 import javax.imageio.ImageIO;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 /**
@@ -27,11 +31,15 @@ public class Export
 {
     private Pane node;
 
-    private FileChooser.ExtensionFilter imageFilter = new FileChooser.ExtensionFilter("Image files", "*.jpg", "*.png", "*.bmp");
+    private final FileChooser.ExtensionFilter imageFilter = new FileChooser.ExtensionFilter("Image files", "*.jpg", "*.png", "*.bmp");
+    private final FileChooser.ExtensionFilter pdfFilter = new FileChooser.ExtensionFilter("PDF files", "*.pdf");
 
     //<editor-fold desc="View Controls">
     @FXML
     private Button saveScreenButton;
+
+    @FXML
+    private Button pdfScreenButton;
 
     @FXML
     private Button printScreenButton;
@@ -46,7 +54,7 @@ public class Export
     //<editor-fold desc="View Methods">
     @FXML
     private void saveScreen(ActionEvent event) {
-        File file = this.browseFile(event);
+        File file = this.browseFile(event, this.imageFilter);
         try
         {
             //Awkwardly get extension to save as
@@ -64,10 +72,43 @@ public class Export
         }
     }
 
-    private File browseFile(ActionEvent event) {
+    @FXML
+    private void pdfScreen(ActionEvent event) {
+        File file = this.browseFile(event, this.pdfFilter);
+        try
+        {
+            Document doc = new Document();
+            FileOutputStream fos = new FileOutputStream(file);
+            PdfWriter pdfw = PdfWriter.getInstance(doc, fos);
+            pdfw.open();
+            doc.open();
+            ByteArrayOutputStream  byteOutput = new ByteArrayOutputStream();
+            ImageIO.write(SwingFXUtils.fromFXImage(this.node.snapshot(new SnapshotParameters(), null), null), "png", byteOutput);
+            doc.add(com.itextpdf.text.Image.getInstance(byteOutput.toByteArray()));
+            doc.close();
+            byteOutput.close();
+            pdfw.close();
+            fos.close();
+            InfoDialog id = new InfoDialog("Success", "Screenshot was saved in "+file.getAbsolutePath()+".");
+            id.showAndWait();
+        }
+        catch(DocumentException de)
+        {
+            ExceptionDialog ed = new ExceptionDialog("Screenshot Save Failed", "Failed to open the .pdf file for writing.", de);
+            ed.showAndWait();
+        }
+        catch(IOException ioe)
+        {
+            ExceptionDialog ed = new ExceptionDialog("Screenshot Save Failed", "Failed to save the screenshot image.\n" +
+                    "The save may have been interrupted, or you do not have permission to save the file here.", ioe);
+            ed.showAndWait();
+        }
+    }
+
+    private File browseFile(ActionEvent event, FileChooser.ExtensionFilter filter) {
         FileChooser fc = new FileChooser();
         fc.setTitle("Save Screenshot");
-        fc.getExtensionFilters().add(this.imageFilter);
+        fc.getExtensionFilters().add(filter);
 
         return fc.showSaveDialog(((Control) event.getSource()).getScene().getWindow());
     }
@@ -84,7 +125,6 @@ public class Export
         double scaleX = pageLayout.getPrintableWidth() / imageView.getBoundsInParent().getWidth();
         double scaleY = pageLayout.getPrintableHeight() / imageView.getBoundsInParent().getHeight();
         imageView.getTransforms().add(new Scale(scaleX, scaleY));
-
 
         PrinterJob job = PrinterJob.createPrinterJob();
         if (job == null) {
