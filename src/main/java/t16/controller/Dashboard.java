@@ -287,7 +287,6 @@ public class Dashboard {
 
         log.info("Dashboard initialised!");
         loadStats();
-        clicksButton.fire();
     }
 
     public void loadStats()
