@@ -52,6 +52,11 @@
             </VBox.margin>
         </DatePicker>
         <TabPane fx:id="individualFiltersBox"  maxWidth="1.7976931348623157E308" prefWidth="150.0"/>
+        <Button fx:id="newTabButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Add Graph Tab" onAction="#newTabAction">
+            <VBox.margin>
+                <Insets top="3.0"/>
+            </VBox.margin>
+        </Button>
     </children>
     <padding>
         <Insets left="5.0" right="5.0"/>

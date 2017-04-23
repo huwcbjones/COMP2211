@@ -41,6 +41,9 @@ public class FilterControl extends VBox {
 
     @FXML
     protected TabPane individualFiltersBox;
+
+    @FXML
+    protected Button newTabButton;
     //</editor-fold>
 
     private Query.TYPE lastQuery = null;
@@ -147,5 +150,20 @@ public class FilterControl extends VBox {
             filters.add((IndividualFilter) i.next().getContent());
         }
         return filters;
+    }
+
+    @FXML
+    private void newTabAction(ActionEvent ae)
+    {
+        ObservableList<Tab> tabs = this.individualFiltersBox.getTabs();
+        //Tab names work until you start deleting earlier tabs...
+        //Might be better to set the colour of the tab to the colour of the graph instead of using names,
+        //especially with limited space for tab names
+        IndividualFilter iF = new IndividualFilter();
+        for(FilterUpdateListener ful : this.listenerList)
+        {
+            iF.addUpdateListener(ful);
+        }
+        tabs.add(new Tab(tabs.size() + 1 + "", iF));
     }
 }

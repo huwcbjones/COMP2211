@@ -102,7 +102,6 @@ public class IndividualFilter extends VBox {
         ageCombo.setOnAction(this::triggerUpdateEvent);
         incomeCombo.setOnAction(this::triggerUpdateEvent);
         contextCombo.setOnAction(this::triggerUpdateEvent);
-
         bounceToggle.setOnAction(this::bounceToggle);
     }
 
@@ -205,6 +204,6 @@ public class IndividualFilter extends VBox {
         {
             s += (s.isEmpty() ? "" : "; ") + context.toString() + " CONTEXT";
         }
-        return s.isEmpty() ? "NO FILTERS" : s;
+        return (s.isEmpty() ? "NO FILTERS; BOUNCE IS " : s + "; BOUNCE IS ") + (isBounceTime ? "TIME SPENT" : "PAGES VIEWED");
     }
 }
