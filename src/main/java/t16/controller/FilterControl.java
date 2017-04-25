@@ -7,7 +7,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import t16.events.FilterUpdateListener;
-import t16.model.*;
+import t16.model.Query;
 
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -50,6 +50,8 @@ public class FilterControl extends VBox {
 
     private ArrayList<FilterUpdateListener> listenerList = new ArrayList<>();
 
+    private Tab addTabTab = new Tab("+");
+
     public FilterControl() {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/FilterControl.fxml"));
         fxmlLoader.setRoot(this);
@@ -66,15 +68,17 @@ public class FilterControl extends VBox {
 
     public void initialise() {
         individualFiltersBox.getTabs().add(new Tab("1", new IndividualFilter()));
+        individualFiltersBox.getTabs().add(addTabTab);
+        individualFiltersBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue == addTabTab) {
+                addNewTab();
+            }
+        });
 
         initialiseEventListeners();
     }
 
     protected void initialiseEventListeners() {
-        hourlyButton.setOnAction(this::triggerUpdateEvent);
-        dailyButton.setOnAction(this::triggerUpdateEvent);
-        monthlyButton.setOnAction(this::triggerUpdateEvent);
-
         startDate.setOnAction(this::triggerUpdateEvent);
         endDate.setOnAction(this::triggerUpdateEvent);
     }
@@ -90,16 +94,14 @@ public class FilterControl extends VBox {
 
     public void addUpdateListener(FilterUpdateListener listener) {
         listenerList.add(listener);
-        for(IndividualFilter iF : this.getIndividualFilters())
-        {
-            iF.addUpdateListener(listener);
+        for (IndividualFilter iF : this.getIndividualFilters()) {
+            if (iF != null) iF.addUpdateListener(listener);
         }
     }
 
     public void removeUpdateListener(FilterUpdateListener listener) {
         listenerList.remove(listener);
-        for(IndividualFilter iF : this.getIndividualFilters())
-        {
+        for (IndividualFilter iF : this.getIndividualFilters()) {
             iF.removeUpdateListener(listener);
         }
     }
@@ -140,30 +142,31 @@ public class FilterControl extends VBox {
         return range.toString().substring(0, 1).toUpperCase() + range.toString().substring(1).toLowerCase();
     }
 
-    public ArrayList<IndividualFilter> getIndividualFilters()
-    {
+    public ArrayList<IndividualFilter> getIndividualFilters() {
         ObservableList<Tab> tabs = this.individualFiltersBox.getTabs();
         ArrayList<IndividualFilter> filters = new ArrayList<>();
         Iterator<Tab> i = tabs.iterator();
-        while(i.hasNext())
-        {
-            filters.add((IndividualFilter) i.next().getContent());
+        Tab t;
+        while (i.hasNext()) {
+            t = i.next();
+            if (t.getContent() != null) filters.add((IndividualFilter) t.getContent());
         }
         return filters;
     }
 
-    @FXML
-    private void newTabAction(ActionEvent ae)
-    {
+    private void addNewTab() {
         ObservableList<Tab> tabs = this.individualFiltersBox.getTabs();
         //Tab names work until you start deleting earlier tabs...
         //Might be better to set the colour of the tab to the colour of the graph instead of using names,
         //especially with limited space for tab names
         IndividualFilter iF = new IndividualFilter();
-        for(FilterUpdateListener ful : this.listenerList)
-        {
+        for (FilterUpdateListener ful : this.listenerList) {
             iF.addUpdateListener(ful);
         }
-        tabs.add(new Tab(tabs.size() + 1 + "", iF));
+        Tab t = new Tab(tabs.size() + "", iF);
+        tabs.add(t);
+        tabs.remove(addTabTab);
+        tabs.add(addTabTab);
+        individualFiltersBox.getSelectionModel().select(t);
     }
 }
