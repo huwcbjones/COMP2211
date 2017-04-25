@@ -44,7 +44,7 @@ public class DataControllerTest {
 
     @Test
     public void getTotalBounces() throws Exception {
-        assertEquals(35,dataController.getTotalBounces());
+        assertEquals(35, dataController.getTotalBouncesPages());
     }
 
     @Test
