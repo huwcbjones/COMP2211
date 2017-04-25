@@ -164,9 +164,11 @@ public class FilterControl extends VBox {
             iF.addUpdateListener(ful);
         }
         Tab t = new Tab(tabs.size() + "", iF);
+        t.setOnClosed(e -> triggerUpdateEvent(new ActionEvent()));
         tabs.add(t);
         tabs.remove(addTabTab);
         tabs.add(addTabTab);
         individualFiltersBox.getSelectionModel().select(t);
+        triggerUpdateEvent(new ActionEvent());
     }
 }
