@@ -31,8 +31,7 @@ public class Export
 {
     private Pane node;
 
-    private final FileChooser.ExtensionFilter imageFilter = new FileChooser.ExtensionFilter("Image files", "*.jpg", "*.png", "*.bmp");
-    private final FileChooser.ExtensionFilter pdfFilter = new FileChooser.ExtensionFilter("PDF files", "*.pdf");
+    private FileChooser.ExtensionFilter imageFilter = new FileChooser.ExtensionFilter("Portable Network Graphic file", "*.png");
 
     //<editor-fold desc="View Controls">
     @FXML
@@ -58,9 +57,14 @@ public class Export
         try
         {
             //Awkwardly get extension to save as
-            String[] fileNameParts = file.getName().split("\\.");
+            String name = file.getName();
+            String[] fileNameParts = name.split("\\.");
             String ext = fileNameParts[fileNameParts.length - 1];
-            ImageIO.write(SwingFXUtils.fromFXImage(this.node.snapshot(new SnapshotParameters(), null), null), ext, file);
+            if(!ext.equals("png"))
+            {
+                file.renameTo(new File(name + ".png"));
+            }
+            ImageIO.write(SwingFXUtils.fromFXImage(this.node.snapshot(new SnapshotParameters(), null), null), "png", file);
             InfoDialog id = new InfoDialog("Success", "Screenshot was saved in "+file.getAbsolutePath()+".");
             id.showAndWait();
         }
