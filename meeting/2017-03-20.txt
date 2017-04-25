@@ -1,0 +1,50 @@
+Meeting 2017-03-20 17:00
+Zeppler Level 3 Labs
+
+Attendees:
+        - JC
+        - HJ
+        - PG
+        - CG
+        - SW
+        - Supervisor (Abdullah)
+        
+Agenda:
+        - Get marked
+        
+Feedback:
+    Application:
+        - Remove the dashboard that appears when the application loads
+            * Load click graph on start up
+            * Put dashboard info on screen at all times
+            * --------------------------------------
+              |         |                |         |
+              | Key     |      Graph     | Filter  |
+              | Metrics |                | Buttons |
+              |         |                |         | 
+              --------------------------------------
+        - Enable the ability to have multiple filters at once (e.g. 25-34 & 34+ both enabled)
+        - Optimise the opening of the application
+    Report:
+        - Specify what kind of computer is running the application in user stories related to time
+        - Clarify what was response to feedback
+            * | Feedback | Action we took |
+              |----------|----------------|  
+              |          |                |
+        - Ensure order of topics in both presentation and report is the same
+        - Burndown chart: 
+            * Varying heights with regards to tasks
+            * Key/Legend for colours
+            * Don't put  "task x" in every block. It's not readable.
+        - Storyboard:
+            * Must be more verbose
+            * Images must have captions "fig 1." which are referred to in the text
+            * Error messages must be included
+        - Scenarios:
+            * At least three needed
+            * Describe the characteristics of the personas used in the following scenario
+            * More detail
+        - Task partition makes more sense as a table
+        - User stories must be clear and readable
+        - Add a sequence diagram since unskilled customers won't be able to use class diagrams        
+        - Turn of flux when posting screenshots
