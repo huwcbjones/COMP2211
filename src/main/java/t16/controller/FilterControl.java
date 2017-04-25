@@ -156,19 +156,27 @@ public class FilterControl extends VBox {
 
     private void addNewTab() {
         ObservableList<Tab> tabs = this.individualFiltersBox.getTabs();
-        //Tab names work until you start deleting earlier tabs...
-        //Might be better to set the colour of the tab to the colour of the graph instead of using names,
-        //especially with limited space for tab names
+        // Tab names work until you start deleting earlier tabs...
+        // Might be better to set the colour of the tab to the colour of the graph instead of using names,
+        // especially with limited space for tab names
         IndividualFilter iF = new IndividualFilter();
         for (FilterUpdateListener ful : this.listenerList) {
             iF.addUpdateListener(ful);
         }
+        // Create a new tab - no need to +1 to tabs.size() as the + tab effectively increments this
         Tab t = new Tab(tabs.size() + "", iF);
+
+        // Update the chart when the tab is removed (to remove line)
         t.setOnClosed(e -> triggerUpdateEvent(new ActionEvent()));
         tabs.add(t);
+        // Remove and re-add the addTabTab to force it to the end of the list
         tabs.remove(addTabTab);
         tabs.add(addTabTab);
+
+        // Switch to the new filter
         individualFiltersBox.getSelectionModel().select(t);
+
+        // Update the chart to display new filter
         triggerUpdateEvent(new ActionEvent());
     }
 }
