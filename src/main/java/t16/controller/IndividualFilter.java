@@ -184,26 +184,26 @@ public class IndividualFilter extends VBox {
     public String toString()
     {
         String s = "";
-        Query.GENDER gender = this.getGender();
-        if(gender != Query.GENDER.ALL)
+        Gender gender = this.genderCombo.getValue();
+        if(gender != null && gender.getType() != Query.GENDER.ALL)
         {
-            s += gender.toString()+"S";
+            s += gender.toString() +"s";
         }
-        Query.INCOME income = this.getIncome();
-        if(income != Query.INCOME.ALL)
+        Income income = this.incomeCombo.getValue();
+        if(income != null && income.getType() != Query.INCOME.ALL)
         {
-            s += (s.isEmpty() ? "" : "; ") + income.toString() + " INCOME";
+            s += (s.isEmpty() ? "" : "; ") + income.toString() + " income";
         }
-        Query.AGE age = this.getAge();
-        if(age != Query.AGE.ALL)
+        Age age = this.ageCombo.getValue();
+        if(age != null && age.getType() != Query.AGE.ALL)
         {
-            s += (s.isEmpty() ? "" : "; ") + "AGE "+age.toString();
+            s += (s.isEmpty() ? "" : "; ") + "Aged "+age.toString();
         }
-        Query.CONTEXT context = this.getContext();
-        if(context != Query.CONTEXT.ALL)
+        Context context = this.contextCombo.getValue();
+        if(context != null && context.getType() != Query.CONTEXT.ALL)
         {
-            s += (s.isEmpty() ? "" : "; ") + context.toString() + " CONTEXT";
+            s += (s.isEmpty() ? "" : "; ") + context.toString() + " context";
         }
-        return (s.isEmpty() ? "NO FILTERS; BOUNCE IS " : s + "; BOUNCE IS ") + (isBounceTime ? "TIME SPENT" : "PAGES VIEWED");
+        return (s.isEmpty() ? "No filters. Bounce is " : s + ". Bounce is ") + (isBounceTime ? "time spent" : "pages viewed");
     }
 }
