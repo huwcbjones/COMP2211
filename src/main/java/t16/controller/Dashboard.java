@@ -7,10 +7,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
@@ -19,12 +16,14 @@ import org.apache.logging.log4j.Logger;
 import t16.AdDashboard;
 import t16.components.dialogs.ConfirmationDialog;
 import t16.components.dialogs.ExceptionDialog;
+import t16.components.dialogs.InfoDialog;
 import t16.model.Campaign;
 import t16.model.Chart;
 import t16.model.Query;
 import t16.model.Query.TYPE;
 
 import java.math.BigDecimal;
+import java.sql.SQLException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Optional;
@@ -61,6 +60,9 @@ public class Dashboard {
 
     @FXML
     private ProgressIndicator workingIndicator;
+
+    @FXML
+    private Button clicksButton;
 
 
     //</editor-fold>
@@ -169,7 +171,7 @@ public class Dashboard {
      *
      * @param t Chart Type to render
      */
-    private void renderChart(TYPE t) {
+    private void renderChart(final TYPE t) {
         if (t == null) return;
         displayLoading(true);
 
@@ -243,18 +245,18 @@ public class Dashboard {
         final String fTitle = title;
         final String fyAxis = yAxis;
         final String fxAxis = xAxis;
-        final String fSeries = series;
-        Task<Chart> processChartTask = new Task<Chart>() {
+        Task<Chart> processChartTask = new Task<Chart>()
+        {
             @Override
             protected Chart call() throws Exception {
                 long time = System.currentTimeMillis();
-                Chart c = new Chart(fTitle, fxAxis, fyAxis);
-
-                Query query = filterController.getQuery(t);
-
-                log.debug("Query: {}", query.getQuery());
-                c.addSeries(fSeries, AdDashboard.getDataController().getQuery(query));
-
+                final Chart c = new Chart(fTitle, fxAxis, fyAxis);
+                for(IndividualFilter iF : filterController.getIndividualFilters())
+                {
+                    Query query = filterController.getQuery(t, iF);
+                    log.debug("Query: {}", query.getQuery());
+                    c.addSeries(iF.toString(), AdDashboard.getDataController().getQuery(query));
+                }
                 time = System.currentTimeMillis() - time;
                 log.info("Chart processed in {}", NumberFormat.getNumberInstance().format(time / 1000d));
                 return c;
@@ -289,11 +291,13 @@ public class Dashboard {
         loadStats();
     }
 
-    public void loadStats() {
+    public void loadStats()
+    {
         log.info("Loading statistics...");
         Task<Long> statsTask = new Task<Long>() {
             @Override
-            protected Long call() throws Exception {
+            protected Long call() throws Exception
+            {
                 long startTime = System.currentTimeMillis();
 
                 ArrayList<Task> taskList = new ArrayList<>();
@@ -439,6 +443,13 @@ public class Dashboard {
         };
 
         statsTask.setOnSucceeded(e -> log.info("Statistics loaded in {}ms", e.getSource().getValue()));
+        AdDashboard.getWorkerPool().queueTask(new Task() {
+            @Override
+            protected Long call() throws Exception {
+                Dashboard.this.clicksButton.fire();
+                return null;
+            }
+        });
         AdDashboard.getWorkerPool().queueTask(statsTask);
     }
 

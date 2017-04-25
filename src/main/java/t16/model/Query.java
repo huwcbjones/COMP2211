@@ -110,7 +110,7 @@ public class Query {
         return
                 "SELECT " + getDateString("Clicks") + ", COUNT(*) AS clicks" +
                         " FROM `Clicks` " +
-                        " LEFT JOIN `Impressions` ON `Impressions`.`ID`=`Clicks`.`ID`" +
+                        " LEFT JOIN `Impressions` ON `Impressions`.`ID`=`Clicks`.`ID` AND `Impressions`.`date` BETWEEN DATEADD('MINUTE', -5, `Clicks`.`date`) AND DATEADD('MINUTE', 5, `Clicks`.`date`)" +
                         " WHERE " + getWhereClause("Impressions") +
                         " GROUP BY " + getRangeString("Clicks") +
                         " ORDER BY " + getRangeString("Clicks") + " ASC";
