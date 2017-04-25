@@ -200,7 +200,7 @@ public class Query {
     }
 
     /**
-     * Here a bounce is when less than 60 seconds are spent on the site
+     * Here a bounce is when less than 30 seconds are spent on the site
      */
     protected String bouncesQueryTime() {
         if (!isComplicated()) {
@@ -209,7 +209,7 @@ public class Query {
             return
                     "SELECT " + getDateString() + ", COUNT(*) AS bounces" +
                             " FROM `Server` " +
-                            " WHERE TIMESTAMPDIFF(SECOND,`date`,`exit_date`) < 60 " + whereClause +
+                            " WHERE TIMESTAMPDIFF(SECOND,`date`,`exit_date`) < 30 " + whereClause +
                             " GROUP BY " + getRangeString() +
                             " ORDER BY " + getRangeString() + " ASC";
         }
@@ -217,7 +217,7 @@ public class Query {
                 "SELECT " + getDateString("Server") + ", COUNT(*) AS bounces" +
                         " FROM `Server` " +
                         " LEFT JOIN `Impressions` ON `Impressions`.`ID`=`Server`.`ID`" +
-                        " WHERE TIMESTAMPDIFF(SECOND,`Server`.`date`,`exit_date`) < 60 AND " + getWhereClause("Server") +
+                        " WHERE TIMESTAMPDIFF(SECOND,`Server`.`date`,`exit_date`) < 30 AND " + getWhereClause("Server") +
                         " GROUP BY " + getRangeString("Server") +
                         " ORDER BY " + getRangeString("Server") + " ASC";
     }
