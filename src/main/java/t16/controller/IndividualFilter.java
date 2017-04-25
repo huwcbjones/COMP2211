@@ -176,7 +176,7 @@ public class IndividualFilter extends VBox {
 
     protected void bounceToggle(ActionEvent e) {
         isBounceTime = !isBounceTime;
-        bounceToggle.setText(isBounceTime ? "Time < 60s" : "1 Page Viewed");
+        bounceToggle.setText(isBounceTime ? "Time < 30s" : "1 Page Viewed");
         if(lastQuery != Query.TYPE.BOUNCES && lastQuery != Query.TYPE.BOUNCE_RATE) return;
         this.triggerUpdateEvent(e);
     }
