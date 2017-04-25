@@ -16,12 +16,14 @@ import org.apache.logging.log4j.Logger;
 import t16.AdDashboard;
 import t16.components.dialogs.ConfirmationDialog;
 import t16.components.dialogs.ExceptionDialog;
+import t16.components.dialogs.InfoDialog;
 import t16.model.Campaign;
 import t16.model.Chart;
 import t16.model.Query;
 import t16.model.Query.TYPE;
 
 import java.math.BigDecimal;
+import java.sql.SQLException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Optional;
@@ -169,7 +171,7 @@ public class Dashboard {
      *
      * @param t Chart Type to render
      */
-    private void renderChart(TYPE t) {
+    private void renderChart(final TYPE t) {
         if (t == null) return;
         displayLoading(true);
 
@@ -243,18 +245,18 @@ public class Dashboard {
         final String fTitle = title;
         final String fyAxis = yAxis;
         final String fxAxis = xAxis;
-        final String fSeries = series;
-        Task<Chart> processChartTask = new Task<Chart>() {
+        Task<Chart> processChartTask = new Task<Chart>()
+        {
             @Override
             protected Chart call() throws Exception {
                 long time = System.currentTimeMillis();
-                Chart c = new Chart(fTitle, fxAxis, fyAxis);
-
-                Query query = filterController.getQuery(t);
-
-                log.debug("Query: {}", query.getQuery());
-                c.addSeries(fSeries, AdDashboard.getDataController().getQuery(query));
-
+                final Chart c = new Chart(fTitle, fxAxis, fyAxis);
+                for(IndividualFilter iF : filterController.getIndividualFilters())
+                {
+                    Query query = filterController.getQuery(t, iF);
+                    log.debug("Query: {}", query.getQuery());
+                    c.addSeries(iF.toString(), AdDashboard.getDataController().getQuery(query));
+                }
                 time = System.currentTimeMillis() - time;
                 log.info("Chart processed in {}", NumberFormat.getNumberInstance().format(time / 1000d));
                 return c;
