@@ -6,25 +6,38 @@
 <?import javafx.scene.text.Font?>
 <?import t16.controller.FilterControl?>
 <?import t16.controller.StatsControl?>
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="700" minWidth="1200" prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="t16.controller.Dashboard">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="700" minWidth="1200" prefHeight="720.0" prefWidth="1280.0"
+            xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="t16.controller.Dashboard">
     <left>
         <BorderPane prefHeight="375.0" prefWidth="160.0" BorderPane.alignment="CENTER">
             <top>
                 <Label text="Key Metrics" BorderPane.alignment="CENTER">
                     <font>
-                        <Font size="18.0" />
+                        <Font size="18.0"/>
                     </font>
                     <BorderPane.margin>
-                        <Insets bottom="25.0" top="15.0" />
+                        <Insets bottom="25.0" top="15.0"/>
                     </BorderPane.margin>
                 </Label>
             </top>
             <center>
                 <StatsControl fx:id="statsPanel">
-               <BorderPane.margin>
-                  <Insets left="10.0" right="10.0" />
-               </BorderPane.margin></StatsControl>
+                    <BorderPane.margin>
+                        <Insets left="10.0" right="10.0"/>
+                    </BorderPane.margin>
+                </StatsControl>
             </center>
+            <bottom>
+                <MenuButton mnemonicParsing="false" text="Export Chart"  maxWidth="1.7976931348623157E308">
+                    <items>
+                        <MenuItem mnemonicParsing="false" text="Save Image" fx:id="saveChart" />
+                        <MenuItem mnemonicParsing="false" text="Print" fx:id="printChart"/>
+                    </items>
+                    <BorderPane.margin>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="25.0"/>
+                    </BorderPane.margin>
+                </MenuButton>
+            </bottom>
         </BorderPane>
     </left>
     <center>
@@ -33,73 +46,85 @@
                 <ScrollPane hbarPolicy="ALWAYS" vbarPolicy="NEVER">
                     <HBox spacing="5.0" BorderPane.alignment="CENTER">
                         <children>
-                            <Button fx:id="clicksButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false" onAction="#viewClicks" text="Clicks">
+                            <Button fx:id="clicksButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false"
+                                    onAction="#viewClicks" text="Clicks">
                                 <opaqueInsets>
-                                    <Insets />
+                                    <Insets/>
                                 </opaqueInsets>
                             </Button>
-                            <Button fx:id="impressionsButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false" onAction="#viewImpressions" text="Impresssions">
+                            <Button fx:id="impressionsButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false"
+                                    onAction="#viewImpressions" text="Impressions">
                                 <opaqueInsets>
-                                    <Insets />
+                                    <Insets/>
                                 </opaqueInsets>
                             </Button>
-                            <Button fx:id="uniqueButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false" onAction="#viewUnique" text="Unique Clicks">
+                            <Button fx:id="uniqueButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false"
+                                    onAction="#viewUnique" text="Unique Clicks">
                                 <opaqueInsets>
-                                    <Insets />
+                                    <Insets/>
                                 </opaqueInsets>
                             </Button>
-                            <Button fx:id="bouncesButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false" onAction="#viewBounces" text="Bounces">
+                            <Button fx:id="bouncesButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false"
+                                    onAction="#viewBounces" text="Bounces">
                                 <opaqueInsets>
-                                    <Insets />
+                                    <Insets/>
                                 </opaqueInsets>
                             </Button>
-                            <Button fx:id="conversionsButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false" onAction="#viewConversion" text="Conversions">
+                            <Button fx:id="conversionsButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false"
+                                    onAction="#viewConversion" text="Conversions">
                                 <opaqueInsets>
-                                    <Insets />
+                                    <Insets/>
                                 </opaqueInsets>
                             </Button>
-                            <Button fx:id="clickThroughsButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false" onAction="#viewClickThrough" text="Click Throughs">
+                            <Button fx:id="clickThroughsButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity"
+                                    mnemonicParsing="false" onAction="#viewClickThrough" text="Click Throughs">
                                 <opaqueInsets>
-                                    <Insets />
+                                    <Insets/>
                                 </opaqueInsets>
                             </Button>
-                            <Button fx:id="totalCostButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false" onAction="#viewTotalCost" text="Total Cost">
+                            <Button fx:id="totalCostButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false"
+                                    onAction="#viewTotalCost" text="Total Cost">
                                 <opaqueInsets>
-                                    <Insets />
+                                    <Insets/>
                                 </opaqueInsets>
                             </Button>
-                            <Button fx:id="costPerAcquisitionButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false" onAction="#viewCostPerAcquisition" text="Cost Per Acquisition">
+                            <Button fx:id="costPerAcquisitionButton" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity"
+                                    mnemonicParsing="false" onAction="#viewCostPerAcquisition" text="Cost Per Acquisition">
                                 <opaqueInsets>
-                                    <Insets />
+                                    <Insets/>
                                 </opaqueInsets>
                             </Button>
-                            <Button fx:id="costPerClick" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false" onAction="#viewCostPerClick" text="Cost Per Click">
+                            <Button fx:id="costPerClick" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false"
+                                    onAction="#viewCostPerClick" text="Cost Per Click">
                                 <opaqueInsets>
-                                    <Insets />
+                                    <Insets/>
                                 </opaqueInsets>
                             </Button>
-                            <Button fx:id="costPerThousandImpressions" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false" onAction="#viewCostPerThousandImpressions" text="Cost Per Thousand Impressions">
+                            <Button fx:id="costPerThousandImpressions" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity"
+                                    mnemonicParsing="false" onAction="#viewCostPerThousandImpressions" text="Cost Per Thousand Impressions">
                                 <opaqueInsets>
-                                    <Insets />
+                                    <Insets/>
                                 </opaqueInsets>
                             </Button>
-                            <Button fx:id="bounceRate" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false" onAction="#viewBounceRate" text="Bounce Rate">
+                            <Button fx:id="bounceRate" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false"
+                                    onAction="#viewBounceRate" text="Bounce Rate">
                                 <opaqueInsets>
-                                    <Insets />
+                                    <Insets/>
                                 </opaqueInsets>
                             </Button>
                         </children>
                         <padding>
-                            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
                         </padding>
                     </HBox>
                 </ScrollPane>
             </top>
             <center>
                 <StackPane fx:id="mainPane" BorderPane.alignment="CENTER">
-                    <ProgressIndicator fx:id="workingIndicator" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mouseTransparent="true" prefHeight="175.0" prefWidth="175.0" visible="false" StackPane.alignment="CENTER">
+                    <ProgressIndicator fx:id="workingIndicator" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+                                       mouseTransparent="true" prefHeight="175.0" prefWidth="175.0" visible="false" StackPane.alignment="CENTER">
                         <StackPane.margin>
-                            <Insets />
+                            <Insets/>
                         </StackPane.margin>
                     </ProgressIndicator>
                 </StackPane>
@@ -109,15 +134,15 @@
     <right>
         <BorderPane fx:id="filterPanel" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
             <center>
-                <FilterControl fx:id="filterController" />
+                <FilterControl fx:id="filterController"/>
             </center>
             <top>
                 <Label text="Filters" BorderPane.alignment="CENTER">
                     <BorderPane.margin>
-                        <Insets bottom="25.0" top="15.0" />
+                        <Insets bottom="25.0" top="15.0"/>
                     </BorderPane.margin>
                     <font>
-                        <Font size="18.0" />
+                        <Font size="18.0"/>
                     </font>
                 </Label>
             </top>

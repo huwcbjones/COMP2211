@@ -94,8 +94,8 @@ public class Query {
         return
                 "SELECT " + getDateString("Clicks") + ", COUNT(*) AS clicks" +
                         " FROM `Clicks` " +
-                        " LEFT JOIN `Impressions` ON `Impressions`.`ID`=`Clicks`.`ID`" +
-                        whereClause +
+                        " LEFT JOIN `Impressions` ON `Impressions`.`ID`=`Clicks`.`ID` AND `Impressions`.`date` BETWEEN DATEADD('MINUTE', -5, `Clicks`.`date`) AND DATEADD('MINUTE', 5, `Clicks`.`date`)" +
+                        " WHERE " + getWhereClause("Impressions") +
                         " GROUP BY " + getRangeString("Clicks") +
                         " ORDER BY " + getRangeString("Clicks") + " ASC";
     }
@@ -149,7 +149,7 @@ public class Query {
     }
 
     /**
-     * Here a bounce is when less than 60 seconds are spent on the site
+     * Here a bounce is when less than 30 seconds are spent on the site
      */
     protected String bouncesQueryTime() {
         String whereClause = getWhereClause("Server");
@@ -158,7 +158,7 @@ public class Query {
                 "SELECT " + getDateString("Server") + ", COUNT(*) AS bounces" +
                         " FROM `Server` " +
                         " LEFT JOIN `Impressions` ON `Impressions`.`ID`=`Server`.`ID`" +
-                        " WHERE TIMESTAMPDIFF(SECOND,`Server`.`date`,`exit_date`) < 60 " + whereClause +
+                        " WHERE TIMESTAMPDIFF(SECOND,`Server`.`date`,`exit_date`) < 30 AND " + getWhereClause("Server") +
                         " GROUP BY " + getRangeString("Server") +
                         " ORDER BY " + getRangeString("Server") + " ASC";
     }

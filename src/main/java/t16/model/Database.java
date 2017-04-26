@@ -223,7 +223,7 @@ public class Database {
     }
 
     /**
-     * Defines a bounce as less than one minute being spent.
+     * Defines a bounce as less than thirty seconds being spent.
      *
      * @return the total number of bounces that occurred during the campaign
      * @throws SQLException if an error occurs during SQL execution
@@ -231,11 +231,9 @@ public class Database {
     public long getTotalBouncesTime() throws SQLException {
         try (Connection c = this.connectionPool.getConnection()) {
             try (Statement s = c.createStatement()) {
-                try (ResultSet set = s.executeQuery("SELECT COUNT(*) AS numberOfBounces FROM `Server` WHERE TIMESTAMPDIFF(SECOND,`date`,`exit_date`) < 60")) {
-                    while (set.next()) {
-                        return set.getLong("numberOfBounces");
-                    }
-                    return 0;
+                ResultSet set = s.executeQuery("SELECT COUNT(*) AS numberOfBounces FROM `Server` WHERE TIMESTAMPDIFF(SECOND,`date`,`exit_date`) < 30");
+                while (set.next()) {
+                    return set.getLong("numberOfBounces");
                 }
             }
         }

@@ -11,8 +11,7 @@
                 <Insets bottom="5.0" top="10.0"/>
             </VBox.margin>
         </Label>
-        <ToggleButton fx:id="hourlyButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" selected="true"
-                      text="Hours">
+        <ToggleButton fx:id="hourlyButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Hours">
             <toggleGroup>
                 <ToggleGroup fx:id="timeControls"/>
             </toggleGroup>
@@ -20,7 +19,7 @@
                 <Insets top="3.0"/>
             </VBox.margin>
         </ToggleButton>
-        <ToggleButton fx:id="dailyButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Days"
+        <ToggleButton fx:id="dailyButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Days" selected="true"
                       toggleGroup="$timeControls">
             <VBox.margin>
                 <Insets top="3.0"/>
@@ -52,53 +51,7 @@
                 <Insets bottom="5.0"/>
             </VBox.margin>
         </DatePicker>
-        <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="Gender">
-            <VBox.margin>
-                <Insets bottom="5.0" top="10.0"/>
-            </VBox.margin>
-        </Label>
-        <ComboBox fx:id="genderCombo" maxWidth="1.7976931348623157E308" prefWidth="150.0" promptText="Gender"
-                  visibleRowCount="3">
-            <VBox.margin>
-                <Insets bottom="5.0"/>
-            </VBox.margin>
-        </ComboBox>
-        <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="Age">
-            <VBox.margin>
-                <Insets bottom="5.0" top="10.0"/>
-            </VBox.margin>
-        </Label>
-        <ComboBox fx:id="ageCombo" maxWidth="1.7976931348623157E308" prefWidth="150.0" promptText="Age">
-            <VBox.margin>
-                <Insets bottom="5.0"/>
-            </VBox.margin>
-        </ComboBox>
-        <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="Income">
-            <VBox.margin>
-                <Insets bottom="5.0" top="10.0"/>
-            </VBox.margin>
-        </Label>
-        <ComboBox fx:id="incomeCombo" maxWidth="1.7976931348623157E308" prefWidth="150.0" promptText="Income">
-            <VBox.margin>
-                <Insets bottom="5.0"/>
-            </VBox.margin>
-        </ComboBox>
-        <Label alignment="CENTER" text="Context">
-            <VBox.margin>
-                <Insets bottom="5.0" top="10.0"/>
-            </VBox.margin>
-        </Label>
-        <ComboBox fx:id="contextCombo" maxWidth="1.7976931348623157E308" prefWidth="150.0" promptText="Context">
-            <VBox.margin>
-                <Insets bottom="5.0"/>
-            </VBox.margin>
-        </ComboBox>
-        <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="Bounce Definition">
-            <VBox.margin>
-                <Insets bottom="5.0" top="10.0"/>
-            </VBox.margin>
-        </Label>
-        <Button fx:id="bounceToggle" mnemonicParsing="false" maxWidth="1.7976931348623157E308" text="1 Page Viewed"/>
+        <TabPane fx:id="individualFiltersBox"  maxWidth="1.7976931348623157E308" prefWidth="150.0"/>
     </children>
     <padding>
         <Insets left="5.0" right="5.0"/>
