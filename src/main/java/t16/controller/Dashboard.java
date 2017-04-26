@@ -4,26 +4,21 @@ import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
-import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import t16.AdDashboard;
 import t16.components.dialogs.ConfirmationDialog;
 import t16.components.dialogs.ExceptionDialog;
-import t16.components.dialogs.InfoDialog;
 import t16.model.Campaign;
 import t16.model.Chart;
 import t16.model.Query;
 import t16.model.Query.TYPE;
 
 import java.math.BigDecimal;
-import java.sql.SQLException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Optional;
@@ -63,6 +58,12 @@ public class Dashboard {
 
     @FXML
     private Button clicksButton;
+
+    @FXML
+    private MenuItem saveChart;
+
+    @FXML
+    private MenuItem printChart;
 
 
     //</editor-fold>
@@ -124,24 +125,6 @@ public class Dashboard {
         renderChart(TYPE.BOUNCE_RATE);
     }
 
-    @FXML
-    private void export(ActionEvent event)
-    {
-        try {
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(getClass().getResource("/export.fxml"));
-            Parent parent = loader.load();
-            ((Export) loader.getController()).setNodeToPrint(mainPane);
-            Stage stage = new Stage();
-            stage.setTitle("Print/Save Screen");
-            stage.setScene(new Scene(parent, 250, 150));
-            stage.setResizable(false);
-            stage.show();
-        } catch (Exception e) {
-            ExceptionDialog dialog = new ExceptionDialog("Export error", "Failed to create print/save screen dialog.", e);
-            dialog.showAndWait();
-        }
-    }
     //</editor-fold>
 
     //<editor-fold desc="Helper Methods">
@@ -286,6 +269,8 @@ public class Dashboard {
      */
     public void initialize() {
         filterController.addUpdateListener(e -> renderChart(currentChart));
+        saveChart.setOnAction(e -> Export.saveChart(this.scene.getWindow(), mainPane));
+        printChart.setOnAction(e -> Export.printChart(this.scene.getWindow(), mainPane));
 
         log.info("Dashboard initialised!");
         loadStats();
