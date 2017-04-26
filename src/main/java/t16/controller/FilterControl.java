@@ -81,6 +81,10 @@ public class FilterControl extends VBox {
     protected void initialiseEventListeners() {
         startDate.setOnAction(this::triggerUpdateEvent);
         endDate.setOnAction(this::triggerUpdateEvent);
+
+        hourlyButton.setOnAction(this::triggerUpdateEvent);
+        dailyButton.setOnAction(this::triggerUpdateEvent);
+        monthlyButton.setOnAction(this::triggerUpdateEvent);
     }
 
     public Query getQuery(Query.TYPE type, IndividualFilter iF) {

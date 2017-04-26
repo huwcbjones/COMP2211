@@ -5,8 +5,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.VBox;
 import t16.events.FilterUpdateListener;
 import t16.model.*;
@@ -109,13 +107,13 @@ public class IndividualFilter extends VBox {
         lastQuery = type;
 
         if (type == Query.TYPE.BOUNCES) {
-            if(isBounceTime){
+            if (isBounceTime) {
                 type = Query.TYPE.BOUNCES_TIME;
             } else {
                 type = Query.TYPE.BOUNCES_PAGES;
             }
         } else if (type == Query.TYPE.BOUNCE_RATE) {
-            if(isBounceTime){
+            if (isBounceTime) {
                 type = Query.TYPE.BOUNCE_RATE_TIME;
             } else {
                 type = Query.TYPE.BOUNCE_RATE_PAGES;
@@ -177,31 +175,26 @@ public class IndividualFilter extends VBox {
     protected void bounceToggle(ActionEvent e) {
         isBounceTime = !isBounceTime;
         bounceToggle.setText(isBounceTime ? "Time < 30s" : "1 Page Viewed");
-        if(lastQuery != Query.TYPE.BOUNCES && lastQuery != Query.TYPE.BOUNCE_RATE) return;
+        if (lastQuery != Query.TYPE.BOUNCES && lastQuery != Query.TYPE.BOUNCE_RATE) return;
         this.triggerUpdateEvent(e);
     }
 
-    public String toString()
-    {
+    public String toString() {
         String s = "";
         Gender gender = this.genderCombo.getValue();
-        if(gender != null && gender.getType() != Query.GENDER.ALL)
-        {
-            s += gender.toString() +"s";
+        if (gender != null && gender.getType() != Query.GENDER.ALL) {
+            s += gender.toString() + "s";
         }
         Income income = this.incomeCombo.getValue();
-        if(income != null && income.getType() != Query.INCOME.ALL)
-        {
+        if (income != null && income.getType() != Query.INCOME.ALL) {
             s += (s.isEmpty() ? "" : "; ") + income.toString() + " income";
         }
         Age age = this.ageCombo.getValue();
-        if(age != null && age.getType() != Query.AGE.ALL)
-        {
-            s += (s.isEmpty() ? "" : "; ") + "Aged "+age.toString();
+        if (age != null && age.getType() != Query.AGE.ALL) {
+            s += (s.isEmpty() ? "" : "; ") + "Aged " + age.toString();
         }
         Context context = this.contextCombo.getValue();
-        if(context != null && context.getType() != Query.CONTEXT.ALL)
-        {
+        if (context != null && context.getType() != Query.CONTEXT.ALL) {
             s += (s.isEmpty() ? "" : "; ") + context.toString() + " context";
         }
         return (s.isEmpty() ? "No filters. Bounce is " : s + ". Bounce is ") + (isBounceTime ? "time spent" : "pages viewed");
