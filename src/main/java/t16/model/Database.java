@@ -60,17 +60,23 @@ public class Database {
 
         this.connectionPool = JdbcConnectionPool.create("jdbc:h2:" + databasePath + ";MV_STORE=FALSE", user, password);
 
+        boolean shouldCreateTempTables = false;
         // Test the connection - should provide a better error message if the database is already in use
         try (Connection c = getConnection()) {
             try (Statement s = c.createStatement()) {
-                s.execute("SHOW TABLES");
+                try (ResultSet set = s.executeQuery("SELECT count(*) as count FROM INFORMATION_SCHEMA.tables WHERE TABLE_SCHEMA='PUBLIC';")) {
+                    while (set.next()) {
+                        shouldCreateTempTables = (set.getInt("count") == 3);
+                    }
+                }
             }
         } catch (SQLException e) {
             throw new DatabaseConnectionException("Failed to open database. Is the database already in use?", e);
         }
 
+
         try {
-            createTotalCostTable();
+            if(shouldCreateTempTables) createTotalCostTable();
         } catch (SQLException e) {
             throw new DatabaseConnectionException("Failed to open database. Temporary structures could not be created.");
         }
@@ -235,6 +241,7 @@ public class Database {
                 while (set.next()) {
                     return set.getLong("numberOfBounces");
                 }
+                return 0;
             }
         }
     }
