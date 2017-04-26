@@ -76,9 +76,10 @@ public class Database {
 
 
         try {
-            if(shouldCreateTempTables) createTotalCostTable();
+            if(shouldCreateTempTables) createTempTables();
         } catch (SQLException e) {
-            throw new DatabaseConnectionException("Failed to open database. Temporary structures could not be created.");
+            log.catching(e);
+            throw new DatabaseConnectionException("Failed to open database. Temporary structures could not be created.", e.getCause());
         }
 
         this.isConnected = true;
@@ -121,24 +122,30 @@ public class Database {
         log.debug("Created all indexes!");
     }
 
+    private void createTempTables() throws SQLException {
+        log.debug("Creating temporary tables...");
+        createTotalCostTable();
+        log.debug("Created temporary tables!");
+    }
+
     private void createTotalCostTable() throws SQLException {
         try (Connection c = getConnection()) {
             try (Statement createStmt = c.createStatement()) {
-                log.debug("Creating temporary tables...");
                 // Create temporary
                 createStmt.execute("CREATE TEMPORARY TABLE TotalCost(date TIMESTAMP, year INT, month TINYINT, day TINYINT, hour TINYINT, cost DECIMAL(10, 7), gender CHAR(6), age CHAR(5), income CHAR(6), context CHAR(12))");
+                createStmt.execute("CREATE INDEX cost_TotalCost_IND ON TotalCost(year, month, day, hour)");
                 createStmt.execute("CREATE INDEX date_TotalCost_IND ON TotalCost(year, month, day, hour)");
                 createStmt.execute(
                         "INSERT INTO TotalCost (date, year, month, day, hour, gender, age, income, context, cost)\n" +
                                 "  SELECT TO_TIMESTAMP(CONCAT(`i`.`YEAR`, '-', `i`.`MONTH`, '-', `i`.`DAY`, ' ', `i`.`HOUR`), 'YYYY-MM-DD HH24'), `i`.`YEAR`, `i`.`MONTH`, `i`.`DAY`, `i`.`HOUR`, `i`.`gender`, `i`.`age`, `i`.`income`, `i`.`context`, SUM(`i`.`cost`) + SUM(`c`.`click_cost`) AS totalCost\n" +
                                 "  FROM\n" +
                                 "    `Impressions` `i`\n" +
-                                "    RIGHT JOIN `Clicks` `c` ON `c`.ID = `i`.ID\n" +
+                                "    RIGHT JOIN `Clicks` `c` ON `c`.ID = `i`.ID  AND `i`.`date` BETWEEN DATEADD('MINUTE', -10, `c`.`date`) AND DATEADD('MINUTE', 10, `c`.`date`)\n" +
                                 "  GROUP BY `i`.`YEAR`, `i`.`MONTH`, `i`.`DAY`, `i`.`HOUR`, `i`.`gender`, `i`.`age`, `i`.`income`, `i`.`context`"
                 );
             }
         }
-        log.debug("Created temporary tables!");
+
     }
 
     public Connection getConnection() throws SQLException {

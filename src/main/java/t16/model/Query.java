@@ -92,12 +92,12 @@ public class Query {
         String whereClause = getWhereClause("Impressions");
         if (whereClause.length() != 0) whereClause = " WHERE " + whereClause;
         return
-                "SELECT " + getDateString("Clicks") + ", COUNT(*) AS clicks" +
-                        " FROM `Clicks` " +
-                        " LEFT JOIN `Impressions` ON `Impressions`.`ID`=`Clicks`.`ID` AND `Impressions`.`date` BETWEEN DATEADD('MINUTE', -5, `Clicks`.`date`) AND DATEADD('MINUTE', 5, `Clicks`.`date`)" +
-                        " WHERE " + getWhereClause("Impressions") +
-                        " GROUP BY " + getRangeString("Clicks") +
-                        " ORDER BY " + getRangeString("Clicks") + " ASC";
+                "SELECT " + getDateString("c") + ", COUNT(*) AS clicks" +
+                        " FROM `Clicks` `c` " +
+                        " LEFT JOIN `Impressions` `i` ON `i`.`ID`=`c`.`ID` AND `i`.`date` BETWEEN DATEADD('MINUTE', -10, `c`.`date`) AND DATEADD('MINUTE', 10, `c`.`date`)" +
+                        whereClause +
+                        " GROUP BY " + getRangeString("c") +
+                        " ORDER BY " + getRangeString("c") + " ASC";
     }
 
     protected String clickThroughQuery() {
@@ -158,7 +158,7 @@ public class Query {
                 "SELECT " + getDateString("Server") + ", COUNT(*) AS bounces" +
                         " FROM `Server` " +
                         " LEFT JOIN `Impressions` ON `Impressions`.`ID`=`Server`.`ID`" +
-                        " WHERE TIMESTAMPDIFF(SECOND,`Server`.`date`,`exit_date`) < 30 AND " + getWhereClause("Server") +
+                        " WHERE TIMESTAMPDIFF(SECOND,`Server`.`date`,`exit_date`) < 30 " + whereClause +
                         " GROUP BY " + getRangeString("Server") +
                         " ORDER BY " + getRangeString("Server") + " ASC";
     }
@@ -176,19 +176,21 @@ public class Query {
     }
 
     protected String totalCostQuery() {
-        //TODO: This needs to be refactored so filters can be applied to total cost blehhhh
-        String whereClause = getWhereClause("s");
+        String whereClause = getWhereClause("TotalCost");
         if (whereClause.length() != 0) whereClause = " WHERE " + whereClause;
-        return "SELECT " + getDateString("TotalCost") + ", SUM(cost)/100 AS cost FROM TotalCost GROUP BY " + getRangeString();
+        return "SELECT " + getDateString("TotalCost") + ", SUM(cost)/100 AS cost FROM TotalCost" +
+                whereClause +
+                " GROUP BY " + getRangeString() +
+                " ORDER BY "+ getRangeString() + " ASC";
     }
 
     protected String costPerAcquisitionQuery() {
         String whereClause = getWhereClause("s");
         if (whereClause.length() != 0) whereClause = " AND " + whereClause;
-        String q = "SELECT " + getDateString("s") + ", (SUM(cost) / 100) / COUNT(*) AS costPerAcquisition\n" +
-                " FROM `Server` s\n" +
-                " JOIN `TotalCost` c\n" +
-                " ON s.YEAR = c.YEAR AND s.MONTH = c.MONTH ";
+        String q = "SELECT " + getDateString("c") + ", (SUM(cost) / 100) / COUNT(*) AS costPerAcquisition\n" +
+                " FROM `TotalCost` c\n" +
+                " JOIN `Server` s\n" +
+                " ON `c`.`YEAR` = `s`.`YEAR` AND `c`.`MONTH` = `s`.`MONTH` ";
         if (range != RANGE.MONTH) {
             q += "AND s.DAY = c.DAY\n";
             if (range != RANGE.DAY) {
@@ -196,7 +198,7 @@ public class Query {
             }
         }
         q += "WHERE s.`Conversion` = 1 " + whereClause +
-                " GROUP BY " + getRangeString("s");
+                " GROUP BY " + getRangeString("c");
         return q;
     }
 
