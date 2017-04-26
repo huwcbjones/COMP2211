@@ -31,7 +31,7 @@ import java.util.Optional;
 public class Main {
 
     protected static Logger log = LogManager.getLogger(Main.class);
-    private static Class thisClass;
+    private static Main main;
 
     private Task task = null;
 
@@ -47,7 +47,7 @@ public class Main {
 
     @FXML
     public void initialize() {
-        thisClass = getClass();
+        main = this;
     }
 
     @FXML
@@ -59,7 +59,7 @@ public class Main {
             stage.setTitle("New Campaign - Ad Dashboard");
             stage.setScene(new Scene(root, 600, 450));
             stage.setResizable(false);
-            stage.show();
+            stage.showAndWait();
         } catch (Exception e) {
             ExceptionDialog dialog = new ExceptionDialog("Create campaign error!", "Failed to create campaign.", e);
             dialog.showAndWait();
@@ -96,9 +96,6 @@ public class Main {
 
         openTask.setOnSucceeded(e -> {
             openCampaign(openTask.getValue());
-
-            stopWork();
-            ((Stage) ((Control) event.getSource()).getScene().getWindow()).close();
         });
         openTask.setOnFailed(e -> {
             log.error("Open task failed!");
@@ -150,7 +147,7 @@ public class Main {
 
     public static void openCampaign(Campaign campaign) {
         try {
-            FXMLLoader loader = new FXMLLoader(thisClass.getResource("/dashboard.fxml"));
+            FXMLLoader loader = new FXMLLoader(main.getClass().getResource("/dashboard.fxml"));
             Parent parent = loader.load();
             Dashboard controller = loader.getController();
             controller.setCampaign(campaign);
@@ -163,8 +160,11 @@ public class Main {
             stage.setTitle(campaign.getName() + " - Ad Dashboard");
             stage.setScene(scene);
 
-            stage.show();
+            // Nasty hack to get main window to close when a campaign is opened
+            main.stopWork();
+            ((Stage) main.progressBar.getScene().getWindow()).close();
 
+            stage.show();
             controller.setScene(scene);
         } catch (Exception e) {
             log.catching(e);
