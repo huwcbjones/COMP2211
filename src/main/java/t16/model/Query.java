@@ -68,8 +68,9 @@ public class Query {
             case COST_PER_CLICK:
                 return costPerClick();
             case BOUNCE_RATE_PAGES:
+                return bounceRatePagesQuery();
             case BOUNCE_RATE_TIME:
-                throw new UnsupportedOperationException();
+                return bounceRateTimeQuery();
             case BOUNCES:
             case BOUNCE_RATE:
                 throw new IllegalStateException("Chart type not permitted.");
@@ -182,7 +183,7 @@ public class Query {
         return "SELECT " + getDateString("TotalCost") + ", SUM(cost)/100 AS cost FROM TotalCost" +
                 whereClause +
                 " GROUP BY " + getRangeString() +
-                " ORDER BY "+ getRangeString() + " ASC";
+                " ORDER BY " + getRangeString() + " ASC";
     }
 
     protected String costPerAcquisitionQuery() {
@@ -214,48 +215,46 @@ public class Query {
                 " FROM `TotalCost` c\n" +
                 whereClause +
                 " GROUP BY " + getRangeString("c");
-        //return q;
     }
 
     protected String costPer1kImpressionsQuery() {
         String rangeString = getRangeString();
+        String imprWhereClause = getWhereClause("i");
+        String whereClause = getWhereClause();
 
-        String impressionsWhereClause = getWhereClause();
-        String clickWhereClause = getWhereClause("Clicks");
+        if (whereClause.length() != 0) whereClause = " WHERE " + whereClause;
+        if (imprWhereClause.length() != 0) imprWhereClause = " WHERE " + imprWhereClause;
 
-        if (impressionsWhereClause.length() != 0) impressionsWhereClause = " WHERE " + impressionsWhereClause;
-        if (clickWhereClause.length() != 0) clickWhereClause = " WHERE " + clickWhereClause;
-
-        String q =
-                "SELECT\n" +
-                        "  " + getDateString("i") + ", totalCost / NULLIF(CAST(COUNT(*) / 1000 as FLOAT), 0) AS costPer1kImpressions\n" +
-                        "FROM\n" +
-                        " `Impressions` i\n" +
-                        " JOIN\n" +
-                        "  (SELECT " + getRangeString("i_r") + ", (clicks + impressions) / 100 AS totalCost\n" +
-                        "   FROM\n" +
-                        "     (SELECT " + rangeString + ", SUM(cost) AS `impressions` FROM `Impressions` " + impressionsWhereClause + " GROUP BY " + rangeString + ") i_r\n" +
-                        "     JOIN\n" +
-                        "     (SELECT " + getRangeString("Clicks") + ", SUM(click_cost) AS `clicks` FROM `Clicks` LEFT JOIN `Impressions` ON `Impressions`.ID = `Clicks`.ID " + clickWhereClause + " GROUP BY " + getRangeString("Clicks") + ") c_r\n" +
-                        "      ON i_r.YEAR = c_r.YEAR AND i_r.MONTH = c_r.MONTH ";
-        if (range != RANGE.MONTH) {
-            q += "AND i_r.DAY = c_r.DAY\n";
-            if (range != RANGE.DAY) {
-                q += "AND i_r.HOUR = c_r.HOUR\n";
-            }
-        }
-        q +=
+        String q = "SELECT\n" +
+                "  " + getDateString("i") + ", (totalCost / NULLIF(COUNT(*)/1000, 0)) AS costPer1kImpressions\n" +
+                "FROM\n" +
+                "  `Impressions` `i`\n" +
+                "  JOIN\n" +
+                "  (\n" +
+                "    SELECT " + rangeString + ", SUM(cost)/100 AS totalCost\n" +
+                "    FROM `TotalCost`\n" +
+                "    " + whereClause + "\n" +
+                "    GROUP BY " + rangeString + "\n" +
                 "  ) c\n" +
-                "  ON i.YEAR = i.YEAR AND i.MONTH = c.MONTH";
+                "    ON `i`.`YEAR` = `i`.`YEAR` AND `i`.`MONTH` = `c`.`MONTH`\n";
         if (range != RANGE.MONTH) {
-            q += " AND i.DAY = c.DAY\n";
+            q += " AND `i`.`DAY` = `c`.`DAY`\n";
             if (range != RANGE.DAY) {
-                q += " AND i.HOUR = c.HOUR\n";
+                q += " AND `i`.`HOUR` = `c`.`HOUR`\n";
             }
         }
-        q += " GROUP BY" +
+        q += imprWhereClause +
+                " GROUP BY" +
                 " " + getRangeString("i");
         return q;
+    }
+
+    protected String bounceRateTimeQuery() {
+        return "";
+    }
+
+    protected String bounceRatePagesQuery() {
+        return "";
     }
 
     protected String getDateString(String table) {
