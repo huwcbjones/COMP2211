@@ -89,7 +89,7 @@ public class Query {
     }
 
     protected String clicksQuery() {
-        String whereClause = getWhereClause("Impressions");
+        String whereClause = getWhereClause("i");
         if (whereClause.length() != 0) whereClause = " WHERE " + whereClause;
         return
                 "SELECT " + getDateString("c") + ", COUNT(*) AS clicks" +
@@ -185,11 +185,15 @@ public class Query {
     }
 
     protected String costPerAcquisitionQuery() {
-        String whereClause = getWhereClause("s");
-        if (whereClause.length() != 0) whereClause = " AND " + whereClause;
-        String q = "SELECT " + getDateString("c") + ", (SUM(cost) / 100) / COUNT(*) AS costPerAcquisition\n" +
-                " FROM `TotalCost` c\n" +
-                " JOIN `Server` s\n" +
+        String whereClause = getWhereClause("c");
+        if (whereClause.length() != 0) whereClause = " WHERE " + whereClause;
+        String q = "SELECT " + getDateString("c") + ", cost / COUNT(*) AS costPerAcquisition\n" +
+                " FROM `Server` s\n" +
+                " JOIN (\n" +
+                " SELECT " + getRangeString("c") + ", SUM(cost)/100 as cost \n" +
+                " FROM `TotalCost` `c`\n" +
+                whereClause +
+                " GROUP BY " + getRangeString("c") + ") c\n" +
                 " ON `c`.`YEAR` = `s`.`YEAR` AND `c`.`MONTH` = `s`.`MONTH` ";
         if (range != RANGE.MONTH) {
             q += "AND s.DAY = c.DAY\n";
@@ -197,7 +201,7 @@ public class Query {
                 q += "AND s.HOUR = c.HOUR\n";
             }
         }
-        q += "WHERE s.`Conversion` = 1 " + whereClause +
+        q += "WHERE s.`Conversion` = 1" +
                 " GROUP BY " + getRangeString("c");
         return q;
     }

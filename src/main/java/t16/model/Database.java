@@ -133,7 +133,6 @@ public class Database {
             try (Statement createStmt = c.createStatement()) {
                 // Create temporary
                 createStmt.execute("CREATE TEMPORARY TABLE TotalCost(date TIMESTAMP, year INT, month TINYINT, day TINYINT, hour TINYINT, cost DECIMAL(10, 7), gender CHAR(6), age CHAR(5), income CHAR(6), context CHAR(12))");
-                createStmt.execute("CREATE INDEX cost_TotalCost_IND ON TotalCost(year, month, day, hour)");
                 createStmt.execute("CREATE INDEX date_TotalCost_IND ON TotalCost(year, month, day, hour)");
                 createStmt.execute(
                         "INSERT INTO TotalCost (date, year, month, day, hour, gender, age, income, context, cost)\n" +
