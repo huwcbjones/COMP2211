@@ -66,6 +66,7 @@ public class Query {
             case COST_PER_THOUSAND_IMPRESSIONS:
                 return costPer1kImpressionsQuery();
             case COST_PER_CLICK:
+                return costPerClick();
             case BOUNCE_RATE_PAGES:
             case BOUNCE_RATE_TIME:
                 throw new UnsupportedOperationException();
@@ -187,10 +188,10 @@ public class Query {
     protected String costPerAcquisitionQuery() {
         String whereClause = getWhereClause("c");
         if (whereClause.length() != 0) whereClause = " WHERE " + whereClause;
-        String q = "SELECT " + getDateString("c") + ", cost / COUNT(*) AS costPerAcquisition\n" +
+        String q = "SELECT " + getDateString("c") + ", cost / total AS costPerAcquisition\n" +
                 " FROM `Server` s\n" +
                 " JOIN (\n" +
-                " SELECT " + getRangeString("c") + ", SUM(cost)/100 as cost \n" +
+                " SELECT " + getRangeString("c") + ", SUM(cost)/100 as cost, SUM(total) as total \n" +
                 " FROM `TotalCost` `c`\n" +
                 whereClause +
                 " GROUP BY " + getRangeString("c") + ") c\n" +
@@ -207,18 +208,13 @@ public class Query {
     }
 
     protected String costPerClick() {
-        String q = "SELECT " + getDateString("s") + ", (SUM(cost) / 100) / COUNT(*) AS costPerClick\n" +
-                " FROM `Click` s\n" +
-                " JOIN `TotalCost` c\n" +
-                " ON s.YEAR = c.YEAR AND s.MONTH = c.MONTH ";
-        if (range != RANGE.MONTH) {
-            q += "AND s.DAY = c.DAY\n";
-            if (range != RANGE.DAY) {
-                q += "AND s.HOUR = c.HOUR\n";
-            }
-        }
-        q += " GROUP BY " + getRangeString("s");
-        return q;
+        String whereClause = getWhereClause("c");
+        if (whereClause.length() != 0) whereClause = " WHERE " + whereClause;
+        return "SELECT " + getDateString("c") + ", (SUM(cost) / 100) / SUM(total) AS costPerClick\n" +
+                " FROM `TotalCost` c\n" +
+                whereClause +
+                " GROUP BY " + getRangeString("c");
+        //return q;
     }
 
     protected String costPer1kImpressionsQuery() {
