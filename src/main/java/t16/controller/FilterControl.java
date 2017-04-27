@@ -45,8 +45,6 @@ public class FilterControl extends VBox {
     @FXML
     protected TabPane individualFiltersBox;
 
-    @FXML
-    protected Button newTabButton;
     //</editor-fold>
 
     private Query.TYPE lastQuery = null;

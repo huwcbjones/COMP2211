@@ -28,7 +28,7 @@
                 </StatsControl>
             </center>
             <bottom>
-                <MenuButton mnemonicParsing="false" text="Export Chart"  maxWidth="1.7976931348623157E308">
+                <MenuButton mnemonicParsing="false" text="Export Chart..."  maxWidth="1.7976931348623157E308">
                     <items>
                         <MenuItem mnemonicParsing="false" text="Save Image" fx:id="saveChart" />
                         <MenuItem mnemonicParsing="false" text="Print" fx:id="printChart"/>

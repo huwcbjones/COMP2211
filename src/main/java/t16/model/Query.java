@@ -154,7 +154,7 @@ public class Query {
      * Here a bounce is when less than 30 seconds are spent on the site
      */
     protected String bouncesQueryTime() {
-        String whereClause = getWhereClause("Server");
+        String whereClause = getWhereClause("i");
         if (whereClause.length() != 0) whereClause = " AND " + whereClause;
         return
                 "SELECT " + getDateString("s") + ", COUNT(*) AS bounces" +

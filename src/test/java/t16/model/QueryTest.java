@@ -140,6 +140,26 @@ public class QueryTest {
         log.info("** Test finished! **");
     }
 
+    @Test
+    public void bounceRateQueryPages() throws Exception {
+        log.info("** Testing Bounce Rate - Pages Viewed **");
+        Query q = new Query(Query.TYPE.BOUNCE_RATE_PAGES, Query.RANGE.HOUR);
+
+        genderTestQuery(q);
+
+        log.info("** Test finished! **");
+    }
+
+    @Test
+    public void bounceRateQueryTime() throws Exception {
+        log.info("** Testing Bounce Rate - Time Spent **");
+        Query q = new Query(Query.TYPE.BOUNCE_RATE_TIME, Query.RANGE.HOUR);
+
+        genderTestQuery(q);
+
+        log.info("** Test finished! **");
+    }
+
     public void timePeriodTestQuery(Query q) throws Exception {
         for (Query.RANGE r : Query.RANGE.values()) {
             try {
