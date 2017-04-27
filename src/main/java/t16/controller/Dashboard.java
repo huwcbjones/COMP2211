@@ -23,6 +23,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Dashboard Controller
@@ -158,63 +159,54 @@ public class Dashboard {
         if (t == null) return;
         displayLoading(true);
 
-        String title, xAxis, yAxis, series;
+        String title;
+        String xAxis;
+        String yAxis;
         xAxis = "Time";
         switch (t) {
             case IMPRESSIONS:
                 title = "Impressions per {}";
                 yAxis = "Impressions per {}";
-                series = "Impressions";
                 break;
             case CLICKS:
                 title = "Clicks per {}";
                 yAxis = "Clicks per {}";
-                series = "Clicks";
                 break;
             case UNIQUES:
                 title = "Unique Clicks per {}";
                 yAxis = "Unique Clicks per {}";
-                series = "Unique Clicks";
                 break;
             case BOUNCES:
                 title = "Bounces per {}";
                 yAxis = "Bounces per {}";
-                series = "Bounces";
                 break;
             case CONVERSIONS:
                 title = "Conversions per {}";
                 yAxis = "Conversions per {}";
-                series = "Conversions";
                 break;
             case TOTAL_COST:
                 title = "Total Cost per {}";
                 yAxis = "Total Cost per {}";
-                series = "Cost";
                 break;
             case COST_PER_ACQUISITION:
                 title = "Cost per Acquisition per {}";
                 yAxis = "Cost per Acquisition per {}";
-                series = "Cost per Acquisition";
                 break;
             case COST_PER_CLICK:
                 title = "Cost per Click per {}";
                 yAxis = "Cost per Click per {}";
-                series = "Cost per Click";
                 break;
             case COST_PER_THOUSAND_IMPRESSIONS:
                 title = "Cost per 1k Impressions per {}";
                 yAxis = "Cost per 1k Impressions per {}";
-                series = "Cost per 1k Impressions";
                 break;
             case CLICK_THROUGH_RATE:
                 title = "Click Through Rate per {}";
                 yAxis = "Click Through Rate per {}";
-                series = "Click Through Rate";
                 break;
             case BOUNCE_RATE:
                 title = "Bounce Rate per {}";
                 yAxis = "Bounce Rate per {}";
-                series = "Bounce Rate";
                 break;
             default:
                 log.warn("No handler for chart type {}", t.toString());
@@ -286,19 +278,14 @@ public class Dashboard {
                 long startTime = System.currentTimeMillis();
 
                 ArrayList<Task> taskList = new ArrayList<>();
-                CountDownLatch latch = new CountDownLatch(11);
 
+                //<editor-fold desc="Create tasks">
                 Task<Long> impressionsTask = new Task<Long>() {
                     @Override
                     protected Long call() throws Exception {
                         return AdDashboard.getDataController().getTotalImpressions();
                     }
                 };
-                impressionsTask.setOnSucceeded(event -> {
-                    statsPanel.setNumberImpressions((long) event.getSource().getValue());
-                    latch.countDown();
-                    log.info("Impressions loaded");
-                });
                 taskList.add(impressionsTask);
 
                 Task<Long> clicksTask = new Task<Long>() {
@@ -307,11 +294,6 @@ public class Dashboard {
                         return AdDashboard.getDataController().getTotalClicks();
                     }
                 };
-                clicksTask.setOnSucceeded(event -> {
-                    statsPanel.setNumberClicks((long) event.getSource().getValue());
-                    latch.countDown();
-                    log.info("Clicks loaded");
-                });
                 taskList.add(clicksTask);
 
                 Task<Long> uniquesTask = new Task<Long>() {
@@ -320,11 +302,6 @@ public class Dashboard {
                         return AdDashboard.getDataController().getTotalUniques();
                     }
                 };
-                uniquesTask.setOnSucceeded(event -> {
-                    statsPanel.setNumberUniques((long) event.getSource().getValue());
-                    latch.countDown();
-                    log.info("Uniques loaded");
-                });
                 taskList.add(uniquesTask);
 
                 Task<Long> conversionsTask = new Task<Long>() {
@@ -333,25 +310,23 @@ public class Dashboard {
                         return AdDashboard.getDataController().getTotalConversions();
                     }
                 };
-                conversionsTask.setOnSucceeded(event -> {
-                    statsPanel.setNumberConversions((long) event.getSource().getValue());
-                    latch.countDown();
-                    log.info("Conversions loaded");
-                });
                 taskList.add(conversionsTask);
 
-                Task<Long> bouncesTask = new Task<Long>() {
+                Task<Long> bouncesPagesTask = new Task<Long>() {
                     @Override
                     protected Long call() throws Exception {
                         return AdDashboard.getDataController().getTotalBouncesPages();
                     }
                 };
-                bouncesTask.setOnSucceeded(event -> {
-                    statsPanel.setNumberBounces((long) event.getSource().getValue());
-                    latch.countDown();
-                    log.info("Bounces loaded");
-                });
-                taskList.add(bouncesTask);
+                taskList.add(bouncesPagesTask);
+
+                Task<Long> bouncesTimeTask = new Task<Long>() {
+                    @Override
+                    protected Long call() throws Exception {
+                        return AdDashboard.getDataController().getTotalBouncesTime();
+                    }
+                };
+                taskList.add(bouncesTimeTask);
 
                 Task<BigDecimal> totalCostTask = new Task<BigDecimal>() {
                     @Override
@@ -359,11 +334,6 @@ public class Dashboard {
                         return AdDashboard.getDataController().getTotalCost();
                     }
                 };
-                totalCostTask.setOnSucceeded(event -> {
-                    statsPanel.setTotalCost((BigDecimal) event.getSource().getValue());
-                    latch.countDown();
-                    log.info("Total Cost loaded");
-                });
                 taskList.add(totalCostTask);
 
                 Task<BigDecimal> costPerClickTask = new Task<BigDecimal>() {
@@ -372,11 +342,6 @@ public class Dashboard {
                         return AdDashboard.getDataController().getCostPerClick();
                     }
                 };
-                costPerClickTask.setOnSucceeded(event -> {
-                    statsPanel.setCostPerClick((BigDecimal) event.getSource().getValue());
-                    latch.countDown();
-                    log.info("Cost per Click loaded");
-                });
                 taskList.add(costPerClickTask);
 
                 Task<BigDecimal> costPerAcquisitionTask = new Task<BigDecimal>() {
@@ -385,11 +350,6 @@ public class Dashboard {
                         return AdDashboard.getDataController().getCostPerAcquisition();
                     }
                 };
-                costPerAcquisitionTask.setOnSucceeded(event -> {
-                    statsPanel.setCostPerAcquisition((BigDecimal) event.getSource().getValue());
-                    latch.countDown();
-                    log.info("Cost per Acquisition loaded");
-                });
                 taskList.add(costPerAcquisitionTask);
 
                 Task<BigDecimal> costPer1kTask = new Task<BigDecimal>() {
@@ -398,11 +358,6 @@ public class Dashboard {
                         return AdDashboard.getDataController().getCostPer1kImpressions();
                     }
                 };
-                costPer1kTask.setOnSucceeded(event -> {
-                    statsPanel.setCostPer1kImpressions((BigDecimal) event.getSource().getValue());
-                    latch.countDown();
-                    log.info("Cost per 1k Impressions loaded");
-                });
                 taskList.add(costPer1kTask);
 
                 Task<Double> clickThruTask = new Task<Double>() {
@@ -411,29 +366,97 @@ public class Dashboard {
                         return AdDashboard.getDataController().getClickThroughRate();
                     }
                 };
+                taskList.add(clickThruTask);
+
+                Task<Double> bounceRatePagesTask = new Task<Double>() {
+                    @Override
+                    protected Double call() throws Exception {
+                        return AdDashboard.getDataController().getBounceRatePages();
+                    }
+                };
+                taskList.add(bounceRatePagesTask);
+
+                Task<Double> bounceRateTimeTask = new Task<Double>() {
+                    @Override
+                    protected Double call() throws Exception {
+                        return AdDashboard.getDataController().getBounceRateTime();
+                    }
+                };
+                taskList.add(bounceRateTimeTask);
+                //</editor-fold>
+
+                CountDownLatch latch = new CountDownLatch(taskList.size());
+
+                //<editor-fold desc="Add Success Handlers">
+                impressionsTask.setOnSucceeded(event -> {
+                    statsPanel.setNumberImpressions((long) event.getSource().getValue());
+                    latch.countDown();
+                    log.info("Impressions loaded");
+                });
+                clicksTask.setOnSucceeded(event -> {
+                    statsPanel.setNumberClicks((long) event.getSource().getValue());
+                    latch.countDown();
+                    log.info("Clicks loaded");
+                });
+                uniquesTask.setOnSucceeded(event -> {
+                    statsPanel.setNumberUniques((long) event.getSource().getValue());
+                    latch.countDown();
+                    log.info("Uniques loaded");
+                });
+                conversionsTask.setOnSucceeded(event -> {
+                    statsPanel.setNumberConversions((long) event.getSource().getValue());
+                    latch.countDown();
+                    log.info("Conversions loaded");
+                });
+                bouncesPagesTask.setOnSucceeded(event -> {
+                    statsPanel.setNumberPageBounces((long) event.getSource().getValue());
+                    latch.countDown();
+                    log.info("Page Bounces loaded");
+                });
+                bouncesTimeTask.setOnSucceeded(event -> {
+                    statsPanel.setNumberTimeBounces((long) event.getSource().getValue());
+                    latch.countDown();
+                    log.info("Time Bounces loaded");
+                });
+                totalCostTask.setOnSucceeded(event -> {
+                    statsPanel.setTotalCost((BigDecimal) event.getSource().getValue());
+                    latch.countDown();
+                    log.info("Total Cost loaded");
+                });
+                costPerClickTask.setOnSucceeded(event -> {
+                    statsPanel.setCostPerClick((BigDecimal) event.getSource().getValue());
+                    latch.countDown();
+                    log.info("Cost per Click loaded");
+                });
+                costPerAcquisitionTask.setOnSucceeded(event -> {
+                    statsPanel.setCostPerAcquisition((BigDecimal) event.getSource().getValue());
+                    latch.countDown();
+                    log.info("Cost per Acquisition loaded");
+                });
+                costPer1kTask.setOnSucceeded(event -> {
+                    statsPanel.setCostPer1kImpressions((BigDecimal) event.getSource().getValue());
+                    latch.countDown();
+                    log.info("Cost per 1k Impressions loaded");
+                });
                 clickThruTask.setOnSucceeded(event -> {
                     statsPanel.setClickThroughRate((double) event.getSource().getValue());
                     latch.countDown();
                     log.info("Click Through Rate loaded");
                 });
-                taskList.add(clickThruTask);
-
-                Task<Double> bounceRateTask = new Task<Double>() {
-                    @Override
-                    protected Double call() throws Exception {
-                        //return AdDashboard.getDataController().getBounceRate();
-                        return 0d;
-                    }
-                };
-                bounceRateTask.setOnSucceeded(event -> {
-                    statsPanel.setBounceRate((double) event.getSource().getValue());
+                bounceRatePagesTask.setOnSucceeded(event -> {
+                    statsPanel.setBounceRatePages((double) event.getSource().getValue());
                     latch.countDown();
-                    log.info("Bounce Rate loaded");
+                    log.info("Bounce Rate Pages loaded");
                 });
-                taskList.add(bounceRateTask);
+                bounceRateTimeTask.setOnSucceeded(event -> {
+                    statsPanel.setBounceRateTime((double) event.getSource().getValue());
+                    latch.countDown();
+                    log.info("Bounce Rate Time loaded");
+                });
+                //</editor-fold>
 
                 taskList.forEach(e -> AdDashboard.getWorkerPool().queueTask(e));
-                latch.await();
+                latch.await(30, TimeUnit.SECONDS);
                 return (System.currentTimeMillis() - startTime);
             }
         };

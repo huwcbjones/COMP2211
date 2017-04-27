@@ -3,8 +3,7 @@
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<fx:root xmlns:fx="http://javafx.com/fxml/1" type="VBox" BorderPane.alignment="CENTER"
-         xmlns="http://javafx.com/javafx/8.0.40">
+<fx:root type="VBox" BorderPane.alignment="CENTER" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1">
     <children>
         <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="Group by">
             <VBox.margin>
@@ -12,21 +11,19 @@
             </VBox.margin>
         </Label>
         <ToggleButton fx:id="hourlyButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Hours">
+            <VBox.margin>
+                <Insets top="3.0"/>
+            </VBox.margin>
             <toggleGroup>
                 <ToggleGroup fx:id="timeControls"/>
             </toggleGroup>
+        </ToggleButton>
+        <ToggleButton fx:id="dailyButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" selected="true" text="Days" toggleGroup="$timeControls">
             <VBox.margin>
                 <Insets top="3.0"/>
             </VBox.margin>
         </ToggleButton>
-        <ToggleButton fx:id="dailyButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Days" selected="true"
-                      toggleGroup="$timeControls">
-            <VBox.margin>
-                <Insets top="3.0"/>
-            </VBox.margin>
-        </ToggleButton>
-        <ToggleButton fx:id="monthlyButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Months"
-                      toggleGroup="$timeControls">
+        <ToggleButton fx:id="monthlyButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Months" toggleGroup="$timeControls">
             <VBox.margin>
                 <Insets top="3.0"/>
             </VBox.margin>
@@ -51,7 +48,7 @@
                 <Insets bottom="5.0"/>
             </VBox.margin>
         </DatePicker>
-        <TabPane fx:id="individualFiltersBox"  maxWidth="1.7976931348623157E308" prefWidth="150.0"/>
+        <TabPane fx:id="individualFiltersBox" maxWidth="1.7976931348623157E308" prefWidth="150.0"/>
     </children>
     <padding>
         <Insets left="5.0" right="5.0"/>

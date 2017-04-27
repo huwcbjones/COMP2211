@@ -34,6 +34,9 @@ public class FilterControl extends VBox {
     protected ToggleButton monthlyButton;
 
     @FXML
+    protected ToggleGroup timeControls;
+
+    @FXML
     protected DatePicker startDate;
 
     @FXML
@@ -72,6 +75,14 @@ public class FilterControl extends VBox {
         individualFiltersBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue == addTabTab) {
                 addNewTab();
+            }
+        });
+
+        // Prevent button from being unselected
+        // Instead, reselect button
+        timeControls.selectedToggleProperty().addListener((observable, oldValue, newValue) -> {
+            if(newValue == null){
+                timeControls.selectToggle(oldValue);
             }
         });
 

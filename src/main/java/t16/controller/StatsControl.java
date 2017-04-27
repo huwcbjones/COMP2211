@@ -37,49 +37,31 @@ public class StatsControl extends VBox {
 
     //<editor-fold desc="View Controls">
     @FXML
-    private Label impressionsLabel;
-    @FXML
     private Label numberImpressions;
-    @FXML
-    private Label clicksLabel;
     @FXML
     private Label numberClicks;
     @FXML
-    private Label uniquesLabel;
-    @FXML
     private Label numberUniques;
-    @FXML
-    private Label conversionsLabel;
     @FXML
     private Label numberConversions;
     @FXML
-    private Label bouncesLabel;
+    private Label numberPageBounces;
     @FXML
-    private Label numberBounces;
-    @FXML
-    private Label totalCostLabel;
+    private Label numberTimeBounces;
     @FXML
     private Label totalCost;
     @FXML
-    private Label costClickLabel;
-    @FXML
     private Label costPerClick;
-    @FXML
-    private Label costAquisitionLabel;
     @FXML
     private Label costPerAcquisition;
     @FXML
-    private Label cost1kImpressionLabel;
-    @FXML
     private Label costPer1kImpressions;
-    @FXML
-    private Label clickThruLabel;
     @FXML
     private Label clickThroughRate;
     @FXML
-    private Label bounceRateLabel;
+    private Label bounceRateTime;
     @FXML
-    private Label bounceRate;
+    private Label bounceRatePages;
     //</editor-fold>
 
     private HashMap<Label, Timeline> timelines = new HashMap<>();
@@ -118,9 +100,13 @@ public class StatsControl extends VBox {
         this.numberConversions.setText(nf.format(numberConversions));
     }
 
-    public void setNumberBounces(long numberBounces) {
-        stopLabel(this.numberBounces);
-        this.numberBounces.setText(nf.format(numberBounces));
+    public void setNumberPageBounces(long numberBounces) {
+        stopLabel(this.numberPageBounces);
+        this.numberPageBounces.setText(nf.format(numberBounces));
+    }
+    public void setNumberTimeBounces(long numberBounces) {
+        stopLabel(this.numberTimeBounces);
+        this.numberTimeBounces.setText(nf.format(numberBounces));
     }
 
     public void setTotalCost(BigDecimal totalCost) {
@@ -152,9 +138,13 @@ public class StatsControl extends VBox {
         this.clickThroughRate.setText(pf.format(clickThroughRate));
     }
 
-    public void setBounceRate(double bounceRate) {
-        stopLabel(this.bounceRate);
-        this.bounceRate.setText(pf.format(bounceRate));
+    public void setBounceRatePages(double bounceRate) {
+        stopLabel(this.bounceRatePages);
+        this.bounceRatePages.setText(pf.format(bounceRate));
+    }
+    public void setBounceRateTime(double bounceRate) {
+        stopLabel(this.bounceRateTime);
+        this.bounceRateTime.setText(pf.format(bounceRate));
     }
 
     protected void createTimeline() {
@@ -163,13 +153,15 @@ public class StatsControl extends VBox {
                 numberClicks,
                 numberUniques,
                 numberConversions,
-                numberBounces,
+                numberPageBounces,
+                numberTimeBounces,
                 totalCost,
                 costPerClick,
                 costPerAcquisition,
                 costPer1kImpressions,
                 clickThroughRate,
-                bounceRate
+                bounceRatePages,
+                bounceRateTime
         }));
 
         for (Label l : labels) {
