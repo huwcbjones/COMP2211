@@ -96,7 +96,7 @@ public class Query {
         return
                 "SELECT " + getDateString("c") + ", COUNT(*) AS clicks" +
                         " FROM `Clicks` `c` " +
-                        " LEFT JOIN `Impressions` `i` ON `i`.`ID`=`c`.`ID` AND `i`.`date` BETWEEN DATEADD('MINUTE', -10, `c`.`date`) AND DATEADD('MINUTE', 10, `c`.`date`)" +
+                        " LEFT JOIN `Impressions` `i` ON `i`.`ID`=`c`.`ID` AND `i`.`date` BETWEEN DATEADD('MINUTE', -10, `c`.`date`) AND `c`.`date`" +
                         whereClause +
                         " GROUP BY " + getRangeString("c") +
                         " ORDER BY " + getRangeString("c") + " ASC";
@@ -139,15 +139,15 @@ public class Query {
      * Here a bounce is when one page is viewed
      */
     protected String bouncesQueryPages() {
-        String whereClause = getWhereClause("Impressions");
+        String whereClause = getWhereClause("i");
         if (whereClause.length() != 0) whereClause = " AND " + whereClause;
         return
-                "SELECT " + getDateString("Server") + ", COUNT(*) AS bounces" +
-                        " FROM `Server` " +
-                        " LEFT JOIN `Impressions` ON `Impressions`.`ID`=`Server`.`ID`" +
-                        " WHERE `page_viewed`=1 " + whereClause +
-                        " GROUP BY " + getRangeString("Server") +
-                        " ORDER BY " + getRangeString("Server") + " ASC";
+                "SELECT " + getDateString("s") + ", COUNT(*) AS bounces" +
+                        " FROM `Server` `s` " +
+                        " LEFT JOIN `Impressions` `i` ON `i`.`ID`=`s`.`ID` AND `i`.`date` BETWEEN DATEADD('MINUTE', -10, `s`.`date`) AND `s`.`date`" +
+                        " WHERE `s`.`page_viewed`=1 " + whereClause +
+                        " GROUP BY " + getRangeString("s") +
+                        " ORDER BY " + getRangeString("s") + " ASC";
     }
 
     /**
@@ -157,12 +157,12 @@ public class Query {
         String whereClause = getWhereClause("Server");
         if (whereClause.length() != 0) whereClause = " AND " + whereClause;
         return
-                "SELECT " + getDateString("Server") + ", COUNT(*) AS bounces" +
-                        " FROM `Server` " +
-                        " LEFT JOIN `Impressions` ON `Impressions`.`ID`=`Server`.`ID`" +
-                        " WHERE TIMESTAMPDIFF(SECOND,`Server`.`date`,`exit_date`) < 30 " + whereClause +
-                        " GROUP BY " + getRangeString("Server") +
-                        " ORDER BY " + getRangeString("Server") + " ASC";
+                "SELECT " + getDateString("s") + ", COUNT(*) AS bounces" +
+                        " FROM `Server` `s` " +
+                        " LEFT JOIN `Impressions` `i` ON `i`.`ID`=`s`.`ID` AND `i`.`date` BETWEEN DATEADD('MINUTE', -10, `s`.`date`) AND `s`.`date`" +
+                        " WHERE TIMESTAMPDIFF(SECOND, `s`.`date`, `exit_date`) < 30 " + whereClause +
+                        " GROUP BY " + getRangeString("s") +
+                        " ORDER BY " + getRangeString("s") + " ASC";
     }
 
     protected String conversionsQuery() {
