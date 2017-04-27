@@ -54,17 +54,17 @@ public class DataControllerTest {
 
     @Test
     public void getTotalCost() throws Exception {
-        assertEquals(BigDecimal.valueOf(4.64972979),dataController.getTotalCost());
+        assertEquals(BigDecimal.valueOf(4.6494697),dataController.getTotalCost());
     }
 
     @Test
     public void getCostPerClick() throws Exception {
-        assertEquals(BigDecimal.valueOf(0.0464972979),dataController.getCostPerClick());
+        assertEquals(BigDecimal.valueOf(0.046494697),dataController.getCostPerClick());
     }
 
     @Test
     public void getCostPerAcquisition() throws Exception {
-        assertEquals(BigDecimal.valueOf(0.774954965),dataController.getCostPerAcquisition());
+        assertEquals(new BigDecimal("0.77491161666666666666666666666667"), dataController.getCostPerAcquisition());
     }
 
     @Test
