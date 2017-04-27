@@ -105,8 +105,12 @@ public class Importer {
             parseLatch.await();
         } catch (AbortableCountDownLatch.AbortedException e) {
             log.warn("Parsing aborted.");
+            stop();
+            throw new ImportException("Parsing aborted.");
         } catch (InterruptedException e) {
-            log.catching(e);
+            log.warn("Thread interrupted. Stopping!");
+            stop();
+            throw new ImportException("Campaign creation cancelled.");
         }
         if (this.exception != null) {
             log.error("Exception during parsing!");
@@ -121,8 +125,12 @@ public class Importer {
             importLatch.await();
         } catch (AbortableCountDownLatch.AbortedException e) {
             log.warn("Insertion aborted.");
+            stop();
+            throw new ImportException("Importing aborted.");
         } catch (InterruptedException e) {
-            log.catching(e);
+            log.warn("Thread interrupted. Stopping!");
+            stop();
+            throw new ImportException("Campaign creation cancelled.");
         }
         if (this.exception != null) {
             log.error("Exception during inserting!");

@@ -115,7 +115,11 @@ public class Database {
                     log.debug("Creating indexes for {}", t);
                     indexStmt.execute("CREATE INDEX ID_" + t + "_IND ON " + t + "(ID)");
                     indexStmt.execute("CREATE INDEX dateAggr_" + t + "_IND ON " + t + "(date)");
-                    indexStmt.execute("CREATE INDEX date_" + t + "_IND ON " + t + "(year, month, day, hour)");
+                    if(t.equals("Impressions")) {
+                        indexStmt.execute("CREATE INDEX date_" + t + "_IND ON " + t + "(year, month, day, hour, gender, age, income, context)");
+                    } else {
+                        indexStmt.execute("CREATE INDEX date_" + t + "_IND ON " + t + "(year, month, day, hour)");
+                    }
                 }
                 indexStmt.execute("CREATE INDEX conversion_IND ON `Server` (`conversion`)");
             }

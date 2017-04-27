@@ -32,8 +32,6 @@ public class NewCampaign {
     private ExtensionFilter CSVfilter = new ExtensionFilter("CSV Files (*.csv)", "*.csv");
     private ExtensionFilter ZIPfilter = new ExtensionFilter("ZIP File (*.zip)", "*.zip");
 
-    // TODO: Add zip option to GUI
-
     //<editor-fold desc="View Controls">
     @FXML
     private ToggleGroup creationMethodGroup;
@@ -76,6 +74,7 @@ public class NewCampaign {
     //</editor-fold>
 
     private List<Control> toggleControls = new ArrayList<>();
+    private Task<Campaign> createTask;
 
     @FXML
     public void initialize() {
@@ -158,18 +157,18 @@ public class NewCampaign {
         if (!(result.isPresent() && confirm.isAction(result.get()))) {
             return;
         }
-        if (!isCreatingCampaign) {
+        if (createTask == null || !createTask.isRunning()) {
             // Close window
             ((Stage) ((Control) event.getSource()).getScene().getWindow()).close();
         } else {
-            //TODO: Cancel campaign creation and cleanup
+            createTask.cancel(true);
+            stopWork();
         }
     }
 
     @FXML
     private void createButtonActive(ActionEvent event) throws IOException {
         doWork();
-        Task<Campaign> createTask;
         File databaseFile = new File(campaignSaveText.getText());
         if (isZipCreate) {
             File zipFile = new File(zipFileText.getText());

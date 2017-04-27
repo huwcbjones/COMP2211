@@ -279,7 +279,7 @@ public class Parser {
             }
 
             impressionLog.add(new ImpressionLog(t, ID, gender, age, income, context, cost));
-            if(impressionLog.size() % 10000 == 0) log.debug("Impression Parser: {} entries parsed.", impressionLog.size());
+            if(impressionLog.size() % 100000 == 0) log.debug("Impression Parser: {} entries parsed.", impressionLog.size());
         }
 
         br.close();

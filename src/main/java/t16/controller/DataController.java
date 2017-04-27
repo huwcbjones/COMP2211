@@ -178,6 +178,12 @@ public class DataController {
             throw new CampaignCreationException("Database failed to connect");
         }
 
+        if(Thread.interrupted()){
+            log.warn("Thread interrupted. Stopping!");
+            databaseFile.delete();
+            throw new CampaignCreationException("Campaign creation was cancelled.");
+        }
+
         try {
             database.createTables();
         } catch (SQLException e) {
@@ -189,6 +195,12 @@ public class DataController {
             databaseFile.delete();
             log.catching(e);
             throw new CampaignCreationException(e.getMessage(), e);
+        }
+
+        if(Thread.interrupted()){
+            log.warn("Thread interrupted. Stopping!");
+            databaseFile.delete();
+            throw new CampaignCreationException("Campaign creation was cancelled.");
         }
 
         try {
@@ -204,6 +216,12 @@ public class DataController {
             throw new CampaignCreationException(e.getMessage(), e);
         }
 
+        if(Thread.interrupted()){
+            log.warn("Thread interrupted. Stopping!");
+            databaseFile.delete();
+            throw new CampaignCreationException("Campaign creation was cancelled.");
+        }
+
         try {
             Importer importer = new Importer(clickFile, impressionFile, serverFile);
             importer.parseAndImport();
@@ -215,6 +233,12 @@ public class DataController {
             }
             databaseFile.delete();
             throw new CampaignCreationException(e.getMessage(), e);
+        }
+
+        if(Thread.interrupted()){
+            log.warn("Thread interrupted. Stopping!");
+            databaseFile.delete();
+            throw new CampaignCreationException("Campaign creation was cancelled.");
         }
 
         try {
@@ -288,6 +312,8 @@ public class DataController {
                         con.close();
                         throw e;
                     }
+
+                    if(Thread.interrupted()) return;
                 }
                 try {
                     insert.executeBatch();
@@ -314,6 +340,7 @@ public class DataController {
     public void insertImpressions(List<ImpressionLog> logList) throws SQLException {
         try (Connection con = database.getConnection()) {
             long startTime = System.currentTimeMillis();
+            long count = 0;
             con.setAutoCommit(false);
             try (PreparedStatement insert = con.prepareStatement("INSERT INTO `Impressions` VALUES (?, YEAR(?), MONTH(?), DAY_OF_MONTH(?), HOUR(?), ?, ?, ?, ?, ?, ?)")) {
                 for (ImpressionLog c : logList) {
@@ -334,15 +361,30 @@ public class DataController {
                         insert.setString(10, c.getContext().toString());
                         insert.setBigDecimal(11, c.getCost());
                         insert.addBatch();
+                        count++;
                     } catch (SQLException e) {
                         log.catching(e);
                         insert.close();
                         con.close();
                         throw e;
                     }
+                    if(Thread.interrupted()) return;
+                    if(count % 100000 == 0){
+                        try {
+                            insert.executeBatch();
+                        } catch (SQLException e){
+                            log.catching(e);
+                            insert.close();
+                            con.close();
+                            throw e;
+                        }
+                        log.info("[{}%] Inserted from {} to {}", String.format("%.2f", (count * 100d)/logList.size()), count - 100000 + 1, count);
+                    }
+                    if(Thread.interrupted()) return;
                 }
                 try {
                     insert.executeBatch();
+                    log.info("[{}%] Inserted from {} to {}", String.format("%.2f", 100d), (count % 100000), count);
                     con.setAutoCommit(true);
                     double time = (System.currentTimeMillis() - startTime) / 1000d;
 
@@ -390,6 +432,7 @@ public class DataController {
                         con.close();
                         throw e;
                     }
+                    if(Thread.interrupted()) return;
                 }
                 try {
                     insert.executeBatch();
