@@ -124,15 +124,15 @@ public class Query {
     }
 
     protected String uniquesQuery() {
-        String whereClause = getWhereClause("Impressions");
+        String whereClause = getWhereClause("i");
         if (whereClause.length() != 0) whereClause = " WHERE " + whereClause;
         return
-                "SELECT " + getDateString("Server") + ", COUNT(*) AS numberOfUniques" +
-                        " FROM `Server` " +
-                        " LEFT JOIN `Impressions` ON `Impressions`.`ID`=`Server`.`ID`" +
+                "SELECT " + getDateString("c") + ", COUNT(DISTINCT `c`.`ID`) AS uniques" +
+                        " FROM `Clicks` `c`" +
+                        " LEFT JOIN `Impressions` `i` ON `i`.`ID`=`c`.`ID` AND `i`.`date` BETWEEN DATEADD('MINUTE', -10, `c`.`date`) AND `c`.`date`" +
                         whereClause +
-                        " GROUP BY " + getRangeString("Server") +
-                        " ORDER BY " + getRangeString("Server") + " ASC";
+                        " GROUP BY " + getRangeString("c") +
+                        " ORDER BY " + getRangeString("c") + " ASC";
     }
 
     /**
@@ -166,15 +166,15 @@ public class Query {
     }
 
     protected String conversionsQuery() {
-        String whereClause = getWhereClause("Impressions");
+        String whereClause = getWhereClause("i");
         if (whereClause.length() != 0) whereClause = " AND " + whereClause;
         return
-                "SELECT " + getDateString("Server") + ", COUNT(*) AS conversions" +
-                        " FROM `Server` " +
-                        " LEFT JOIN `Impressions` ON `Impressions`.`ID`=`Server`.`ID`" +
+                "SELECT " + getDateString("s") + ", COUNT(*) AS conversions" +
+                        " FROM `Server` `s`" +
+                        " LEFT JOIN `Impressions` `i` ON `i`.`ID`=`s`.`ID` AND `i`.`date` BETWEEN DATEADD('MINUTE', -10, `s`.`date`) AND `s`.`date`" +
                         " WHERE `conversion`=1 " + whereClause +
-                        " GROUP BY " + getRangeString("Server") +
-                        " ORDER BY " + getRangeString("Server") + " ASC";
+                        " GROUP BY " + getRangeString("s") +
+                        " ORDER BY " + getRangeString("s") + " ASC";
     }
 
     protected String totalCostQuery() {
@@ -250,11 +250,25 @@ public class Query {
     }
 
     protected String bounceRateTimeQuery() {
-        return "";
+        return "SELECT `c`.`datestamp`, CAST(bounces as FLOAT)/clicks as bounceRate\n" +
+                " FROM (\n"+
+                clicksQuery() +
+                " ) `c` JOIN (\n" +
+                bouncesQueryTime() +
+                " ) `b`\n" +
+                " ON `c`.`datestamp` = `b`.`datestamp`\n" +
+                " ORDER BY `c`.`datestamp` ASC";
     }
 
     protected String bounceRatePagesQuery() {
-        return "";
+        return "SELECT `c`.`datestamp`, CAST(bounces as FLOAT)/clicks as bounceRate\n" +
+                " FROM (\n"+
+                clicksQuery() +
+                " ) `c` JOIN (\n" +
+                bouncesQueryPages() +
+                " ) `b`\n" +
+                " ON `c`.`datestamp` = `b`.`datestamp`\n" +
+                " ORDER BY `c`.`datestamp` ASC";
     }
 
     protected String getDateString(String table) {
@@ -277,7 +291,7 @@ public class Query {
         }
         c = t + "`YEAR`" + c;
         f = "YYYY" + f;
-        return "TO_TIMESTAMP(CONCAT(" + c + "), '" + f + "')";
+        return "TO_TIMESTAMP(CONCAT(" + c + "), '" + f + "') as datestamp";
     }
 
     protected String getDateString() {
