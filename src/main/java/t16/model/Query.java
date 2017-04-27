@@ -64,10 +64,13 @@ public class Query {
             case COST_PER_ACQUISITION:
                 return costPerAcquisitionQuery();
             case COST_PER_THOUSAND_IMPRESSIONS:
+                return costPer1kImpressionsQuery();
             case COST_PER_CLICK:
+                return costPerClick();
             case BOUNCE_RATE_PAGES:
+                return bounceRatePagesQuery();
             case BOUNCE_RATE_TIME:
-                throw new UnsupportedOperationException();
+                return bounceRateTimeQuery();
             case BOUNCES:
             case BOUNCE_RATE:
                 throw new IllegalStateException("Chart type not permitted.");
@@ -77,71 +80,35 @@ public class Query {
     }
 
     protected String impressionsQuery() {
-        if (!isComplicated()) {
-            String whereClause = getWhereClause();
-            if (whereClause.length() != 0) whereClause = " WHERE " + whereClause;
-
-            return
-                    "SELECT " + getDateString("Impressions") + ", COUNT(*) AS impressions" +
-                            " FROM `Impressions` " +
-                            whereClause +
-                            " GROUP BY " + getRangeString() +
-                            " ORDER BY " + getRangeString() + " ASC";
-        }
+        String whereClause = getWhereClause();
+        if (whereClause.length() != 0) whereClause = " WHERE " + whereClause;
         return
                 "SELECT " + getDateString("Impressions") + ", COUNT(*) AS impressions" +
                         " FROM `Impressions` " +
-                        " WHERE " + getWhereClause() +
+                        whereClause +
                         " GROUP BY " + getRangeString() +
                         " ORDER BY " + getRangeString() + " ASC";
     }
 
     protected String clicksQuery() {
-        if (!isComplicated()) {
-            String whereClause = getWhereClause();
-            if (whereClause.length() != 0) whereClause = " WHERE " + whereClause;
-            return
-                    "SELECT " + getDateString("Clicks") + ", COUNT(*) AS clicks" +
-                            " FROM `Clicks` " +
-                            whereClause +
-                            " GROUP BY " + getRangeString() +
-                            " ORDER BY " + getRangeString() + " ASC";
-        }
+        String whereClause = getWhereClause("i");
+        if (whereClause.length() != 0) whereClause = " WHERE " + whereClause;
         return
-                "SELECT " + getDateString("Clicks") + ", COUNT(*) AS clicks" +
-                        " FROM `Clicks` " +
-                        " LEFT JOIN `Impressions` ON `Impressions`.`ID`=`Clicks`.`ID` AND `Impressions`.`date` BETWEEN DATEADD('MINUTE', -5, `Clicks`.`date`) AND DATEADD('MINUTE', 5, `Clicks`.`date`)" +
-                        " WHERE " + getWhereClause("Impressions") +
-                        " GROUP BY " + getRangeString("Clicks") +
-                        " ORDER BY " + getRangeString("Clicks") + " ASC";
+                "SELECT " + getDateString("c") + ", COUNT(*) AS clicks" +
+                        " FROM `Clicks` `c` " +
+                        " LEFT JOIN `Impressions` `i` ON `i`.`ID`=`c`.`ID` AND `i`.`date` BETWEEN DATEADD('MINUTE', -10, `c`.`date`) AND DATEADD('MINUTE', 10, `c`.`date`)" +
+                        whereClause +
+                        " GROUP BY " + getRangeString("c") +
+                        " ORDER BY " + getRangeString("c") + " ASC";
     }
 
     protected String clickThroughQuery() {
-        if (!isComplicated()) {
-            String rangeString = getRangeString();
-            String whereClause = getWhereClause();
-            if (whereClause.length() != 0) whereClause = " WHERE " + whereClause;
-            String q =
-                    "SELECT " + getDateString("i_r") + ", CAST(clicks AS FLOAT)/CAST(impressions AS FLOAT) AS clickThrough FROM" +
-                            "  (SELECT " + rangeString + ", COUNT(*) AS `impressions` FROM `Impressions`" + whereClause + " GROUP BY " + rangeString + ") i_r" +
-                            "  LEFT JOIN" +
-                            "  (SELECT " + rangeString + ", COUNT(*) AS `clicks` FROM `Clicks` GROUP BY " + rangeString + ") c_r" +
-                            " ON i_r.YEAR = c_r.YEAR" +
-                            "    AND i_r.MONTH = c_r.MONTH";
-            if (range != RANGE.MONTH) {
-                q += " AND i_r.DAY = c_r.DAY";
-                if (range != RANGE.DAY) {
-                    q += " AND i_r.HOUR = c_r.HOUR";
-                }
-            }
-            return q;
-        }
-
         String rangeString = getRangeString();
         String whereClause = getWhereClause();
+        if (whereClause.length() != 0) whereClause = " WHERE " + whereClause;
         String q =
                 "SELECT " + getDateString("i_r") + ", CAST(clicks AS FLOAT)/CAST(impressions AS FLOAT) AS clickThrough FROM" +
-                        "  (SELECT " + rangeString + ", COUNT(*) AS `impressions` FROM `Impressions` WHERE " + whereClause + " GROUP BY " + rangeString + ") i_r" +
+                        "  (SELECT " + rangeString + ", COUNT(*) AS `impressions` FROM `Impressions` " + whereClause + " GROUP BY " + rangeString + ") i_r" +
                         "  LEFT JOIN" +
                         "  (SELECT " + rangeString + ", COUNT(*) AS `clicks` FROM `Clicks` GROUP BY " + rangeString + ") c_r" +
                         " ON i_r.YEAR = c_r.YEAR" +
@@ -157,21 +124,13 @@ public class Query {
     }
 
     protected String uniquesQuery() {
-        if (!isComplicated()) {
-            String whereClause = getWhereClause();
-            if (whereClause.length() != 0) whereClause = " WHERE " + whereClause;
-            return
-                    "SELECT " + getDateString("Server") + ", COUNT(*) AS numberOfUniques" +
-                            " FROM `Server` " +
-                            whereClause +
-                            " GROUP BY " + getRangeString() +
-                            " ORDER BY " + getRangeString() + " ASC";
-        }
+        String whereClause = getWhereClause("Impressions");
+        if (whereClause.length() != 0) whereClause = " WHERE " + whereClause;
         return
                 "SELECT " + getDateString("Server") + ", COUNT(*) AS numberOfUniques" +
                         " FROM `Server` " +
                         " LEFT JOIN `Impressions` ON `Impressions`.`ID`=`Server`.`ID`" +
-                        " WHERE " + getWhereClause("Impressions") +
+                        whereClause +
                         " GROUP BY " + getRangeString("Server") +
                         " ORDER BY " + getRangeString("Server") + " ASC";
     }
@@ -180,21 +139,13 @@ public class Query {
      * Here a bounce is when one page is viewed
      */
     protected String bouncesQueryPages() {
-        if (!isComplicated()) {
-            String whereClause = getWhereClause();
-            if (whereClause.length() != 0) whereClause = " AND " + whereClause;
-            return
-                    "SELECT " + getDateString() + ", COUNT(*) AS bounces" +
-                            " FROM `Server` " +
-                            " WHERE `page_viewed`=1 " + whereClause +
-                            " GROUP BY " + getRangeString() +
-                            " ORDER BY " + getRangeString() + " ASC";
-        }
+        String whereClause = getWhereClause("Impressions");
+        if (whereClause.length() != 0) whereClause = " AND " + whereClause;
         return
                 "SELECT " + getDateString("Server") + ", COUNT(*) AS bounces" +
                         " FROM `Server` " +
                         " LEFT JOIN `Impressions` ON `Impressions`.`ID`=`Server`.`ID`" +
-                        " WHERE `page_viewed`=1 AND " + getWhereClause("Impressions") +
+                        " WHERE `page_viewed`=1 " + whereClause +
                         " GROUP BY " + getRangeString("Server") +
                         " ORDER BY " + getRangeString("Server") + " ASC";
     }
@@ -203,172 +154,107 @@ public class Query {
      * Here a bounce is when less than 30 seconds are spent on the site
      */
     protected String bouncesQueryTime() {
-        if (!isComplicated()) {
-            String whereClause = getWhereClause();
-            if (whereClause.length() != 0) whereClause = " AND " + whereClause;
-            return
-                    "SELECT " + getDateString() + ", COUNT(*) AS bounces" +
-                            " FROM `Server` " +
-                            " WHERE TIMESTAMPDIFF(SECOND,`date`,`exit_date`) < 30 " + whereClause +
-                            " GROUP BY " + getRangeString() +
-                            " ORDER BY " + getRangeString() + " ASC";
-        }
+        String whereClause = getWhereClause("Server");
+        if (whereClause.length() != 0) whereClause = " AND " + whereClause;
         return
                 "SELECT " + getDateString("Server") + ", COUNT(*) AS bounces" +
                         " FROM `Server` " +
                         " LEFT JOIN `Impressions` ON `Impressions`.`ID`=`Server`.`ID`" +
-                        " WHERE TIMESTAMPDIFF(SECOND,`Server`.`date`,`exit_date`) < 30 AND " + getWhereClause("Server") +
+                        " WHERE TIMESTAMPDIFF(SECOND,`Server`.`date`,`exit_date`) < 30 " + whereClause +
                         " GROUP BY " + getRangeString("Server") +
                         " ORDER BY " + getRangeString("Server") + " ASC";
     }
 
     protected String conversionsQuery() {
-        if (!isComplicated()) {
-            String whereClause = getWhereClause();
-            if (whereClause.length() != 0) whereClause = " AND " + whereClause;
-            return
-                    "SELECT " + getDateString() + ", COUNT(*) AS conversions" +
-                            " FROM `Server` " +
-                            " WHERE `conversion`=1 " + whereClause +
-                            " GROUP BY " + getRangeString() +
-                            " ORDER BY " + getRangeString() + " ASC";
-        }
+        String whereClause = getWhereClause("Impressions");
+        if (whereClause.length() != 0) whereClause = " AND " + whereClause;
         return
                 "SELECT " + getDateString("Server") + ", COUNT(*) AS conversions" +
                         " FROM `Server` " +
                         " LEFT JOIN `Impressions` ON `Impressions`.`ID`=`Server`.`ID`" +
-                        " WHERE `conversion`=1 AND " + getWhereClause("Impressions") +
+                        " WHERE `conversion`=1 " + whereClause +
                         " GROUP BY " + getRangeString("Server") +
                         " ORDER BY " + getRangeString("Server") + " ASC";
     }
 
     protected String totalCostQuery() {
-        if (!isComplicated()) {
-            String rangeString = getRangeString();
-            String whereClause = getWhereClause();
-            String clickWhereClause = getWhereClause("Clicks");
-            if (clickWhereClause.length() != 0) clickWhereClause = " WHERE " + clickWhereClause;
-            if (whereClause.length() != 0) whereClause = " WHERE " + whereClause;
-            String q =
-                    "SELECT " + getDateString("i_r") + ", (clicks + impressions)/100 AS cost FROM" +
-                            "  (SELECT " + rangeString + ", SUM(cost) AS `impressions` FROM `Impressions` " + whereClause + " GROUP BY " + rangeString + ") i_r" +
-                            "  JOIN" +
-                            "  (SELECT " + rangeString + ", SUM(click_cost) AS `clicks` FROM `Clicks` " + clickWhereClause + " GROUP BY " + rangeString + ") c_r" +
-                            " ON i_r.YEAR = c_r.YEAR" +
-                            "    AND i_r.MONTH = c_r.MONTH";
-            if (range != RANGE.MONTH) {
-                q += " AND i_r.DAY = c_r.DAY";
-                if (range != RANGE.DAY) {
-                    q += " AND i_r.HOUR = c_r.HOUR";
-                }
-            }
-            return q;
-        }
-
-        String rangeString = getRangeString();
-        String whereClause = getWhereClause();
-        String q =
-                "SELECT " + getDateString("i_r") + ", (clicks + impressions)/100 AS cost FROM" +
-                        "  (SELECT " + rangeString + ", SUM(cost) AS `impressions` FROM `Impressions` WHERE " + whereClause + " GROUP BY " + rangeString + ") i_r" +
-                        "  JOIN" +
-                        "  (SELECT " + getRangeString("Clicks") + ", SUM(click_cost) AS `clicks` FROM `Clicks` LEFT JOIN `Impressions` ON `Impressions`.ID = `Clicks`.ID WHERE " + getWhereClause("Clicks") + " GROUP BY " + getRangeString("Clicks") + ") c_r\n" +
-                        " ON i_r.YEAR = c_r.YEAR" +
-                        " AND i_r.MONTH = c_r.MONTH";
-        if (range != RANGE.MONTH) {
-            q += " AND i_r.DAY = c_r.DAY";
-            if (range != RANGE.DAY) {
-                q += " AND i_r.HOUR = c_r.HOUR";
-            }
-        }
-
-        return q;
+        String whereClause = getWhereClause("TotalCost");
+        if (whereClause.length() != 0) whereClause = " WHERE " + whereClause;
+        return "SELECT " + getDateString("TotalCost") + ", SUM(cost)/100 AS cost FROM TotalCost" +
+                whereClause +
+                " GROUP BY " + getRangeString() +
+                " ORDER BY " + getRangeString() + " ASC";
     }
 
     protected String costPerAcquisitionQuery() {
-        if (!isComplicated()) {
-            String rangeString = getRangeString();
-            String impressionsWhereClause = getWhereClause();
-            String serverWhereClause = getWhereClause("Server");
-            String clickWhereClause = getWhereClause("Clicks");
-            if (impressionsWhereClause.length() != 0) impressionsWhereClause = " WHERE " + impressionsWhereClause;
-            if (clickWhereClause.length() != 0) clickWhereClause = " WHERE " + clickWhereClause;
-            if (serverWhereClause.length() != 0) serverWhereClause = " AND " + serverWhereClause;
-            String q =
-                    "SELECT\n" +
-                            "  " + getDateString("s") + ", cost / COUNT(*) AS costPerAcquisition\n" +
-                            "FROM\n" +
-                            "  (SELECT " + getRangeString("i_r") + ", (clicks + impressions) / 100 AS cost\n" +
-                            "   FROM\n" +
-                            "     (SELECT " + rangeString + ", SUM(cost) AS `impressions` FROM `Impressions` " + impressionsWhereClause + " GROUP BY " + rangeString + ") i_r\n" +
-                            "     JOIN\n" +
-                            "     (SELECT " + getRangeString("Clicks") + ", SUM(click_cost) AS `clicks` FROM `Clicks` LEFT JOIN `Impressions`ON `Impressions`.ID = `Clicks`.ID " + clickWhereClause + " GROUP BY " + getRangeString("Clicks") + ") c_r\n" +
-                            "      ON i_r.YEAR = c_r.YEAR AND i_r.MONTH = c_r.MONTH ";
-            if (range != RANGE.MONTH) {
-                q += "AND i_r.DAY = c_r.DAY\n";
-                if (range != RANGE.DAY) {
-                    q += "AND i_r.HOUR = c_r.HOUR\n";
-                }
-            }
-            q +=
-                    "  ) c\n" +
-                            "  JOIN\n" +
-                            "  (SELECT " + getRangeString("Server") + ", COUNT(*) FROM `Server`\n" +
-                            "    LEFT JOIN `Impressions`\n" +
-                            "    ON `Server`.`ID` = `Impressions`.`ID`\n" +
-                            "    WHERE `Conversion` = 1 " + serverWhereClause +
-                            "    GROUP BY " + getRangeString("Server") + "\n" +
-                            "  ) s\n" +
-                            "  ON s.YEAR = c.YEAR AND s.MONTH = c.MONTH";
-            if (range != RANGE.MONTH) {
-                q += " AND s.DAY = c.DAY\n";
-                if (range != RANGE.DAY) {
-                    q += " AND s.HOUR = c.HOUR\n";
-                }
-            }
-            q += " GROUP BY" +
-                    " " + getRangeString("s");
-            return q;
-        }
-        String rangeString = getRangeString();
-        String impressionsWhereClause = getWhereClause();
-        String serverWhereClause = getWhereClause("Server");
-        String clickWhereClause = getWhereClause("Clicks");
-        if (serverWhereClause.length() != 0) serverWhereClause = " AND " + serverWhereClause;
-        String q =
-                "SELECT\n" +
-                        "  " + getDateString("s") + ", cost / COUNT(*) AS costPerAcquisition\n" +
-                        "FROM\n" +
-                        "  (SELECT " + getRangeString("i_r") + ", (clicks + impressions) / 100 AS cost\n" +
-                        "   FROM\n" +
-                        "     (SELECT " + rangeString + ", SUM(cost) AS `impressions` FROM `Impressions` WHERE " + impressionsWhereClause + " GROUP BY " + rangeString + ") i_r\n" +
-                        "     JOIN\n" +
-                        "     (SELECT " + getRangeString("Clicks") + ", SUM(click_cost) AS `clicks` FROM `Clicks` LEFT JOIN `Impressions`ON `Impressions`.ID = `Clicks`.ID WHERE " + clickWhereClause + " GROUP BY " + getRangeString("Clicks") + ") c_r\n" +
-                        "      ON i_r.YEAR = c_r.YEAR AND i_r.MONTH = c_r.MONTH ";
+        String whereClause = getWhereClause("c");
+        if (whereClause.length() != 0) whereClause = " WHERE " + whereClause;
+        String q = "SELECT " + getDateString("c") + ", cost / total AS costPerAcquisition\n" +
+                " FROM `Server` s\n" +
+                " JOIN (\n" +
+                " SELECT " + getRangeString("c") + ", SUM(cost)/100 as cost, SUM(total) as total \n" +
+                " FROM `TotalCost` `c`\n" +
+                whereClause +
+                " GROUP BY " + getRangeString("c") + ") c\n" +
+                " ON `c`.`YEAR` = `s`.`YEAR` AND `c`.`MONTH` = `s`.`MONTH` ";
         if (range != RANGE.MONTH) {
-            q += "AND i_r.DAY = c_r.DAY\n";
+            q += "AND s.DAY = c.DAY\n";
             if (range != RANGE.DAY) {
-                q += "AND i_r.HOUR = c_r.HOUR\n";
+                q += "AND s.HOUR = c.HOUR\n";
             }
         }
-        q +=
-                "  ) c\n" +
-                        "  JOIN\n" +
-                        "  (SELECT " + getRangeString("Server") + ", COUNT(*) FROM `Server`\n" +
-                        "    LEFT JOIN `Impressions`\n" +
-                        "    ON `Server`.`ID` = `Impressions`.`ID`\n" +
-                        "    WHERE `Conversion` = 1 " + serverWhereClause +
-                        "    GROUP BY " + getRangeString("Server") + "\n" +
-                        "  ) s\n" +
-                        "  ON s.YEAR = c.YEAR AND s.MONTH = c.MONTH";
-        if (range != RANGE.MONTH) {
-            q += " AND s.DAY = c.DAY\n";
-            if (range != RANGE.DAY) {
-                q += " AND s.HOUR = c.HOUR\n";
-            }
-        }
-        q += " GROUP BY" +
-                " " + getRangeString("s");
+        q += "WHERE s.`Conversion` = 1" +
+                " GROUP BY " + getRangeString("c");
         return q;
+    }
+
+    protected String costPerClick() {
+        String whereClause = getWhereClause("c");
+        if (whereClause.length() != 0) whereClause = " WHERE " + whereClause;
+        return "SELECT " + getDateString("c") + ", (SUM(cost) / 100) / SUM(total) AS costPerClick\n" +
+                " FROM `TotalCost` c\n" +
+                whereClause +
+                " GROUP BY " + getRangeString("c");
+    }
+
+    protected String costPer1kImpressionsQuery() {
+        String rangeString = getRangeString();
+        String imprWhereClause = getWhereClause("i");
+        String whereClause = getWhereClause();
+
+        if (whereClause.length() != 0) whereClause = " WHERE " + whereClause;
+        if (imprWhereClause.length() != 0) imprWhereClause = " WHERE " + imprWhereClause;
+
+        String q = "SELECT\n" +
+                "  " + getDateString("i") + ", (totalCost / NULLIF(COUNT(*)/1000, 0)) AS costPer1kImpressions\n" +
+                "FROM\n" +
+                "  `Impressions` `i`\n" +
+                "  JOIN\n" +
+                "  (\n" +
+                "    SELECT " + rangeString + ", SUM(cost)/100 AS totalCost\n" +
+                "    FROM `TotalCost`\n" +
+                "    " + whereClause + "\n" +
+                "    GROUP BY " + rangeString + "\n" +
+                "  ) c\n" +
+                "    ON `i`.`YEAR` = `i`.`YEAR` AND `i`.`MONTH` = `c`.`MONTH`\n";
+        if (range != RANGE.MONTH) {
+            q += " AND `i`.`DAY` = `c`.`DAY`\n";
+            if (range != RANGE.DAY) {
+                q += " AND `i`.`HOUR` = `c`.`HOUR`\n";
+            }
+        }
+        q += imprWhereClause +
+                " GROUP BY" +
+                " " + getRangeString("i");
+        return q;
+    }
+
+    protected String bounceRateTimeQuery() {
+        return "";
+    }
+
+    protected String bounceRatePagesQuery() {
+        return "";
     }
 
     protected String getDateString(String table) {
@@ -477,6 +363,12 @@ public class Query {
         return t + "`YEAR`" + r;
     }
 
+    /**
+     * Converts AGE enum to the appropriate string for SQL queries
+     *
+     * @param age AGE enum
+     * @return String to use in SQL queries
+     */
     private String getAgeString(AGE age) {
         switch (age) {
             case ALL:
@@ -528,6 +420,11 @@ public class Query {
         this.context = context;
     }
 
+    /**
+     * Returns whether the values of this query should be treated as INTs, otherwise, treat as floats
+     *
+     * @return True if the result's are INTs
+     */
     public boolean isInt() {
         return type == TYPE.CLICKS
                 || type == TYPE.IMPRESSIONS
@@ -537,6 +434,11 @@ public class Query {
                 || type == TYPE.CONVERSIONS;
     }
 
+    /**
+     * Returns true if a complicated filter is applied
+     *
+     * @return
+     */
     public boolean isComplicated() {
         return gender != GENDER.ALL || income != INCOME.ALL || context != CONTEXT.ALL || age != AGE.ALL;
     }

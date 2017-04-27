@@ -297,6 +297,7 @@ public class Dashboard {
                 impressionsTask.setOnSucceeded(event -> {
                     statsPanel.setNumberImpressions((long) event.getSource().getValue());
                     latch.countDown();
+                    log.info("Impressions loaded");
                 });
                 taskList.add(impressionsTask);
 
@@ -309,6 +310,7 @@ public class Dashboard {
                 clicksTask.setOnSucceeded(event -> {
                     statsPanel.setNumberClicks((long) event.getSource().getValue());
                     latch.countDown();
+                    log.info("Clicks loaded");
                 });
                 taskList.add(clicksTask);
 
@@ -321,6 +323,7 @@ public class Dashboard {
                 uniquesTask.setOnSucceeded(event -> {
                     statsPanel.setNumberUniques((long) event.getSource().getValue());
                     latch.countDown();
+                    log.info("Uniques loaded");
                 });
                 taskList.add(uniquesTask);
 
@@ -333,6 +336,7 @@ public class Dashboard {
                 conversionsTask.setOnSucceeded(event -> {
                     statsPanel.setNumberConversions((long) event.getSource().getValue());
                     latch.countDown();
+                    log.info("Conversions loaded");
                 });
                 taskList.add(conversionsTask);
 
@@ -345,6 +349,7 @@ public class Dashboard {
                 bouncesTask.setOnSucceeded(event -> {
                     statsPanel.setNumberBounces((long) event.getSource().getValue());
                     latch.countDown();
+                    log.info("Bounces loaded");
                 });
                 taskList.add(bouncesTask);
 
@@ -357,6 +362,7 @@ public class Dashboard {
                 totalCostTask.setOnSucceeded(event -> {
                     statsPanel.setTotalCost((BigDecimal) event.getSource().getValue());
                     latch.countDown();
+                    log.info("Total Cost loaded");
                 });
                 taskList.add(totalCostTask);
 
@@ -369,6 +375,7 @@ public class Dashboard {
                 costPerClickTask.setOnSucceeded(event -> {
                     statsPanel.setCostPerClick((BigDecimal) event.getSource().getValue());
                     latch.countDown();
+                    log.info("Cost per Click loaded");
                 });
                 taskList.add(costPerClickTask);
 
@@ -381,6 +388,7 @@ public class Dashboard {
                 costPerAcquisitionTask.setOnSucceeded(event -> {
                     statsPanel.setCostPerAcquisition((BigDecimal) event.getSource().getValue());
                     latch.countDown();
+                    log.info("Cost per Acquisition loaded");
                 });
                 taskList.add(costPerAcquisitionTask);
 
@@ -393,6 +401,7 @@ public class Dashboard {
                 costPer1kTask.setOnSucceeded(event -> {
                     statsPanel.setCostPer1kImpressions((BigDecimal) event.getSource().getValue());
                     latch.countDown();
+                    log.info("Cost per 1k Impressions loaded");
                 });
                 taskList.add(costPer1kTask);
 
@@ -405,6 +414,7 @@ public class Dashboard {
                 clickThruTask.setOnSucceeded(event -> {
                     statsPanel.setClickThroughRate((double) event.getSource().getValue());
                     latch.countDown();
+                    log.info("Click Through Rate loaded");
                 });
                 taskList.add(clickThruTask);
 
@@ -418,6 +428,7 @@ public class Dashboard {
                 bounceRateTask.setOnSucceeded(event -> {
                     statsPanel.setBounceRate((double) event.getSource().getValue());
                     latch.countDown();
+                    log.info("Bounce Rate loaded");
                 });
                 taskList.add(bounceRateTask);
 

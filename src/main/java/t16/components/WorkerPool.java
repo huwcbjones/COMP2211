@@ -76,7 +76,7 @@ public final class WorkerPool {
      *
      * @param task Task to run
      */
-    public void queueTask(Callable task) {
+    public void queueTask(Callable<?> task) {
         if (this.workerPool.isShutdown()) {
             log.warn("Failed to queue task ({}). Worker Pool is shutting down...", task.toString());
             return;

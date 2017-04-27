@@ -159,6 +159,7 @@ public class DataController {
      * @throws CampaignCreationException Thrown if an error occurred whilst creating the campaign
      */
     public Campaign createCampaign(File clickFile, File impressionFile, File serverFile, File databaseFile) throws CampaignCreationException, CampaignLoadException {
+        databaseFile.delete();
         log.info("Connecting to database {}", databaseFile.getAbsolutePath());
         try {
             database.connect(databaseFile, false);
@@ -177,7 +178,6 @@ public class DataController {
             throw new CampaignCreationException("Database failed to connect");
         }
 
-        log.debug("Creating tables...");
         try {
             database.createTables();
         } catch (SQLException e) {
@@ -191,7 +191,6 @@ public class DataController {
             throw new CampaignCreationException(e.getMessage(), e);
         }
 
-        log.debug("Creating indexes...");
         try {
             database.createIndices();
         } catch (SQLException e) {
@@ -218,14 +217,26 @@ public class DataController {
             throw new CampaignCreationException(e.getMessage(), e);
         }
 
-        // TODO: Neaten up?
-        Campaign c = new Campaign(databaseFile.getName());
         try {
-            return setStats(c);
-        } catch (SQLException e) {
+            // Disconnect database and reconnect to force temp tables to be created
+            database.disconnect();
+            database.connect(databaseFile, false);
+        } catch (SQLException | DatabaseConnectionException e) {
+            try {
+                database.disconnect();
+            } catch (SQLException e1) {
+                log.catching(e1);
+            }
+            databaseFile.delete();
             log.catching(e);
-            throw new CampaignLoadException("Could not load stats.", e);
+            throw new CampaignCreationException(e.getMessage(), e);
         }
+        if (!database.isConnected()) {
+            databaseFile.delete();
+            throw new CampaignCreationException("Database failed to connect");
+        }
+
+        return new Campaign(databaseFile.getName());
     }
 
     /**
@@ -239,6 +250,7 @@ public class DataController {
             database.connect(databaseFile);
         } catch (DatabaseConnectionException e) {
             log.catching(e);
+            throw new CampaignLoadException(e.getMessage());
         }
         return new Campaign(databaseFile.getName());
     }
@@ -395,25 +407,6 @@ public class DataController {
         }
     }
     //</editor-fold>
-
-    private Campaign setStats(Campaign c) throws SQLException {
-        c.setNumberImpressions(getTotalImpressions());
-        c.setNumberClicks(getTotalClicks());
-        c.setNumberUniques(getTotalUniques());
-        c.setNumberConversions(getTotalConversions());
-        c.setNumberBouncesPages(getTotalBouncesPages());
-        c.setNumberBouncesTime(getTotalBouncesTime());
-
-        c.setTotalCost(getTotalCost());
-        c.setCostPerClick(getCostPerClick());
-        c.setCostPerAcquisition(getCostPerAcquisition());
-        c.setCostPer1kImpressions(getCostPer1kImpressions());
-
-        c.setBounceRatePages(getTotalBouncesPages());
-        c.setBounceRateTime(getTotalBouncesTime());
-        c.setClickThroughRate(getClickThroughRate());
-        return c;
-    }
 
     /**
      * Queries the database and returns the relevant result based on the Query object
