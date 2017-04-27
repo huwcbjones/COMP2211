@@ -2,15 +2,13 @@ package t16.model;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.EventHandler;
 import javafx.geometry.Pos;
-import javafx.scene.Cursor;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.util.Pair;
@@ -127,59 +125,51 @@ public class Chart {
             final Label numLabel = this.createLabel(valueString);
             final Label numDateLabel = this.createLabel("\t "+valueString+"\n"+date);
             this.selected = 0;
-            this.setOnMouseEntered(new EventHandler<MouseEvent>()
-            {
-                @Override
-                public void handle(MouseEvent mouseEvent)
+            this.setOnMouseEntered(mouseEvent -> {
+                if(selected == 0)
                 {
-                    if(selected == 0)
-                    {
-                        getChildren().setAll(numLabel);
-                        toFront();
-                    }
+                    getChildren().setAll(numLabel);
+                    toFront();
                 }
             });
 
-            this.setOnMouseExited(new EventHandler<MouseEvent>()
-            {
-                @Override
-                public void handle(MouseEvent mouseEvent)
+            this.setOnMouseExited(mouseEvent -> {
+                if(selected == 0)
                 {
-                    if(selected == 0)
-                    {
+                    getChildren().clear();
+                }
+            });
+
+            this.setOnMouseClicked(event -> {
+                if(event.getButton().equals(MouseButton.SECONDARY)) {
+                    if (selected == 0) {
+                        getChildren().setAll(numDateLabel);
+                        selected = 2;
+                    } else if (selected == 1) {
                         getChildren().clear();
-                    }
-                }
-            });
-
-            this.setOnMouseClicked(new EventHandler<MouseEvent>()
-            {
-                @Override
-                public void handle(MouseEvent event)
-                {
-                    if(selected == 0)
-                    {
+                        selected = 0;
+                    } else if (selected == 2) {
                         getChildren().setAll(numLabel);
                         selected = 1;
                     }
-                    else if(selected == 1)
-                    {
+                } else {
+                    if (selected == 0) {
+                        getChildren().setAll(numLabel);
+                        selected = 1;
+                    } else if (selected == 1) {
                         getChildren().setAll(numDateLabel);
                         selected = 2;
-                    }
-                    else if(selected == 2)
-                    {
+                    } else if (selected == 2) {
                         getChildren().clear();
                         selected = 0;
                     }
                 }
             });
         }
-
         private Label createLabel(String value) {
             final Label label = new Label(value);
             label.setAlignment(Pos.TOP_CENTER);
-            label.setStyle("-fx-font-size: 10; -fx-font-weight: bold;");
+            label.setStyle("-fx-font-size: 10; -fx-font-weight: bold; -fx-translate-y: -10");
             label.setTextFill(Color.DARKBLUE);
             label.setMinSize(Label.USE_PREF_SIZE, Label.USE_PREF_SIZE);
             return label;
