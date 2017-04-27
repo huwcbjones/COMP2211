@@ -54,12 +54,24 @@
             </VBox.margin>
         </Label>
 
-        <Label fx:id="bouncesLabel" maxWidth="1.7976931348623157E308" text="# Bounces" VBox.vgrow="ALWAYS">
+        <Label fx:id="bouncesPagesLabel" maxWidth="1.7976931348623157E308" text="# Bounces (Pages)" VBox.vgrow="ALWAYS">
             <VBox.margin>
                 <Insets bottom="5.0" left="10.0" top="10.0"/>
             </VBox.margin>
         </Label>
-        <Label fx:id="numberBounces" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="."
+        <Label fx:id="numberPageBounces" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="."
+               VBox.vgrow="ALWAYS">
+            <VBox.margin>
+                <Insets right="15.0"/>
+            </VBox.margin>
+        </Label>
+
+        <Label fx:id="bouncesTimeLabel" maxWidth="1.7976931348623157E308" text="# Bounces (Time)" VBox.vgrow="ALWAYS">
+            <VBox.margin>
+                <Insets bottom="5.0" left="10.0" top="10.0"/>
+            </VBox.margin>
+        </Label>
+        <Label fx:id="numberTimeBounces" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="."
                VBox.vgrow="ALWAYS">
             <VBox.margin>
                 <Insets right="15.0"/>
@@ -126,13 +138,23 @@
                 <Insets right="15.0"/>
             </VBox.margin>
         </Label>
-
-        <Label fx:id="bounceRateLabel" maxWidth="1.7976931348623157E308" text="Bounce %" VBox.vgrow="ALWAYS">
+        <Label fx:id="bounceRatePagesLabel" maxWidth="1.7976931348623157E308" text="Bounce % (Pages)" VBox.vgrow="ALWAYS">
             <VBox.margin>
                 <Insets bottom="5.0" left="10.0" top="10.0"/>
             </VBox.margin>
         </Label>
-        <Label fx:id="bounceRate" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="."
+        <Label fx:id="bounceRatePages" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="."
+               VBox.vgrow="ALWAYS">
+            <VBox.margin>
+                <Insets right="15.0"/>
+            </VBox.margin>
+        </Label>
+        <Label fx:id="bounceRateTimeLabel" maxWidth="1.7976931348623157E308" text="Bounce % (Time)" VBox.vgrow="ALWAYS">
+            <VBox.margin>
+                <Insets bottom="5.0" left="10.0" top="10.0"/>
+            </VBox.margin>
+        </Label>
+        <Label fx:id="bounceRateTime" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="."
                VBox.vgrow="ALWAYS">
             <VBox.margin>
                 <Insets right="15.0"/>

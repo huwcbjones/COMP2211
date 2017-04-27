@@ -114,6 +114,7 @@ public class Database {
                 for (String t : new String[]{"Clicks", "Impressions", "Server"}) {
                     log.debug("Creating indexes for {}", t);
                     indexStmt.execute("CREATE INDEX ID_" + t + "_IND ON " + t + "(ID)");
+                    indexStmt.execute("CREATE INDEX dateAggr_" + t + "_IND ON " + t + "(date)");
                     indexStmt.execute("CREATE INDEX date_" + t + "_IND ON " + t + "(year, month, day, hour)");
                 }
                 indexStmt.execute("CREATE INDEX conversion_IND ON `Server` (`conversion`)");
@@ -334,6 +335,43 @@ public class Database {
                     return set.getDouble("clickThrough");
                 }
                 return 0d;
+            }
+        }
+    }
+
+    /**
+     * Defines a bounce as only 1 page being viewed.
+     *
+     * @return the bounce rate that occurred during the campaign
+     * @throws SQLException if an error occurs during SQL execution
+     */
+    public double getBounceRatePages() throws SQLException {
+        try (Connection c = this.connectionPool.getConnection()) {
+            try (Statement s = c.createStatement()) {
+                try (ResultSet set = s.executeQuery("SELECT CAST(bounces as FLOAT)/ clicks as bounceRate FROM (SELECT COUNT(*) AS clicks FROM `Clicks`) JOIN (SELECT COUNT(*) AS bounces FROM `Server` WHERE `page_viewed` = 1)")) {
+                    while (set.next()) {
+                        return set.getDouble("bounceRate");
+                    }
+                    return 0;
+                }
+            }
+        }
+    }
+
+    /**
+     * Defines a bounce as less than thirty seconds being spent.
+     *
+     * @return the bounce rate that occurred during the campaign
+     * @throws SQLException if an error occurs during SQL execution
+     */
+    public double getBounceRateTime() throws SQLException {
+        try (Connection c = this.connectionPool.getConnection()) {
+            try (Statement s = c.createStatement()) {
+                ResultSet set = s.executeQuery("SELECT CAST(bounces as FLOAT)/ clicks as bounceRate FROM (SELECT COUNT(*) AS clicks FROM `Clicks`) JOIN (SELECT COUNT(*) AS bounces FROM `Server` WHERE TIMESTAMPDIFF(SECOND,`date`,`exit_date`) < 30)");
+                while (set.next()) {
+                    return set.getDouble("bounceRate");
+                }
+                return 0;
             }
         }
     }

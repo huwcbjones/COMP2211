@@ -503,4 +503,12 @@ public class DataController {
     public double getClickThroughRate() throws SQLException {
         return this.database.getClickThroughRate();
     }
+
+    public double getBounceRateTime() throws SQLException {
+        return this.database.getBounceRateTime();
+    }
+
+    public double getBounceRatePages() throws SQLException {
+        return this.database.getBounceRatePages();
+    }
 }

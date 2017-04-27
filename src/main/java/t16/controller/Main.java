@@ -152,7 +152,7 @@ public class Main {
             Dashboard controller = loader.getController();
             controller.setCampaign(campaign);
 
-            Scene scene = new Scene(parent, 1280, 720);
+            Scene scene = new Scene(parent, 1600, 800);
 
             Stage stage = new Stage();
             stage.setMinHeight(720);

@@ -6,7 +6,7 @@
 <?import javafx.scene.text.Font?>
 <?import t16.controller.FilterControl?>
 <?import t16.controller.StatsControl?>
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="700" minWidth="1200" prefHeight="720.0" prefWidth="1280.0"
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="780" minWidth="1200" prefHeight="800.0" prefWidth="1600.0"
             xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="t16.controller.Dashboard">
     <left>
         <BorderPane prefHeight="375.0" prefWidth="160.0" BorderPane.alignment="CENTER">
@@ -16,7 +16,7 @@
                         <Font size="18.0"/>
                     </font>
                     <BorderPane.margin>
-                        <Insets bottom="25.0" top="15.0"/>
+                        <Insets bottom="20.0" top="15.0"/>
                     </BorderPane.margin>
                 </Label>
             </top>
