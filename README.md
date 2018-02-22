@@ -3,7 +3,7 @@
 
 Link to spec: https://secure.ecs.soton.ac.uk/noteswiki/images/SEG_Ad_Auction_Dashboard_Definition_2015.pdf
 
-##Authors
+## Authors
 Team 16:
 * James	Curran, jc27g15
 * Charles Gandon, cg4g14
